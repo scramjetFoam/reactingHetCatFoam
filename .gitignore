@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Solver compilation files
+solver/Make/linux64GccDPInt32-spack
+linux64GccDPInt32Opt
