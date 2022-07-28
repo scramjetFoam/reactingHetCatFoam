@@ -128,9 +128,9 @@ forAll(specieNames,lstI)
 
     currSp.correctBoundaryConditions();
     
-    // forAll(currSp,cellI)
-    // { 
-    // //	 currSp[cellI] = min(max(currSp[cellI],0),1);                    //clip unreal molar fractions
-    //     currSp[cellI] = max(currSp[cellI],0); 
-    // }
+    forAll(currSp,cellI)
+    { 
+    //	 currSp[cellI] = min(max(currSp[cellI],0),1);                    //clip unreal molar fractions
+        currSp[cellI] = max(currSp[cellI],0); 
+    }
 }
