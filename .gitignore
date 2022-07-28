@@ -32,9 +32,10 @@
 *.app
 
 # Solver compilation files
-/solver/linux64GccDPInt32Opt
-/solver/Make/linux64GccDPInt32-spack
-/solver/Make/linux64GccDPInt32Opt
+/solverSIMPLE/linux64GccDPInt32Opt
+/solverSIMPLE/Make/linux64GccDPInt32-spack
+/solverSIMPLE/Make/linux64GccDPInt32Opt
 rhoSimpleFoam
 dynamicCode
 log.*
+*.OpenFOAM
