@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     thermDCRRhoPorousSimpleFOAM;
+application     reactingHetCatSimpleFoam;
 
 startFrom       startTime;
 
