@@ -25,7 +25,7 @@ Application
     diffReactConvSysThreeWayMacro
 
 Description
-    Non-isothermal solver for heterogeneously catalyzed reactive fluid flow
+    Steady-state non-isothermal solver for heterogeneously catalyzed reactive fluid flow
 
 \*---------------------------------------------------------------------------*/
 
