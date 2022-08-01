@@ -25,14 +25,7 @@ Application
     diffReactConvSysThreeWayMacro
 
 Description
-    Diffusion-reaction-convection solver for macro-scale model of a 
-    monolithic catalytic filter. Three way catalytic coating is assumed.
-    
-    Solver can process in-wall and on-wall coating separately with
-    different reaction constants (based on the volumetric fraction of 
-    catalytic coating in on-wall and in-wall layer)
-    
-    In-wall/on-wall regions are stored in different cellZones
+    Non-isothermal solver for heterogeneously catalyzed reactive fluid flow
 
 \*---------------------------------------------------------------------------*/
 
