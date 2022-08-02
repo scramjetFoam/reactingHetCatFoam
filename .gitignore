@@ -40,3 +40,5 @@ dynamicCode
 log.*
 *.OpenFOAM
 ZZ_cases
+
+*.pyc
