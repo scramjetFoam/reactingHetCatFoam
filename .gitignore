@@ -39,6 +39,8 @@ rhoSimpleFoam
 dynamicCode
 log.*
 *.OpenFOAM
-ZZ_cases
+ZZ_cases*
+
+*__pycache__
 
 *.pyc
