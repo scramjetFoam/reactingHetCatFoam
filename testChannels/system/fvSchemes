@@ -1,0 +1,278 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+ddtSchemes
+{
+    //~ default         Euler;
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(U)         cellLimited Gauss linear 0.5;
+}
+
+divSchemes
+{
+    default         none;
+    // puvodni div schemata
+    // div(phi,U)      bounded Gauss linearUpwindV grad(U);
+    // div(phi,K)      bounded Gauss limitedLinear 0.2;
+    // div(phi,h)      bounded Gauss limitedLinear 0.2;
+    // div(phi,k)      bounded Gauss upwind;
+    // div(phi,omega)  bounded Gauss upwind;
+    // div(phi,epsilon) bounded Gauss limitedLinear 0.2;
+    // div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    // div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    // div(phiRho,T)   bounded Gauss linearUpwind grad(T);
+    // div(phiRhoCp,T) bounded Gauss upwind;;
+    // div(phiRho,(0.5*magSqr(U)))   bounded Gauss upwind;
+    // div(phi,T)     bounded Gauss linearUpwind grad(T);
+    // div(phiRhoCp,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiRhoCp,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phiRhoCp,CO2)    bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiU,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiU,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phiU,CO2)    bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,NO)    bounded Gauss linearUpwind grad(NO);
+    //  div(phi,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phi,CO2)   bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,N2)    bounded Gauss linearUpwind grad(N2);
+    //  div(phi,N2O)   bounded Gauss linearUpwind grad(N2O);
+    // div(phiV,CO)    bounded Gauss linearUpwind grad(CO);
+    // div(phiV,NO)    bounded Gauss linearUpwind grad(NO);
+    // div(phiV,O2)    bounded Gauss linearUpwind grad(O2);
+    // div(phiV,CO2)   bounded Gauss linearUpwind grad(CO2);
+    // div(phiV,N2)    bounded Gauss linearUpwind grad(N2);
+    // div(phiV,N2O)   bounded Gauss linearUpwind grad(N2O);
+    
+
+    //nove
+    // div(phi,U)      bounded Gauss upwind;
+    // div(phi,U)      bounded Gauss SFCD;
+    // div(phi,U)      bounded Gauss QUICK;
+    div(phi,U)      bounded Gauss vanLeer;
+    // div(phi,U)      bounded Gauss UMIST;
+    // div(phi,U)      bounded Gauss linearUpwind grad(U);
+    //div(phi,U)      bounded Gauss linear;
+    // div(phi,U)      bounded Gauss SuperBee;
+    // div(phi,K)      bounded Gauss limitedLinear 0.2;
+    div(phi,K)      bounded Gauss linearUpwind grad(U);
+    div(phi,k)      bounded Gauss linearUpwind grad(U);
+    div(phi,omega)      bounded Gauss linearUpwind grad(U);
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    // div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    // div(phiRho,T)       bounded Gauss SuperBee;
+    // div(phiRhoCp,T)     bounded Gauss SuperBee;
+    // div(phiRho,T)       bounded Gauss SFCD;
+
+    // div(phiRhoCp,T)     bounded Gauss SFCD;
+    // div(phiRho,T)   bounded Gauss linearUpwind grad(T);
+    // div(phiRhoCp,T) bounded Gauss linearUpwind grad(T);
+    // div(phiRho,(0.5*magSqr(U)))   bounded Gauss SuperBee;
+    // div(phi,T)     bounded Gauss linearUpwind grad(T);
+    // div(phi,h)      bounded Gauss linearUpwind grad(T);
+    //  div(phi,CO)    bounded Gauss SFCD;
+    //  div(phiU,CO)    bounded Gauss SFCD;
+    //  div(phiU,O2)    bounded Gauss SFCD;
+    //  div(phiU,CO2)    bounded Gauss SFCD;
+    //  div(phi,O2)    bounded Gauss SFCD;
+    //  div(phi,CO2)   bounded Gauss SFCD;
+    // div(phiV,CO)    bounded Gauss SFCD;
+    // div(phiV,O2)    bounded Gauss SFCD;
+    // div(phiV,CO2)   bounded Gauss SFCD;
+    //      div(phi,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiU,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiU,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phiU,CO2)    bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phi,CO2)   bounded Gauss linearUpwind grad(CO2);
+    // div(phiV,CO)    bounded Gauss linearUpwind grad(CO);
+    // div(phiV,O2)    bounded Gauss linearUpwind grad(O2);
+    // div(phiV,CO2)   bounded Gauss linearUpwind grad(CO2);
+    div(phiRho,(0.5*magSqr(U)))   bounded Gauss linear;
+    // div(phiRho,T)                 bounded Gauss linear;
+    // div(phiRhoCp,T)               bounded Gauss linear;
+    // div(phi,CO)                   bounded Gauss linear;
+    //  div(phiU,CO)                 bounded Gauss linear;
+    //  div(phiU,O2)                 bounded Gauss linear;
+    //  div(phiU,CO2)                bounded Gauss linear;
+    //  div(phi,O2)                  bounded Gauss linear;
+    //  div(phi,CO2)                 bounded Gauss linear;
+    // div(phiV,CO)                  bounded Gauss linear;
+    // div(phiV,O2)                  bounded Gauss linear;
+    // div(phiV,CO2)                 bounded Gauss linear;
+    // div(phiRho,T)                 bounded Gauss SuperBee;
+    // div(phiRhoCp,T)               bounded Gauss SuperBee;
+    div(phiRho,T)                 bounded Gauss vanLeer;
+    div(phiRhoCp,T)               bounded Gauss vanLeer;
+    // div(phi,CO)                   bounded Gauss SuperBee;
+    //  div(phiU,CO)                 bounded Gauss SuperBee;
+    //  div(phiU,O2)                 bounded Gauss SuperBee;
+    //  div(phiU,CO2)                bounded Gauss SuperBee;
+    //  div(phi,O2)                  bounded Gauss SuperBee;
+    //  div(phi,CO2)                 bounded Gauss SuperBee;
+    // div(phiV,CO)                  bounded Gauss SuperBee;
+    // div(phiV,O2)                  bounded Gauss SuperBee;
+    // div(phiV,CO2)                 bounded Gauss SuperBee;
+    div(phi,CO)                   bounded Gauss vanLeer;
+     div(phiU,CO)                 bounded Gauss vanLeer;
+     div(phiU,O2)                 bounded Gauss vanLeer;
+     div(phiU,CO2)                bounded Gauss vanLeer;
+     div(phi,O2)                  bounded Gauss vanLeer;
+     div(phi,CO2)                 bounded Gauss vanLeer;
+    div(phiV,CO)                  bounded Gauss vanLeer;
+    div(phiV,O2)                  bounded Gauss vanLeer;
+    div(phiV,CO2)                 bounded Gauss vanLeer;
+
+        // div(phiV,CO2)                 bounded Gauss SuperBee;
+    //     div(phi,CO)                  bounded Gauss UMIST;
+    //     div(phiU,CO)                 bounded Gauss UMIST;
+    //     div(phiU,O2)                 bounded Gauss UMIST;
+    //     div(phiU,CO2)                bounded Gauss UMIST;
+    //     div(phi,O2)                  bounded Gauss UMIST;
+    //     div(phi,CO2)                 bounded Gauss UMIST;
+    //    div(phiV,CO)                  bounded Gauss UMIST;
+    //    div(phiV,O2)                  bounded Gauss UMIST;
+    //    div(phiV,CO2)                 bounded Gauss UMIST;
+
+
+    // div(phi,U)      bounded Gauss linearUpwind grad(U);
+    // // div(phi,K)      bounded Gauss limitedLinear 0.2;
+    // div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    // // div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    // div(phiRho,T)       bounded Gauss vanLeer;
+    // div(phiRhoCp,T)     bounded Gauss vanLeer;
+    // // div(phiRho,T)   bounded Gauss linearUpwind grad(T);
+    // // div(phiRhoCp,T) bounded Gauss linearUpwind grad(T);
+    // div(phiRho,(0.5*magSqr(U)))   bounded Gauss vanLeer;
+    // // div(phi,T)     bounded Gauss linearUpwind grad(T);
+    // // div(phi,h)      bounded Gauss linearUpwind grad(T);
+    //  div(phi,CO)    bounded Gauss vanLeer01;
+    //  div(phiU,CO)    bounded Gauss vanLeer01;
+    //  div(phiU,O2)    bounded Gauss vanLeer01;
+    //  div(phiU,CO2)    bounded Gauss vanLeer01;
+    //  div(phi,O2)    bounded Gauss vanLeer01;
+    //  div(phi,CO2)   bounded Gauss vanLeer01;
+    // div(phiV,CO)    bounded Gauss vanLeer01;
+    // div(phiV,O2)    bounded Gauss vanLeer01;
+    // div(phiV,CO2)   bounded Gauss vanLeer01;
+    //~ div((phi*Cp),T) bounded Gauss limitedLinear 0.2;	
+    //~ div(phi,(0.5*magSqr(U)))     bounded Gauss limitedLinear 0.2;
+    //~ div(phi,T)     bounded Gauss limitedLinear 0.2;
+    //~ div(phiRho,T) bounded Gauss linearUpwind grad(T);
+    //~ div((phiRhoCp),T) bounded Gauss linearUpwind grad(T);
+    //~ div(phiRho,(0.5*magSqr(U)))     bounded Gauss linearUpwind grad(T);
+    //~ div(phi,T)     bounded Gauss linearUpwind grad(T);
+    
+    // enthalpicke bilance, stare
+    //div(phiRho,T)   bounded Gauss upwind;
+    //div(phiRhoCp,T) bounded Gauss upwind;
+    //div(phiRho,(0.5*magSqr(U)))   bounded Gauss  upwind;
+    //div(phi,T)     bounded Gauss upwind;
+    //div(phiRho,h)  bounded Gauss upwind;
+    
+    //enthalpicke bilance, nove
+    // div(phiRho,T)   bounded Gauss linearUpwind grad(T);
+    // div(phiRhoCp,T) bounded Gauss linearUpwind grad(T);
+    // div(phiRhoCp,T) bounded Gauss upwind;;
+    // div(phiRho,(0.5*magSqr(U)))   bounded Gauss upwind;
+    // div(phi,T)     bounded Gauss linearUpwind grad(T);
+    //div(phiRho,h)  bounded Gauss linear;
+    
+    // puvodni 
+    // div(phiRhoCp,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiRhoCp,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phiRhoCp,CO2)    bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiU,CO)    bounded Gauss linearUpwind grad(CO);
+    //  div(phiU,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phiU,CO2)    bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,NO)    bounded Gauss linearUpwind grad(NO);
+    //  div(phi,O2)    bounded Gauss linearUpwind grad(O2);
+    //  div(phi,CO2)   bounded Gauss linearUpwind grad(CO2);
+    //  div(phi,N2)    bounded Gauss linearUpwind grad(N2);
+    //  div(phi,N2O)   bounded Gauss linearUpwind grad(N2O);
+    // div(phiV,CO)    bounded Gauss linearUpwind grad(CO);
+    // div(phiV,NO)    bounded Gauss linearUpwind grad(NO);
+    // div(phiV,O2)    bounded Gauss linearUpwind grad(O2);
+    // div(phiV,CO2)   bounded Gauss linearUpwind grad(CO2);
+    // div(phiV,N2)    bounded Gauss linearUpwind grad(N2);
+    // div(phiV,N2O)   bounded Gauss linearUpwind grad(N2O);
+
+     /*div(phiRhoCp,CO)    bounded Gauss upwind;
+     div(phiRhoCp,O2)    bounded Gauss upwind;
+     div(phiRhoCp,CO2)    bounded Gauss upwind;
+     div(phi,CO)    bounded Gauss upwind;
+     div(phiU,CO)    bounded Gauss upwind;
+     div(phi,NO)    bounded Gauss upwind;
+     div(phi,O2)    bounded Gauss upwind;
+     div(phi,CO2)   bounded Gauss upwind;
+     div(phi,N2)    bounded Gauss upwind;
+     div(phi,N2O)   bounded Gauss upwind;
+    div(phiV,CO)    bounded Gauss upwind;
+    div(phiV,NO)    bounded Gauss upwind;
+    div(phiV,O2)    bounded Gauss upwind;
+    div(phiV,CO2)   bounded Gauss upwind;
+    div(phiV,N2)    bounded Gauss upwind;
+    div(phiV,N2O)   bounded Gauss upwind;*/
+}
+
+laplacianSchemes
+{
+    default         Gauss linear limited corrected 0.2;
+//   default         Gauss linear uncorrected;
+ 
+//     laplacian(D,CO) Gauss linear limited corrected 0.7;
+
+//      laplacian(D,NO) Gauss linear limited corrected 0.7;
+//    laplacian(D,O2) Gauss linear limited corrected 0.7;
+//     laplacian(D,CO2) Gauss linear limited corrected 0.7;
+//     laplacian(D,N2) Gauss linear limited corrected 0.7;
+//     laplacian(D,N2O) Gauss linear limited corrected 0.7;
+}
+
+interpolationSchemes
+{
+    // default         linear;
+    default         none;
+    flux((rho*HbyA)) linear;
+    flux(HbyA) linear;
+    interpolate(rho) linear;
+}
+
+snGradSchemes
+{
+    default         limited corrected 0.2;
+}
+
+fluxRequired
+{
+    default         no;
+    p;
+}
+
+wallDist
+{
+    method          meshWave;
+    correctWalls    true;
+}
+
+// ************************************************************************* //
