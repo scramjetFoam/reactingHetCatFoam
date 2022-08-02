@@ -34,7 +34,6 @@ forAll(specieNames,countI)
 //       0 - zone is not active here
 
 PtrList<volScalarField> zoneLst(zoneNames.size());
-PtrList<volScalarField> TZoneLst(zoneNames.size());
 forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
@@ -56,25 +55,6 @@ forAll(zoneNames,countI)
             ),
             mesh,
             dimensionedScalar (currentZone,dimless,0.0)
-        )
-    );
-    Info<< "Creating temperature field for zones." << endl;
-
-    TZoneLst.set
-    (
-        countI,
-        new volScalarField
-        (
-            IOobject
-            (
-                currentZone,
-                runTime.timeName(),
-                mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedScalar (currentZone,dimTemperature,0.0)
         )
     );
 }
@@ -163,20 +143,20 @@ volScalarField dummyEEqn
     dimensionedScalar ("dummyEEqn",dimMass/dimLength*Foam::pow(dimTime,-2)/dimTemperature,1.0)
 );
 
-// -- T field from mesh
-// Info<< "Reading field T\n" << endl;
-// volScalarField T
-// (
-//     IOobject
-//     (
-//         "T",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::MUST_READ,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh
-// );
+// -- T field for porousMedia from mesh
+Info<< "Reading field TporMedia\n" << endl;
+volScalarField TporMedia
+(
+    IOobject
+    (
+        "TporMedia",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
 
 Info<< "Reading thermophysical properties\n" << endl;
 

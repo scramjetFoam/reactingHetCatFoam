@@ -5,6 +5,8 @@
     
   // -- calculate the thermal diffusivity of gas
   volScalarField kappa (kappaA+kappaB*T+kappaC*Foam::pow(T,2)+kappaD*Foam::pow(T,3));
+
+  // -- porous media thermal diffusivity
   volScalarField kappaEff
   (
     IOobject
@@ -13,28 +15,13 @@
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     mesh,
     dimensionedScalar("kappaEff",kappa.dimensions(),0.0)
   );
 
-  // -- efective kappa values, gas kappa in free channel, media kappa in zones
-  kappaEff += freeChannel*kappa;         
-  forAll(zoneLst,countI)
-  {
-    kappaEff += zoneLst[countI]*(kappaZ[countI]);
-  } 
-  
-  // -- calculate heat capacity of the gas (reference at the moment)
-  // NOTE: old, now using OpenFOAM thermo
-  // volScalarField Cp
-  // (
-  //   (ALst[ALst.size()-1] + BLst[BLst.size()-1] * T + CLst[CLst.size()-1] * Foam::pow(T,2) + DLst[DLst.size()-1] * Foam::pow(T,3)) / molMList[molMList.size()-1]
-  // );
-      
-  // NOTE: discuss how to treat CpEff and rhoEff (probably will be important for dynamics)
-  // -- calculate efective heat capacity 
+  // -- porous media heat capacity 
   volScalarField CpEff
   (
     IOobject
@@ -49,14 +36,7 @@
     dimensionedScalar("CpEff",thermo.Cp().dimensions(),0.0)
   );
 
-  // -- efective Cp values, gas kappa in free channel, media kappa in zones
-  CpEff += freeChannel*thermo.Cp();         
-  forAll(zoneLst,countI)
-  {
-    CpEff += zoneLst[countI]*(CpZ[countI]);
-  } 
-  
-  //efective rho
+  // -- porous media density 
   volScalarField rhoEff
   (
     IOobject
@@ -71,11 +51,39 @@
     dimensionedScalar("rhoEff",rho.dimensions(),0.0)
   );
 
-  rhoEff += freeChannel*thermo.rho();     
+  // -- heat transfer coefficient
+  volScalarField kHEff
+  (
+    IOobject
+    (
+        "kHEff",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("kHEff",(dimEnergy/dimTime/dimVolume/dimTemperature),0.0)
+  );
+
+  // -- efective kappa values, gas kappa in free channel, media kappa in zones
+  // kappaEff += freeChannel*kappa;         
   forAll(zoneLst,countI)
   {
+    kappaEff += zoneLst[countI]*(kappaZ[countI]);
+    CpEff += zoneLst[countI]*(CpZ[countI]);
     rhoEff += zoneLst[countI]*(rhoZ[countI]);
+    kHEff += zoneLst[countI]*(kH[countI]);
   } 
+  
+  // -- calculate heat capacity of the gas (reference at the moment)
+  // NOTE: old, now using OpenFOAM thermo
+  // volScalarField Cp
+  // (
+  //   (ALst[ALst.size()-1] + BLst[BLst.size()-1] * T + CLst[CLst.size()-1] * Foam::pow(T,2) + DLst[DLst.size()-1] * Foam::pow(T,3)) / molMList[molMList.size()-1]
+  // );
+      
+  // NOTE: discuss how to treat CpEff and rhoEff (probably will be important for dynamics)
 
   rhoEff.correctBoundaryConditions();
   kappaEff.correctBoundaryConditions();
@@ -94,19 +102,48 @@
   Info << "Min rhoEff: " << min(rhoEff).value() << ", max rhoEff: " << max(rhoEff).value() << "." << endl;
   Info << "Min CpEff: " << min(CpEff).value() << ", max CpEff: " << max(CpEff).value() << "." << endl;
   
-  // enthalpy balance
+  //enthalpy balance for porous media
+    fvScalarMatrix EEqnPM
+  (
+      CpEff*rhoEff*fvm::ddt(TporMedia) + fvm::Sp(fvc::ddt(thermo.Cp(),rho),TporMedia)
+      ==
+      fvm::laplacian(kappaEff, TporMedia)
+      + fvModels.source(dummyEEqn, TporMedia)
+
+      - fvm::Sp(kHEff,TporMedia)
+      + fvc::Sp(kHEff,T)
+      // - kHEff*(TporMedia-T)
+    //   fvm::ddt(rho, he) 
+    //   + fvm::div(phi, he)
+    //   // -dpdt
+    // ==
+    //   fvm::laplacian(kappaEff/thermo.Cp(), he)
+    //   + fvModels.source(rho, he)
+  );
+  EEqnPM.relax();
+
+  fvConstraints.constrain(EEqnPM);
+
+  EEqnPM.solve();
+
+  fvConstraints.constrain(TporMedia);
+
+  // enthalpy balance for gas
   fvScalarMatrix EEqn
   (
       // CpEff*fvm::ddt(rhoEff, T) +
       // thermo.Cp()*fvm::ddt(thermo.rho(), T) +
-      CpEff*rhoEff*fvm::ddt(T) + fvm::Sp(fvc::ddt(CpEff,rhoEff),T)+
+      // CpEff*rhoEff*fvm::ddt(T) + fvm::Sp(fvc::ddt(CpEff,rhoEff),T)+
+      thermo.Cp()*rho*fvm::ddt(T) + fvm::Sp(fvc::ddt(thermo.Cp(),rho),T)+
       // CpEff*fvm::ddt(rhoEff, T) +
       fvc::ddt(rho, K) + fvc::div(phi, K) +
       fvm::div(linearInterpolate(thermo.Cp())*phi, T)
       -dpdt
       ==
-      fvm::laplacian(kappaEff, T)
-      + fvModels.source(dummyEEqn, T)
+      fvm::laplacian(kappa, T)
+      // + fvModels.source(dummyEEqn, T)
+      - fvm::Sp(kHEff,T)
+      + fvc::Sp(kHEff,TporMedia)
 
     //   fvm::ddt(rho, he) 
     //   + fvm::div(phi, he)
@@ -127,7 +164,7 @@
   // fvConstraints.constrain(he);
 
   // thermo.he() = T * thermo.Cp();
-  thermo.he() = T * CpEff;
+  thermo.he() = T * thermo.Cp();
 
   thermo.correct();
 
