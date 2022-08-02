@@ -40,6 +40,7 @@ dynamicCode
 log.*
 *.OpenFOAM
 ZZ_cases*
+verChann
 
 *__pycache__
 
