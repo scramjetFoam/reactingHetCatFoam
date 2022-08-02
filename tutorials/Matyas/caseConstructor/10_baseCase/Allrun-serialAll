@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# source openfoam functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Clear old IC
+rm -rf 0
+
+# create base mesh
+runApplication blockMesh
+
+# run checkMesh
+# runApplication checkMesh -allGeometry -allTopology
+
+# copy IC
+mkdir -p 0
+cp -rf 0.org/* 0
+
+# create files for postprocessing
+paraFoam -touch
+
+# run potentialFoam
+# runApplication potentialFoam
+
+# get the solver application
+application=`getApplication`
+
+# run the solver
+runApplication $application
