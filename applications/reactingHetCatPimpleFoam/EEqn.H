@@ -18,7 +18,7 @@
         IOobject::AUTO_WRITE
     ),
     mesh,
-    dimensionedScalar("kappaEff",kappa.dimensions(),0.0)
+    dimensionedScalar("kappaEff",kappa.dimensions(),1e-16)
   );
 
   // -- porous media heat capacity 
