@@ -92,8 +92,8 @@ cellSize = [1.0e-3, 1.0e-3]
 # -- case run properties - of.sh file
 nCores      = 2
 startTime   = 0                                                         #simulation startTime
-endTime     = 10000
-wrInt       = 100                                                      #simulation write interval
+endTime     = 1
+wrInt       = 0.01                                                      #simulation write interval
 queName     = "Mshort"                                                   #que name for kraken
 wallTime    = "2-00:00:00"                                               #walltime in hours for kraken
 nameSpec    = "DIn"
