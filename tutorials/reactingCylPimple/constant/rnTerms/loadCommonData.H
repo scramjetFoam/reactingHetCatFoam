@@ -78,6 +78,7 @@ dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR);
 
 // -- load temperature and pressure fields
 const volScalarField& T = mesh().lookupObject<volScalarField>("T"); 
+const volScalarField& TporMedia = mesh().lookupObject<volScalarField>("TporMedia"); 
 const volScalarField& Trho = mesh().lookupObject<volScalarField>("thermo:rho"); 
 
 // -- calculate the total concentration

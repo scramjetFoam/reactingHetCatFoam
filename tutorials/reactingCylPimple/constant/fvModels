@@ -93,7 +93,8 @@ enthalpySourceINWALL
     name	        enthalpySourceINWALL;
     selectionMode   all;
 
-    field 		        "T";
+    field 		        "TporMedia";
+    // field 		        "T";
     
     codeInclude
     #{

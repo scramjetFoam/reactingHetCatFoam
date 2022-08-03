@@ -48,15 +48,22 @@ solvers
         relTol          0.05;
     }
 
-    "(T|TFinal)"
+    "(T|TFinal|TporMedia|TporMediaFinal)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-08;
+        tolerance       1e-09;
+        relTol          0.01;
+    }
+    "(TporMedia|TporMediaFinal)"
+    {   
+        solver          PBiCGStab;
+        preconditioner  DIC;
+        tolerance       1e-09;
         relTol          0.01;
     }
     
-    "(h|k|omega|epsilon)"
+    "(h|hFinal|k|omega|epsilon)"
     {
         solver          GAMG;
         tolerance       1e-8;
@@ -89,15 +96,30 @@ PIMPLE
     nConcCorrectors 2;              // n of concentration calculations for each specie
     nTempCorrectors 2;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
-    nOuterCorrectors 30;             // n of outerCorrectors for pimple (1 --> PISO)
+    nOuterCorrectors 500;             // n of outerCorrectors for pimple (1 --> PISO)
     consistent no;
     
-    residualControl
+    outerCorrectorResidualControl
     {
-        p           1e-4;
-        U           1e-4;
-        T           1e-4;
-        "(CO|NO|O2|N2O|CO2)"    1e-4;
+        // p           1e-4;
+        // U           1e-4;
+        // T           1e-4;
+        // "(CO|NO|O2|N2O|CO2)"    1e-4;
+        U
+        {
+                tolerance  1e-5;
+                relTol      0;
+        }
+        p
+        {
+                tolerance  5e-4;
+                relTol      0;
+        }
+        T 
+        {
+                tolerance  1e-8;
+                relTol      0;
+        }
     }
 }
 

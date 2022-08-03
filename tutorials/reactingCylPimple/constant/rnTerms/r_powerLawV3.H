@@ -53,8 +53,8 @@ forAll(nuLst,rnI)
             Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = "<< EA.value()<<", kin = "<<kin.value()<<" and Ein = "<< Ein.value()<<")." << endl;
                 
             // -- Arhenius law
-            volScalarField k(k0*Foam::exp(-EA/(univR*T)));
-            volScalarField Kin(kin*Foam::exp(Ein/(T)));
+            volScalarField k(k0*Foam::exp(-EA/(univR*max(TporMedia,T))));
+            volScalarField Kin(kin*Foam::exp(Ein/(max(TporMedia,T))));
 
             // -- load molar fraction fields
             const volScalarField& CO = mesh().lookupObject<volScalarField>("CO"); 

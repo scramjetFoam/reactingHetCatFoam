@@ -85,6 +85,8 @@ reactingCellZone
     Cp          Cp          [0 2 -2 -1 0 0 0]       962;                                    //specific heat of the substrate in Jkg-1K-1
     rho         rho         [1 -3 0 0 0 0 0]        1000.0;                                 //efective density in kgm-3 (assumed constant)
     coatFrac    coatFrac    [0 0 0 0 0 0 0]         1.0;                                    //coating fraction in zone
+   // kH    kH    [1 -1 -3 -1 0 0 0]         1000;                                          //heat transfer coefficient
+    kH    kH    [1 -1 -3 -1 0 0 0]         1;                                          //heat transfer coefficient
 }
 
 // -- general constants
