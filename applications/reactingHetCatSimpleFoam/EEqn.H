@@ -55,19 +55,19 @@
     // volScalarField K (0.5*magSqr(U));
     
     // -- heat flux surfaceField
-    surfaceScalarField phiRhoCpMy
-    (
-        IOobject
-        (
-            "phiRhoCp",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        // linearInterpolate(U*rho*Cp) & mesh.Sf()
-        linearInterpolate(U*thermo.rho()*thermo.Cp()) & mesh.Sf()
-    );
+    // surfaceScalarField phiRhoCpMy
+    // (
+    //     IOobject
+    //     (
+    //         "phiRhoCp",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    //     linearInterpolate(U*thermo.rho()*thermo.Cp()) & mesh.Sf()
+    // );
 
     // -- minimal and maximal values of calculated fields
     Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
@@ -77,7 +77,7 @@
     // enthalpy balance
     fvScalarMatrix EEqn
     (
-        fvm::div(phiRhoCpMy, T)
+        fvm::div(phi*linearInterpolate(thermo.Cp()), T)
         ==
         fvm::laplacian(kappaEff, T)
         // + fvOptions(dummyEEqn,T)
