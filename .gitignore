@@ -42,7 +42,7 @@ log.*
 ZZ_cases*
 myStf
 
-tutorials/untested/reactingRect*
+untestedTutorials/reactingRect*
 
 *__pycache__
 
