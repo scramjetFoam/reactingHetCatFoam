@@ -18,7 +18,7 @@
         IOobject::AUTO_WRITE
     ),
     mesh,
-    dimensionedScalar("kappaEff",kappa.dimensions(),1e-16)
+    dimensionedScalar("kappaEff",kappa.dimensions(),1e-50)
   );
 
   // -- porous media heat capacity 
@@ -105,13 +105,14 @@
   //enthalpy balance for porous media
     fvScalarMatrix EEqnPM
   (
-      CpEff*rhoEff*fvm::ddt(TporMedia) + fvm::Sp(fvc::ddt(thermo.Cp(),rho),TporMedia)
+      CpEff*rhoEff*fvm::ddt(TporMedia)
       ==
-      fvm::laplacian(kappaEff, TporMedia)
+      sumZones*fvm::laplacian(kappaEff, TporMedia)
       + fvModels.source(dummyEEqn, TporMedia)
 
-      - fvm::Sp(kHEff,TporMedia)
-      + fvc::Sp(kHEff,T)
+      // - sumZones*fvm::Sp(kHEff,T)
+      + sumZones*fvc::Sp(kHEff,T)
+      - sumZones*fvm::Sp(kHEff,TporMedia)
       // - kHEff*(TporMedia-T)
     //   fvm::ddt(rho, he) 
     //   + fvm::div(phi, he)
@@ -128,6 +129,9 @@
 
   fvConstraints.constrain(TporMedia);
 
+
+  Info << "Solving temperature of gas" << endl;
+
   // enthalpy balance for gas
   fvScalarMatrix EEqn
   (
@@ -142,8 +146,9 @@
       ==
       fvm::laplacian(kappa, T)
       // + fvModels.source(dummyEEqn, T)
-      - fvm::Sp(kHEff,T)
-      + fvc::Sp(kHEff,TporMedia)
+      - sumZones*fvm::Sp(kHEff,T)
+      + sumZones*fvc::Sp(kHEff,TporMedia)
+      // + sumZones*kHEff*TporMedia
 
     //   fvm::ddt(rho, he) 
     //   + fvm::div(phi, he)
@@ -167,6 +172,7 @@
   thermo.he() = T * thermo.Cp();
 
   thermo.correct();
+  Info << "Min (TporMedia): " << min(TporMedia).value() << ", max (TporMedia): " << max(TporMedia).value() << "." << endl;
 
   Info << "Min (thermo.T): " << min(thermo.T()).value() << ", max (thermo.T): " << max(thermo.T()).value() << "." << endl;
   
