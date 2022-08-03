@@ -18,7 +18,7 @@
         IOobject::AUTO_WRITE
     ),
     mesh,
-    dimensionedScalar("kappaEff",kappa.dimensions(),1e-50)
+    dimensionedScalar("kappaEff",kappa.dimensions(),0.0)
   );
 
   // -- porous media heat capacity 
@@ -88,6 +88,7 @@
   rhoEff.correctBoundaryConditions();
   kappaEff.correctBoundaryConditions();
   CpEff.correctBoundaryConditions();
+  kHEff.correctBoundaryConditions();
   
   // dissipation rate  -- not used at the moment (neglectable)
   // volScalarField K (0.5*magSqr(U));
@@ -105,10 +106,13 @@
   //enthalpy balance for porous media
     fvScalarMatrix EEqnPM
   (
-      CpEff*rhoEff*fvm::ddt(TporMedia)
+      CpEff*fvm::ddt(rhoEff,TporMedia)
       ==
-      sumZones*fvm::laplacian(kappaEff, TporMedia)
-      + fvModels.source(dummyEEqn, TporMedia)
+      //-- ensure zero gradient on the porous media
+      sumZones*fvm::laplacian(kappaEff, TporMedia) +
+      - freeChannel*fvm::laplacian(kappaEff, TporMedia) +
+      //-- heat source 
+       sumZones*fvModels.source(dummyEEqn, TporMedia)
 
       // - sumZones*fvm::Sp(kHEff,T)
       + sumZones*fvc::Sp(kHEff,T)
@@ -126,6 +130,8 @@
   fvConstraints.constrain(EEqnPM);
 
   EEqnPM.solve();
+
+  // TporMedia = sumZones*TporMedia;
 
   fvConstraints.constrain(TporMedia);
 
