@@ -41,6 +41,9 @@ log.*
 *.OpenFOAM
 ZZ_cases*
 verChann
+myStf
+
+tutorials/untested/*
 
 *__pycache__
 
