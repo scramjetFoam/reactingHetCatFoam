@@ -94,6 +94,75 @@ forAll(zoneLst,countI)
 }
 volScalarField freeChannel = dimensionedScalar("jedna",dimless,1.0)-sumZones;
 
+// -- porous media thermal diffusivity
+volScalarField kappaEff
+(
+IOobject
+(
+    "kappaEff",
+    runTime.timeName(),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::AUTO_WRITE
+),
+mesh,
+dimensionedScalar("kappaEff",kappaA.dimensions(),0.0)
+);
+
+// -- porous media heat capacity 
+volScalarField CpEff
+(
+IOobject
+(
+    "CpEff",
+    runTime.timeName(),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+),
+mesh,
+dimensionedScalar("CpEff",dimEnergy/dimMass/dimTemperature,0.0)
+);
+
+// -- porous media density 
+volScalarField rhoEff
+(
+IOobject
+(
+    "rhoEff",
+    runTime.timeName(),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+),
+mesh,
+dimensionedScalar("rhoEff",dimMass/dimVolume,0.0)
+);
+
+// -- heat transfer coefficient
+volScalarField kHEff
+(
+IOobject
+(
+    "kHEff",
+    runTime.timeName(),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+),
+mesh,
+dimensionedScalar("kHEff",(dimEnergy/dimTime/dimVolume/dimTemperature),0.0)
+);
+
+// -- efective kappa values, gas kappa in free channel, media kappa in zones
+// kappaEff += freeChannel*kappa;         
+forAll(zoneLst,countI)
+{
+kappaEff += zoneLst[countI]*(kappaZ[countI]);
+CpEff += zoneLst[countI]*(CpZ[countI]);
+rhoEff += zoneLst[countI]*(rhoZ[countI]);
+kHEff += zoneLst[countI]*(kH[countI]);
+} 
 
 // -- reading field U
 Info<< "Reading field U\n" << endl;
