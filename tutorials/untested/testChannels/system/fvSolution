@@ -1,0 +1,121 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "(p|Phi)"
+    {
+        solver          PCG;
+        preconditioner
+        {
+            preconditioner  GAMG;
+            tolerance       1e-07;
+            relTol          0.05;
+            smoother        symGaussSeidel;
+            nPreSweeps      0;
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 400;
+            agglomerator    faceAreaPair;
+            processorAgglomerator   procFaces;
+            nAgglomeratingCells     10;
+            mergeLevels             1;
+        }
+        tolerance       1e-08;
+        relTol          0.01;
+    }
+
+    "(U)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+
+    "T"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-08;
+        relTol          0.01;
+    }
+    
+    "(h|k|omega|epsilon)"
+    {
+        solver          GAMG;
+        tolerance       1e-8;
+        relTol          0.05;
+        smoother        GaussSeidel;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration      on;
+        nCellsInCoarsestLevel   400;
+        agglomerator            faceAreaPair;
+        processorAgglomerator   procFaces;
+        nAgglomeratingCells     400;
+        mergeLevels             1;
+    }
+    
+    "(CO|O2|CO2|N2O|N2|NO)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-08;
+        relTol          0.01;
+    }  
+
+}
+
+SIMPLE
+{
+    nUCorrectors 1;                 // n of velocity predictions
+    nConcCorrectors 5;              // n of concentration calculations for each specie
+    nTempCorrectors 30;	            // n of temperature corrections 
+    nNonOrthogonalCorrectors 3;     // n of presure corrections
+
+    consistent yes;
+    
+    residualControl
+    {
+        p           2e-6;
+        U           1e-5;
+        T           1e-6;
+        "(CO|NO|O2|N2O|CO2)"    1e-5;
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p           0.05;
+        U           0.1;
+        // T           0.5;
+        // "(CO|O2|CO2)" 	 0.0001;
+    }
+    equations
+    {
+        "(p|U)" 0.95;
+        "(U)" 0.93;
+        "(T)" 0.99;
+        "(CO|O2|CO2)" 	 0.99;
+    }
+}
+// ************************************************************************* //
