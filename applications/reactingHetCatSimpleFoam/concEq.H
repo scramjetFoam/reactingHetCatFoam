@@ -91,28 +91,28 @@ forAll(specieNames,lstI)
 
 
     // -- calculate convective molar flux at the face 
-    surfaceScalarField phiUCTot
-    (
-        IOobject
-        (
-            "phiU",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        linearInterpolate(U*cTot) & mesh.Sf()
-    );
+    // surfaceScalarField phiUCTot
+    // (
+    //     IOobject
+    //     (
+    //         "phiU",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     linearInterpolate(U*cTot) & mesh.Sf()
+    // );
     
 
     // -- balance of the specie
     fvScalarMatrix concEq
     (
         // fvm::ddt(cTot,currSp)                                               
-        fvm::div(phiUCTot, currSp)
+        fvm::div(phi/molMList[molMList.size()-1], currSp)
         ==
         fvm::laplacian(DEff*cTot, currSp)                              
-        +fvc::laplacian(DEff*currSp, cTot)       
+        + fvc::laplacian(DEff*currSp, cTot)       
         // + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvOptions, linearized -- part implicit, part explicit
         + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvModels, linearized -- part implicit, part explicit
     );
