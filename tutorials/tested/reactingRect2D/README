@@ -17,3 +17,7 @@ Includes:
     
     reactingRect2D_Pimple
         -- dynamic version of the reactingRect2D_SimplePMT
+
+    VISUALISATION:
+        vizReactRect.pvsm 
+            -- vizualize difference between two simulations of the reacting rectangle
