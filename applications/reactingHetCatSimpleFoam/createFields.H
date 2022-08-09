@@ -159,34 +159,21 @@ volScalarField dummyEEqn
 );
 
 // -- T field from mesh
-Info<< "Reading field T\n" << endl;
-volScalarField T
-(
-    IOobject
-    (
-        "T",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+// Info<< "Reading field T\n" << endl;
+// volScalarField T
+// (
+//     IOobject
+//     (
+//         "T",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
 
 //-- surface field for kappaG interpolation
-surfaceScalarField MGradT
-(
-    IOobject
-    (
-        "MGradT",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    // linearInterpolate(U*rho*Cp) & mesh.Sf()
-    fvc::snGrad(T)
-);
 
 Info<< "Reading thermophysical properties\n" << endl;
 
@@ -240,6 +227,20 @@ autoPtr<compressible::momentumTransportModel> turbulence
     )
 );
 
+//-- surface field for kappaG interpolation
+surfaceScalarField MGradT
+(
+    IOobject
+    (
+        "MGradT",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    fvc::snGrad(thermo.T())
+);
 
 Info<< "Creating thermophysical transport model\n" << endl;
 autoPtr<fluidThermophysicalTransportModel> thermophysicalTransport

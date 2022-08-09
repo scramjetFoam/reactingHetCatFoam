@@ -1,6 +1,7 @@
 {
     // -- temperature of the gas
     volScalarField& T = thermo.T();
+    MGradT = fvc::snGrad(thermo.T());
 
     // -- enthalpy balance for porous media
     fvScalarMatrix EEqnS

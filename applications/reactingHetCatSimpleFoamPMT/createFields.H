@@ -245,9 +245,9 @@ volScalarField kHEffA = kHEff*aZoneEff;
 rhoEff.correctBoundaryConditions();
 kappaEff.correctBoundaryConditions();
 CpEff.correctBoundaryConditions();
-kHEff.correctBoundaryConditions();
-aZoneEff.correctBoundaryConditions();
-kHEffA.correctBoundaryConditions();
+// kHEff.correctBoundaryConditions();
+// aZoneEff.correctBoundaryConditions();
+// kHEffA.correctBoundaryConditions();
 
 
 // -- reading field U
@@ -299,33 +299,19 @@ volScalarField dummyEEqn
 );
 
 // -- T field from mesh
-Info<< "Reading field T\n" << endl;
-volScalarField T
-(
-    IOobject
-    (
-        "T",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-//-- surface field for kappaG interpolation
-surfaceScalarField MGradT
-(
-    IOobject
-    (
-        "MGradT",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    fvc::snGrad(T)
-);
+// Info<< "Reading field T\n" << endl;
+// volScalarField T
+// (
+//     IOobject
+//     (
+//         "T",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
 
 // -- T field for porousMedia from mesh
 Info<< "Reading field TSolid\n" << endl;
@@ -391,6 +377,20 @@ autoPtr<compressible::momentumTransportModel> turbulence
         phi,
         thermo
     )
+);
+
+//-- surface field for kappaG interpolation
+surfaceScalarField MGradT
+(
+    IOobject
+    (
+        "MGradT",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    fvc::snGrad(thermo.T())
 );
 
 

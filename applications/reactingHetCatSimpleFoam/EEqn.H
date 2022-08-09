@@ -1,6 +1,7 @@
 {
     // -- load temperature from thermo package
-    T = thermo.T();
+    volScalarField& T = thermo.T();
+    MGradT = fvc::snGrad(thermo.T());
 
     // -- calculate the effective thermal diffusivity
     volScalarField kappa (kappaA+kappaB*T+kappaC*Foam::pow(T,2)+kappaD*Foam::pow(T,3));

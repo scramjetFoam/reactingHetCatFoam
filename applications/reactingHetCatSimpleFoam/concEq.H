@@ -31,7 +31,7 @@ forAll(specieNames,lstI)
     // -- Diffusion coeficient of the mixture -- default reference gas diffusion + add temperature and pressure dependence (see Fuller)
     volScalarField DifMix
     (
-        DABLst[DABLst.size()-1]*Foam::pow(T,1.75)/p
+        DABLst[DABLst.size()-1]*Foam::pow(thermo.T(),1.75)/thermo.p()
     );
 
     // -- prepare Knudsen diffusivity
@@ -52,7 +52,7 @@ forAll(specieNames,lstI)
     DKn += freeChannel*DifMix;         // free-channel (not used, but cant be 0)
     forAll(zoneLst,countI)
     {
-        DKn += zoneLst[countI]*(1.0/3.0*sqrt((T*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
+        DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
     }
 
     // -- prepare the effective diffusion coefficient
