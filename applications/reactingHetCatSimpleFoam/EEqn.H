@@ -29,7 +29,7 @@
 
     // -- minimal and maximal values of calculated fields
     Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
-    Info << "Min (kappaPokus): " << min(kappaPokus).value() << ", max (kappaPokus): " << max(kappaPokus).value() << "." << endl;
+    Info << "Min (kappaPokus): " << min(kappaPM).value() << ", max (kappaPokus): " << max(kappaPM).value() << "." << endl;
     Info << "Min (thermo.Cp): " << min(thermo.Cp()).value() << ", max (Cp): " << max(thermo.Cp()).value() << "." << endl;
     Info << "Min (thermo.rho): " << min(thermo.rho()).value() << ", max (thermo.rho): " << max(thermo.rho()).value() << "." << endl;
 
