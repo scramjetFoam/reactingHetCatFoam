@@ -1,0 +1,19 @@
+Folder with 2D simulations with reacting rectangle porous zone in the domain.
+
+Includes:
+    reactingRect2D_Simple       
+        -- case working with our previous implementation of the reactingHetCatSimpleFoam (steady-state)
+        -- only one temperature field in the domain (averaged properties of the solid and gas phases)
+    
+    reactingRect2D_SimplePMT    
+        -- case working with new implementation of the reactingHetCatSimpleFoamPMT (steady-state)
+        -- separate temperature of the porous media and the gas
+        -- coupling between temperatures of phases ensured by heat transfer source = kH*a*(Ts-Tg)
+        -- kH ... heat transfer coefficient [W m-2 K-1] 
+        -- a  ... specific area [m2 m-3]
+        
+        NOTES:
+            -- heat source on the phase interface needs to be implemented
+    
+    reactingRect2D_Pimple
+        -- dynamic version of the reactingRect2D_SimplePMT
