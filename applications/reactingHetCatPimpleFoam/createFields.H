@@ -151,18 +151,58 @@ IOobject
     IOobject::NO_WRITE
 ),
 mesh,
-dimensionedScalar("kHEff",(dimEnergy/dimTime/dimVolume/dimTemperature),0.0)
+dimensionedScalar("kHEff",(dimEnergy/dimTime/dimLength/dimLength/dimTemperature),0.0)
 );
+
+// -- porosity
+volScalarField epsEff
+(
+    IOobject
+    (
+        "epsEff",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("epsEff",dimless,0.0)
+);
+
+// -- specific area
+volScalarField aZoneEff
+(
+    IOobject
+    (
+        "aZoneEff",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("aZoneEff",dimless/dimLength,0.0)
+);
+
 
 // -- efective kappa values, gas kappa in free channel, media kappa in zones
 // kappaEff += freeChannel*kappa;         
 forAll(zoneLst,countI)
 {
-kappaEff += zoneLst[countI]*(kappaZ[countI]);
-CpEff += zoneLst[countI]*(CpZ[countI]);
-rhoEff += zoneLst[countI]*(rhoZ[countI]);
-kHEff += zoneLst[countI]*(kH[countI]);
+    epsEff += zoneLst[countI]*(eps[countI]);
+    // kappaEff += zoneLst[countI]*(kappaZ[countI]);
+    kappaEff += zoneLst[countI]*(kappaZ[countI])/(1-eps[countI]);
+    CpEff += zoneLst[countI]*(CpZ[countI]);
+    rhoEff += zoneLst[countI]*(rhoZ[countI]);
+    kHEff += zoneLst[countI]*(kH[countI]);
+    aZoneEff += zoneLst[countI]*(aZone[countI]);
 } 
+
+epsEff += freeChannel;
+volScalarField kappaS = kappaEff;
+
+volScalarField kHEffA = kHEff*aZoneEff;
+
 
 // -- reading field U
 Info<< "Reading field U\n" << endl;
@@ -213,12 +253,12 @@ volScalarField dummyEEqn
 );
 
 // -- T field for porousMedia from mesh
-Info<< "Reading field TporMedia\n" << endl;
-volScalarField TporMedia
+Info<< "Reading field TSolid\n" << endl;
+volScalarField TSolid
 (
     IOobject
     (
-        "TporMedia",
+        "TSolid",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
@@ -284,6 +324,20 @@ Info<< "Creating thermophysical transport model\n" << endl;
 autoPtr<fluidThermophysicalTransportModel> thermophysicalTransport
 (
     fluidThermophysicalTransportModel::New(turbulence(), thermo)
+);
+
+//-- surface field for kappaG interpolation
+surfaceScalarField MGradT
+(
+    IOobject
+    (
+        "MGradT",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    fvc::snGrad(thermo.T())
 );
 
 Info<< "Creating field dpdt\n" << endl;

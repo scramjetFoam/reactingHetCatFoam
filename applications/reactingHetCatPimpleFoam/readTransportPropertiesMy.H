@@ -77,6 +77,7 @@ PtrList<dimensionedScalar> dp(zoneNames.size());		// list of pore diameter
 PtrList<dimensionedScalar> CpZ(zoneNames.size());		// list of heat capacities diameter
 PtrList<dimensionedScalar> rhoZ(zoneNames.size());		// list of heat capacities diameter
 PtrList<dimensionedScalar> kH(zoneNames.size());		// list of heat capacities diameter
+PtrList<dimensionedScalar> aZone(zoneNames.size());		// list of heat capacities diameter
 forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
@@ -107,6 +108,10 @@ forAll(zoneNames,countI)
     kH.set
     (
         countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("kH"))
+    );
+    aZone.set
+    (
+        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("a"))
     );
 }
 

@@ -15,11 +15,6 @@
   // );
       
   // NOTE: discuss how to treat CpEff and rhoEff (probably will be important for dynamics)
-
-  rhoEff.correctBoundaryConditions();
-  kappaEff.correctBoundaryConditions();
-  CpEff.correctBoundaryConditions();
-  kHEff.correctBoundaryConditions();
   
   // dissipation rate  -- not used at the moment (neglectable)
   // volScalarField K (0.5*magSqr(U));

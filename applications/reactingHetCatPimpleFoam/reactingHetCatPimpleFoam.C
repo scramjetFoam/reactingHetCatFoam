@@ -168,8 +168,9 @@ int main(int argc, char *argv[])
             Info << "\nSolving continuity equation for each specie." << endl;
             #include "concEq.H"
             
-            Info << "\nSolving enthalpy balance." << endl;
-            #include "EEqn.H"
+            Info << "\nSolving enthalpy balances." << endl;
+            #include "EEqnSolid.H"
+            #include "EEqnGas.H"
             
             // --- Pressure corrector loop
             while (pimple.correct())
