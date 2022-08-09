@@ -70,6 +70,22 @@ forAll(zoneNames,countI)
     }
 }
 
+// -- porosity
+volScalarField epsEff
+(
+IOobject
+(
+    "epsEff",
+    runTime.timeName(),
+    mesh,
+    IOobject::NO_READ,
+    IOobject::NO_WRITE
+),
+mesh,
+dimensionedScalar("epsEff",dimless,0.0)
+);
+
+
 // -- free channels --> free channels = 1 - sum all zones 
 volScalarField sumZones
 (
@@ -88,8 +104,10 @@ volScalarField sumZones
 forAll(zoneLst,countI)
 {
     sumZones += zoneLst[countI];
+    epsEff += zoneLst[countI]*(eps[countI]);
 }
 volScalarField freeChannel = dimensionedScalar("jedna",dimless,1.0)-sumZones;
+epsEff += freeChannel;
 
 
 // -- reading field U
@@ -155,6 +173,20 @@ volScalarField T
     mesh
 );
 
+//-- surface field for kappaG interpolation
+surfaceScalarField MGradT
+(
+    IOobject
+    (
+        "MGradT",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    fvc::snGrad(T)
+);
 
 Info<< "Reading thermophysical properties\n" << endl;
 
