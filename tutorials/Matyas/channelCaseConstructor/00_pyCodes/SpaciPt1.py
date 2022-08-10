@@ -1,7 +1,7 @@
 # coating = 60.01e-6
 stena = 137e-6/2
 # verPoint2=[2.0E-04	,	1.5E-04	,	0	]
-verPoint2=[stena+15e-6, stena+15e-6 ,	0	]
+verPoint2=[stena+41e-6, stena+41e-6 ,	0	]
 inPB01 = [
 	[	-5.2692E-04	,	1.1093E-04	,	0	],
 	[	-4.5482E-04	,	1.1648E-04	,	0	],

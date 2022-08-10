@@ -28,6 +28,7 @@ residuals
 	    CO
         O2
         CO2
+        TSolid
         );
     }
 
