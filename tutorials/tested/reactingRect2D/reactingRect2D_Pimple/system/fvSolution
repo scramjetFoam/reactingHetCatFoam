@@ -92,8 +92,8 @@ solvers
 PIMPLE
 {
     nUCorrectors 0;                 // 0 --> explicit presure
-    nConcCorrectors 2;              // n of concentration calculations for each specie
-    nTempCorrectors 2;	            // n of temperature corrections 
+    nConcCorrectors 1;              // n of concentration calculations for each specie
+    nTempCorrectors 1;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
     nOuterCorrectors 150;             // n of outerCorrectors for pimple (1 --> PISO)
     consistent no;
