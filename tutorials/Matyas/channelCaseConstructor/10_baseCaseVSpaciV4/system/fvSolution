@@ -102,7 +102,7 @@ SIMPLE
 {
     nUCorrectors 0;            
     nConcCorrectors 3;              // n of concentration calculations for each specie
-    nTempCorrectors 10;	            // n of temperature corrections 
+    nTempCorrectors 20;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
 
     consistent yes;

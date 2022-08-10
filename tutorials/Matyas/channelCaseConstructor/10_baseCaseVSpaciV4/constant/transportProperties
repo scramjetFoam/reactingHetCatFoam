@@ -21,7 +21,7 @@ transportModel  Newtonian;
 
 //~ species (CO O2 NO CO2 N2 N2O);
 species (CO O2 CO2);
-zones (wall coat lOncoat);
+zones (wall coat);
 //~ species (NO N2 N2O CO2 CO O2);
 ref
 {
@@ -80,7 +80,7 @@ wall
     constr  constr  [0 0 0 0 0 0 0] 1.0;                                //constrictivity   //for elimination set to 1.0
     tort    tort    [0 0 0 0 0 0 0] 3.0;                                //tortuosity
     dP	dP	[0 1 0 0 0 0 0] 1.91e-5;									//Mean pore size of on-wall catalytic coating (m) -- XPF
-    kappa  kappa  [1 1 -3 -1 0 0 0] 1.75;                              //thermal conductivity of substrate Wm-1K-1
+    kappa  kappa  [1 1 -3 -1 0 0 0] 6;                              //thermal conductivity of substrate Wm-1K-1
     Cp      Cp      [0 2 -2 -1 0 0 0] 800;                            //specific heat of the substrate Jkg-1K-1
     rho     rho     [1 -3 0 0 0 0 0] 2030.0;                            //efective density in kgm-3 (assumed constant)
     coatFrac     coatFrac     [0 0 0 0 0 0 0] 0.0;                            //coating fraction in zone
@@ -94,7 +94,7 @@ coat
     constr  constr  [0 0 0 0 0 0 0] 1.0;                                //constrictivity   //for elimination set to 1.0
     tort    tort    [0 0 0 0 0 0 0] 4.0;                               //tortuosity
     dP	dP	[0 1 0 0 0 0 0] 1.0e-6;										//Mean pore size of on-wall catalytic coating (m) -- XPF
-    kappa  kappa  [1 1 -3 -1 0 0 0] 1.0;                              //thermal conductivity of coating in Wm-1K-1
+    kappa  kappa  [1 1 -3 -1 0 0 0] 6;                              //thermal conductivity of coating in Wm-1K-1
     Cp      Cp      [0 2 -2 -1 0 0 0] 962;                            //specific heat of the substrate in Jkg-1K-1
     rho     rho     [1 -3 0 0 0 0 0] 1000.0;                            //efective density in kgm-3 (assumed constant)
     coatFrac     coatFrac     [0 0 0 0 0 0 0] 1.0;                            //coating fraction in zone
@@ -108,7 +108,7 @@ lOncoat
     constr  constr  [0 0 0 0 0 0 0] 1.0;                                //constrictivity   //for elimination set to 1.0
     tort    tort    [0 0 0 0 0 0 0] 4.0;                               //tortuosity
     dP	dP	[0 1 0 0 0 0 0] 1.0e-6;										//Mean pore size of on-wall catalytic coating (m) -- XPF
-    kappa  kappa  [1 1 -3 -1 0 0 0] 1.0;                              //thermal conductivity of coating in Wm-1K-1
+    kappa  kappa  [1 1 -3 -1 0 0 0] 6;                              //thermal conductivity of coating in Wm-1K-1
     Cp      Cp      [0 2 -2 -1 0 0 0] 962;                            //specific heat of the substrate in Jkg-1K-1
     rho     rho     [1 -3 0 0 0 0 0] 1000.0;                            //efective density in kgm-3 (assumed constant)
     coatFrac     coatFrac     [0 0 0 0 0 0 0] 0.0;                            //coating fraction in zone

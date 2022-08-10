@@ -18,7 +18,7 @@ FoamFile
 dimensions      [0 0 0 1 0 0 0];
 
 //~internalField   uniform 873;
-internalField   uniform 433.0;
+internalField   uniform 500.0;
 
 boundaryField
 {
@@ -27,7 +27,7 @@ boundaryField
         type            fixedValue;
         //~ value           $internalField; // 34.6 degC
         //~value           uniform 873.0;
-        value           uniform 433.0;
+        value           uniform 500.0;
     }
     
     

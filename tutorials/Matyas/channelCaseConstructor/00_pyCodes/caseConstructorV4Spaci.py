@@ -111,7 +111,12 @@ mediaInfoDict = {
     'CF3':          {'name':['wall','coat'],
                      'perm':[0.623756e-12,4.76617e-12]},
     'uncurved1layer': {'name':['wall','coat'],
-                     'perm':[5.0e-13,2.7600003091200346e-15]},
+                     'perm':[5.0e-13,2.7600003091200346e-15],
+                     'inPt':['SpaciPt1'],
+                     'notUse': [[[0,0],[4,4]],[[0,4],[4,0]]],
+                     'zone':[[[2,0],[2,1],[0,2],[1,2],[2,2],[3,2],[4,2],[2,3],[3,2],[4,2],[2,4]],
+                             [[1,0],[3,0],[0,1],[1,1],[3,1],[4,1],[0,3],[1,3],[3,3],[4,3],[1,4],[3,4]]],
+                     },
     'uncurved2layer': {'name':['wall','coat','lOncoat'],
                      'perm':[5.0e-13,2.7600003091200346e-15,2.7600003091200346e-15],
                      'inPt':['SpaciPt1','SpaciPt2'],
@@ -127,7 +132,7 @@ mediaInfoDict = {
 #-----------------------------------------------------------------------
 
 # -- media type 
-mediaName = 'uncurved2layer'
+mediaName = 'uncurved1layer'
 
 # -- base openfoam folder for simulations
 baseCase = '../10_baseCaseVSpaciV4/'
@@ -154,7 +159,7 @@ WWl = 137e-6                                                            #wall th
 WCh = 1.13e-3*0.5                                                       #channel width (square)
 # nChX= 1                                                                 #number of channels in hor. dir.
 # nChY= 1                                                                 #number of channels in hor. dir.
-nChX= 1
+nChX= 2
 nChY= 2
 
 # --length dimensions
@@ -184,7 +189,7 @@ nTimesWall = 2
 #-----------------------------------------------------------------------
 # CASE PARAMETERS
 #-----------------------------------------------------------------------
-spVel    = 40000
+spVel    = 4000
 
 print('Mesh discretization: %s'%(str([dX,dY,dZ])))
 

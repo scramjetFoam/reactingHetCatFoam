@@ -30,13 +30,16 @@ mixture
 {
     specie
     {
-        // nMoles          1;
-        molWeight       39.948;
+        nMoles          1;
+        molWeight       28;
     }
     thermodynamics
     {
-        Cp              520.6768799;
+        // Cp              29.98;
+        // Cp              520.6768799;
+        Cp              1070.23;            // -- J/kg/K
         Hf              0;
+        Tref              0;
     }
     transport
     {
