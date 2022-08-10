@@ -1,7 +1,7 @@
 {
   // -- temperature of the gas
   volScalarField& T = thermo.T();
-  MGradT = fvc::snGrad(thermo.T());
+  // MGradT = fvc::snGrad(thermo.T());
 
   // -- calculate the thermal diffusivity of gas
   volScalarField kappa (kappaA+kappaB*T+kappaC*Foam::pow(T,2)+kappaD*Foam::pow(T,3));

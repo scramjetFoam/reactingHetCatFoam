@@ -390,7 +390,7 @@ surfaceScalarField MGradT
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    fvc::snGrad(thermo.T())
+    -fvc::snGrad(epsEff)
 );
 
 

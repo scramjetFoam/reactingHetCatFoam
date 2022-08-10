@@ -239,7 +239,7 @@ surfaceScalarField MGradT
         IOobject::NO_WRITE
     ),
     // linearInterpolate(U*rho*Cp) & mesh.Sf()
-    fvc::snGrad(thermo.T())
+    -fvc::snGrad(epsEff)
 );
 
 Info<< "Creating thermophysical transport model\n" << endl;
