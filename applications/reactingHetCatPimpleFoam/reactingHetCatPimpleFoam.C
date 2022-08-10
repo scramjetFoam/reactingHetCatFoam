@@ -165,12 +165,21 @@ int main(int argc, char *argv[])
             
             #include "UEqn.H"
 
-            Info << "\nSolving continuity equation for each specie." << endl;
-            #include "concEq.H"
-            
-            Info << "\nSolving enthalpy balances." << endl;
-            #include "EEqnSolid.H"
-            #include "EEqnGas.H"
+            scalar nItconc(readScalar(pimple.dict().lookup("nConcCorrectors")));
+            scalar nItTemp(readScalar(pimple.dict().lookup("nTempCorrectors")));
+
+            for (label concIt = 0; concIt < nItconc; concIt++)
+            { 
+                Info << "\nSolving continuity equation for each specie, iteration "<< concIt+1 << "/" << nItconc << endl;
+                #include "concEq.H"
+            }
+
+            for (label concT=0; concT < nItTemp; concT++)
+            {   
+                Info << "\nSolving enthalpy balance for solid media and gas, iteration "<< concT+1 << "/" << nItTemp << endl;
+                #include "EEqnSolid.H"
+                #include "EEqnGas.H"
+            }
             
             // --- Pressure corrector loop
             while (pimple.correct())
