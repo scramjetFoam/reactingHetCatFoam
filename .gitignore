@@ -45,8 +45,8 @@ myStf
 untestedTutorials/reactingRect*
 
 # test cases
-tutorials/Matyas/caseConstructor/ZZ_cases/test/
-tutorials/Matyas/channelCaseConstructor/testMatyas/
+tutorials/Matyas/caseConstructor/ZZ_cases/test/**
+tutorials/Matyas/channelCaseConstructor/testMatyas/**
 
 *__pycache__
 
