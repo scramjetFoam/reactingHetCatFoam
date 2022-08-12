@@ -55,24 +55,7 @@ forAll(specieNames,lstI)
         DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
     }
 
-    // -- prepare the effective diffusion coefficient
-    volScalarField DEff
-    (
-        IOobject
-        (
-            "DEff",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar("DEff",DifMix.dimensions(),0.0)
-        // (1.0-max(isOnWallCoat,isInWallCoat))*DifMix +
-        // isOnWallCoat*(porEpsC/(tortC*(1.0/DifMix+1.0/DKn)))+
-        // isInWallCoat*(porEpsS/(tortS*(1.0/DifMix+1.0/DKn))) 
-    );
-    DEff += freeChannel*DifMix;         // free-channel
+    DEff = freeChannel*DifMix;         // free-channel
     forAll(zoneLst,countI)
     {
         DEff += zoneLst[countI]*(eps[countI]/(tort[countI]*(1.0/DifMix+1.0/DKn)));  // porous media
@@ -87,6 +70,7 @@ forAll(specieNames,lstI)
     // -- inform about calculated properties
     Info << "Min cTot: " << min(cTot).value() << ", max cTot: " << max(cTot).value() << endl;
     Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
+    Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
     Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
 
 
