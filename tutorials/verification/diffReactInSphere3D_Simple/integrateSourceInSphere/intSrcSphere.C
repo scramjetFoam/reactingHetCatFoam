@@ -77,6 +77,20 @@ int main(int argc, char *argv[])
         mesh
     );
 
+    // -- read rho field
+    volScalarField reactingCellZone
+    (
+        IOobject
+            (
+            "reactingCellZone", 
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    );
+
     // -- read molar mass
     // -- thermophysicalProperties dictionary
     IOdictionary thermophysicalProperties
@@ -96,17 +110,16 @@ int main(int argc, char *argv[])
     // -- integration (sum c_s*V in cellZone)
     scalar integral(0);
 
-    // -- loop over all cells in cellzone
-    word currentZone = "reactingCellZone";
-
-    labelList cellZoneIDs_ = mesh.cellZones().findIndices(currentZone);
-
-    const labelList& cells = mesh.cellZones()[cellZoneIDs_[0]];
-    
-    forAll(cells, celli)
+    // // -- loop over all cells in mesh    
+    forAll(mesh.cells(), celli)
     {
-        integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
+
+    //     // integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
+    //     // integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
+        integral += mesh.V()[celli]*reactingCellZone[celli]*CO[celli]*rho[celli]/(molMR*1e-3);
+        // Info<<reactingCellZone[celli]<<endl;
     }
+
     Info << "Integral reaction source = " << integral << endl;
 
     Info<< "End" << endl;
