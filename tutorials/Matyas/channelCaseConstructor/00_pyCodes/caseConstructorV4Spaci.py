@@ -20,7 +20,7 @@
 # 1. dimensions of a single cell, dX,dY,dZ (these are slightly altered
 #    during the script execution) 
 #
-# NOTES:
+# NOTE:
 # - the blockMeshDict generation as well as topoSetDict generation are
 #   directly included into the code. this is not very nice as any changes
 #   in one of these scripts would enforce a new version of this
@@ -54,8 +54,8 @@
 #   => I need only one type of entry, head and footer. I will put this
 #      in the caseConstructorAuxFuncs file
 #   => the question is, do I want it to be a class or just three funcs
-#   => Note: all the openFoam file footers are actually the same
-#   => Note: in the header, I should put "location"
+#   => NOTE: all the openFoam file footers are actually the same
+#   => NOTE: in the header, I should put "location"
 
 #LICENSE================================================================
 #  caseConstructor.py
@@ -146,35 +146,28 @@ name = 'test_%s_'%mediaName
 #-----------------------------------------------------------------------
 # CASE/RUN SETTINGS
 #-----------------------------------------------------------------------
-nCores      = 4                                                         #number of cores to run the case on
+nCores      = 6                                                         #number of cores to run the case on
 startTime   = 0                                                         #simulation startTime
 endTime     = 2000                                                      #simulation endTime
-wrInt       = 50                                                       #simulation write interval
+wrInt       = 50                                                        #simulation write interval
 
 #-----------------------------------------------------------------------
 # GEOMETRY DATA
 #-----------------------------------------------------------------------
 # -- width dimensions
 WWl = 137e-6                                                            #wall thickness
-WCh = 1.13e-3*0.5                                                       #channel width (square)
-# nChX= 1                                                                 #number of channels in hor. dir.
-# nChY= 1                                                                 #number of channels in hor. dir.
-nChX= 2
-nChY= 2
+WCh = 1.13e-3*0.5                                                       #channel width (square)                                                            
+nChX= 2  # 1                                                            #number of channels in hor. dir.
+nChY= 2  # 1                                                            #number of channels in ver. dir.
 
 # --length dimensions
-LBf  = 7.0e-3                                                           #length of buffer in front of channels
-LPl  = 1.0e-3                                                           #plug length
-LCh  = 76.2e-3                                                     	    #channel length (total, including the plugs, but WITHOUT the buffers)
-# LCh  = 30.2e-3                                                     	    #channel length (total, including the plugs, but WITHOUT the buffers)
-
-LBf1  = 1.0e-3                                                           #length of buffer in front of channels
-LBf2  = 5.0e-3                                                           #length of buffer in front of channels
-LPl  = 1.0e-3                                                           #plug length
-LCh  = 10.0e-3                                                     	    #channel length (total, including the plugs, but WITHOUT the buffers)
+LBf1 = 1.0e-3   # 7.0e-3                                                #length of buffer in front of channels
+LBf2 = 5.0e-3   #                                                       #length of buffer behind channels
+LPl  = 1.0e-3   # 1.0e-3                                                #plug length
+LCh  = 10.0e-3  # 76.2e-3, 30.2e-3                                      #channel length (total, including the plugs, but WITHOUT the buffers)
 
 LCh = LCh - 2*LPl
-print('Geometry info: WWl = %g, WCh = %g, LBf = %g, LPl = %g, LCh = %g'%(WWl,WCh,LBf,LPl,LCh))
+print('Geometry info: WWl = %g, WCh = %g, LBf1 = %g, LBf2 = %g, LPl = %g, LCh = %g'%(WWl,WCh,LBf1,LBf2,LPl,LCh))
 
 # -- list with length dimensions
 LLst = [LBf1,LPl,LCh,LPl,LBf2]
@@ -183,13 +176,15 @@ LLst = [LBf1,LPl,LCh,LPl,LBf2]
 # MESH DATA
 #-----------------------------------------------------------------------
 dX,dY,dZ   = 80e-6,80e-6,120e-6
+
+# -- multiplication factors for number of cells in coat and wall
 nTimesCoat = 2
 nTimesWall = 2
 
 #-----------------------------------------------------------------------
 # CASE PARAMETERS
 #-----------------------------------------------------------------------
-spVel    = 4000
+spVel    = 4000                                                         # space velocity
 
 print('Mesh discretization: %s'%(str([dX,dY,dZ])))
 
@@ -216,9 +211,9 @@ pyList   = [                                                            #python 
     'caseConstructorAuxFuncsV4Spaci',
     # edgePtsFl,
 ]
-# Note: these files are copied into folder caseName/ZZ_genScripts/ for
+# NOTE: these files are copied into folder caseName/ZZ_genScripts/ for
 #       future reference
-# Note: update these files if needed - in case of new code versions
+# NOTE: update these files if needed - in case of new code versions
 
 
 #########DO NOT EDIT####################################################
@@ -372,6 +367,7 @@ print('Infoblock: ',infoBLock)
 nBlocksX = len(WLstX)
 nBlocksY = len(WLstY)
 
+# -- number of cells in X and Y direction
 nCXLst = []
 for i in range(len((WLstX))):
     try:
@@ -442,7 +438,7 @@ dZLst = [LLst[ind]/float(nCZLst[ind]) for ind in range(len(LLst))]
 # width of big channel
 WBCh = WWl + WCh*2
 
-# Note: out of these, I actually use only dZLst
+# NOTE: out of these, I actually use only dZLst
 
 #-------------------------------------------------------------------
 # -- define which blocks are to be used
@@ -600,7 +596,7 @@ for i in range(len(LLst)):
                     if not boolBlockUse[i+1][j][k]:
                         wallBoundary.append(blockLst[i][j][k].retFXYE())
 
-# Note: this is if hell, but it is self-explanatory
+# NOTE: this is if hell, but it is self-explanatory
 
 wallBoundaryStr = retBoundString('walls','wall',wallBoundary)
 
@@ -797,18 +793,18 @@ bMD.close()
 # with open(caseDir + './0.org/U', 'w') as file:
 #     file.writelines( data )
 
-# Note: nothing else is changed at the moment
+# NOTE: nothing else is changed at the moment
 
 #-------------------------------------------------------------------
 # FLUID PROPERTIES UPDATE
 #-------------------------------------------------------------------
 
-# -- note maybe I can put here some transport properties changes
+# -- NOTE: maybe I can put here some transport properties changes
     
 #-------------------------------------------------------------------
 # POROSITY PROPERTIES UPDATE
 #-------------------------------------------------------------------
-# Note: the code structure here is slightly different than in orher parts
+# NOTE: the code structure here is slightly different than in orher parts
 #       of the properties modification codes (I do not modify an existing
 #       file, I generate a new one)
 #       => this is close to the blockMeshDict and topoSetDict generation
@@ -1011,6 +1007,4 @@ with open(caseDir + '/0.org/U', 'w') as file:
 
 # with open(caseDir + '/system/topoSetDict.3', 'w') as file:
 #     file.writelines(data)
-
-
 
