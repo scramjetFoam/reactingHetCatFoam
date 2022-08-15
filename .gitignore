@@ -40,6 +40,7 @@ dynamicCode
 log.*
 *.OpenFOAM
 ZZ_cases*
+ZZZ_res*
 myStf
 
 untestedTutorials/reactingRect*
