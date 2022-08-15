@@ -51,7 +51,8 @@ forAll(zoneNames,countI)
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimensionedScalar (currentZone,dimless,0.0)
+            dimensionedScalar (currentZone,dimless,0.0),
+            "zeroGradient"
         )
     );
 }
@@ -68,6 +69,8 @@ forAll(zoneNames,countI)
     {
         zoneLst[countI][cells[celli]] = 1;
     }
+    zoneLst[countI].correctBoundaryConditions();
+    
 }
 
 // -- porosity
@@ -134,11 +137,11 @@ volVectorField U
 (
     IOobject
     (
-	"U",
-	runTime.timeName(),
-	mesh,
-	IOobject::MUST_READ,
-	IOobject::AUTO_WRITE
+        "U",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
     ),
     mesh
 );
@@ -257,7 +260,7 @@ surfaceScalarField MGradT
         IOobject::NO_WRITE
     ),
     // linearInterpolate(U*rho*Cp) & mesh.Sf()
-    -fvc::snGrad(epsEff)
+    fvc::snGrad(epsEff)
 );
 
 Info<< "Creating thermophysical transport model\n" << endl;

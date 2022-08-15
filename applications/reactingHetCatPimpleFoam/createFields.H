@@ -54,7 +54,8 @@ forAll(zoneNames,countI)
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimensionedScalar (currentZone,dimless,0.0)
+            dimensionedScalar (currentZone,dimless,0.0),
+            "zeroGradient"
         )
     );
 }
