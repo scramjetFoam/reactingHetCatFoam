@@ -1,0 +1,17 @@
+Folder with verification cases for specie transport and reaction inside spherical particle.
+
+Includes:
+    baseCase
+        -- case folder that is copied in each study
+    
+    integrateSourceInSphere
+        -- OpenFoam application to calculate reaction source inside sphere
+    
+    ZZ_cases
+        -- folder to store created verification cases in
+    
+    verDCRSphere.py 
+        -- template of the control script in the case of the inner and outer transport around sphere 
+    
+    verDCRSphereInnerTrans.py
+        -- template of the control script in the case of the inner transport in sphere
