@@ -29,7 +29,8 @@ gradSchemes
 
 divSchemes
 {
-    default                             bounded Gauss linearUpwind grad(U);
+    default                             bounded Gauss vanLeer;
+    // default                             bounded Gauss linearUpwind grad(U);
   //  default                             bounded Gauss upwind;
     div(phi,U)                          bounded Gauss upwind;
  //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
@@ -46,25 +47,25 @@ laplacianSchemes
     //  default                             Gauss linear uncorrected;       //orthogonal mesh
 //    // default                             Gauss upwind banana;       //orthogonal mesh
    default                             none;       //orthogonal mesh
-   laplacian((rho*nuEff),U)		Gauss linear uncorrected;
+   laplacian((rho*nuEff),U)		Gauss linear corrected 0.2;
    // laplacian((DEff*CO),(thermo:rho|molM))		Gauss upwind phi uncorrected;
    // laplacian((DEff*CO2),(thermo:rho|molM))		Gauss upwind phi uncorrected;
    // laplacian((DEff*O2),(thermo:rho|molM))		Gauss upwind phi uncorrected;
    // laplacian((DEff*(thermo:rho|molM)),CO)		Gauss upwind phi uncorrected;
    // laplacian((DEff*(thermo:rho|molM)),CO2)		Gauss upwind phi uncorrected;
    // laplacian((DEff*(thermo:rho|molM)),O2)		Gauss upwind phi uncorrected;
-   laplacian((DEff*CO),(thermo:rho|molM))		Gauss linear uncorrected;
-   laplacian((DEff*CO2),(thermo:rho|molM))		Gauss linear uncorrected;
-   laplacian((DEff*O2),(thermo:rho|molM))		Gauss linear uncorrected;
-   laplacian((DEff*(thermo:rho|molM)),CO)		Gauss linear uncorrected;
-   laplacian((DEff*(thermo:rho|molM)),CO2)		Gauss linear uncorrected;
-   laplacian((DEff*(thermo:rho|molM)),O2)		Gauss linear uncorrected;
+   laplacian((DEff*CO),(thermo:rho|molM))		Gauss linear corrected 0.2;
+   laplacian((DEff*CO2),(thermo:rho|molM))		Gauss linear corrected 0.2;
+   laplacian((DEff*O2),(thermo:rho|molM))		Gauss linear corrected 0.2;
+   laplacian((DEff*(thermo:rho|molM)),CO)		Gauss linear corrected 0.2;
+   laplacian((DEff*(thermo:rho|molM)),CO2)		Gauss linear corrected 0.2;
+   laplacian((DEff*(thermo:rho|molM)),O2)		Gauss linear corrected 0.2;
    // laplacian(kappaEff,T)		Gauss upwind phi uncorrected;
     // laplacian(kappaEff,T)		Gauss upwind MGradT uncorrected;
-    laplacian(kappa*epsEff,T)		Gauss upwind MGradT uncorrected;
+    laplacian(kappa*epsEff,T)		Gauss upwind MGradT corrected 0.2;
     laplacian(((kappaEff*(1-epsEff))+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss upwind MGradT uncorrected;
     // laplacian(kappaPokus,T)		Gauss upwind MGradT uncorrected;
-   laplacian((rho*rAU),p)		Gauss linear uncorrected;
+   laplacian((rho*rAU),p)		Gauss linear corrected 0.2;
     //default                             Gauss upwind banana;       //orthogonal mesh
 }
 
@@ -78,8 +79,8 @@ interpolationSchemes
 
 snGradSchemes
 {
-    // default                             limited corrected 0.2;
-    default                             uncorrected;                            // orthogonal mesh
+    default                             limited corrected 0.2;
+    // default                             uncorrected;                            // orthogonal mesh
 }
 
 fluxRequired

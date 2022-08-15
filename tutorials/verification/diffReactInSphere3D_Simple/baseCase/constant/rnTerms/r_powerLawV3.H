@@ -91,7 +91,7 @@ forAll(nuLst,rnI)
             //NOTE: I start with -1.0 because of units of kinetic constants 
             //      in transport properties (maybe there can be problem with
             //      non-integer alpha)
-            float cTotExp = -1.0;
+            float cTotExp = 0.0;
             forAll(specieNames,countI){
                 //this can be probably done nicer, but I used the code above  
                 List<scalar> alphaLstCurSp(transportProperties.subDict(specieNames[countI]).lookup("alphaVec"));    

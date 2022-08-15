@@ -26,4 +26,9 @@ boundaryField
         type            fixedValue;
         value           uniform isoT;
     }
+    sphere
+    {
+        type            fixedValue;
+        value           uniform isoT;
+    }
 }

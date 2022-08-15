@@ -20,13 +20,10 @@ actions
         name reactingCells;
         type cellSet;
         action new;
-        source cylinderAnnulusToCell;
+        source boxToCell;
         sourceInfo
         {
-            p1 (0 0 -1e-2);
-            p2 (0 0 0e-2);
-            innerRadius 2e-3;
-            outerRadius 6e-3;
+            box (-100 -100 -100) (100 100 100);
         }
     }
     {

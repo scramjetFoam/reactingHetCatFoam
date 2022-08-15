@@ -1,4 +1,4 @@
-# -- Script to do verification simulation of isothermal reaction inside sphere
+# -- Script to do verification simulation of isothermal reaction inside and outside sphere
 
 # -- imports
 import numpy as np
@@ -14,7 +14,7 @@ yInf = 0.01     # molar fraction farfar from sphere
 p = 101325      # presure
 Runiv = 8.314   # universal gas constant
 R = 1           # sphere radius
-Rinf = 3         # infinite radius 
+Rinf = 5         # infinite radius 
 TLst = [500,550] # temperature 
 k0 = 5e7      # reaction pre-exponential factor
 EA = 90e3     # reaction activation energy
@@ -35,16 +35,31 @@ for T in TLst:
 
 
     # -- change the case files
-    # NOTE TH: I only change temperature, much more can be studied 
+    # NOTE TH: I only change temperature and domain size, much more can be studied 
     print('Changing temperature to %g'%T)
     with open(caseDir + '/0.org/T', 'r') as file:
         data = file.readlines()
 
     for ind in range(len(data)):
-        if data[ind].find('isoT') >= 0:#!!do not put comment on executed temperature
+        if data[ind].find('isoT') >= 0:
             data[ind] = data[ind].replace('isoT',str(T))
 
     with open(caseDir + '/0.org/T', 'w') as file:
+        file.writelines(data)
+    
+    # NOTE TH: I only change temperature, much more can be studied 
+    print('Changing blockMeshDict cube size to (%gx%gx%g)'%(Rinf,Rinf,Rinf))
+    with open(caseDir + '/system/blockMeshDict', 'r') as file:
+        data = file.readlines()
+
+    for ind in range(len(data)):
+        if data[ind].find('dSN') >= 0:
+            data[ind] = data[ind].replace('dSN',str(Rinf))
+            
+        if data[ind].find('nDisc') >= 0:
+            data[ind] = data[ind].replace('nDisc',str(Rinf*10))
+
+    with open(caseDir + '/system/blockMeshDict', 'w') as file:
         file.writelines(data)
     
     # -- run the simulation
@@ -85,7 +100,7 @@ for T in TLst:
 
     # -- compute analytical results
     # NOTETH: this is probably wrong
-    kL = 2*DFree/(R-Rinf)         # mass transfer coefficient (absolutely not sure about this)
+    kL = DFree/(Rinf-R)         # mass transfer coefficient (absolutely not sure about this)
 
     thiele = R*(k/DEff)**(0.5)  # thiele modulus
     BiM = kL*R/DEff             # Biot number
@@ -99,11 +114,12 @@ for T in TLst:
     #reaction source
     for lineInd in range(len(lines)-1,0,-1):
         if lines[lineInd].find('reaction source') >= 0:
-            rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
+            rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))*k
             break
         if lineInd == 0:
             print('Reaction source not found.')
     rSqIdeal = 4./3*np.pi*R**3*k*yInf*p/Runiv/T
+    print('reaction source = %g'%rS)
     etaSim = rS/rSqIdeal
     print('Simulation effectivness factor is %g, relative error = %g'%(etaSim,(etaAnal-etaSim)/etaAnal))
     

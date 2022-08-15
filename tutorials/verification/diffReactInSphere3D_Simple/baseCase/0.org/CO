@@ -25,6 +25,11 @@ boundaryField
         type            fixedValue;
         value           uniform 0.01;
     }
+    sphere
+    {
+        type            fixedValue;
+        value           uniform 0.01;
+    }
 }
 
 // ************************************************************************* //

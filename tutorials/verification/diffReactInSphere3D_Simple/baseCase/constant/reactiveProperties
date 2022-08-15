@@ -43,7 +43,7 @@ reactProps
     // -- first order CO reaction
     reaction01{
         kinSetupSwitch 2;                       // -- general power law kinetics
-        k0  k0  [0 -3 -1 0 1 0 0]   5e7;
+        k0  k0  [0 0 -1 0 0 0 0]   5e5;
         sHr sHr [1 2 -2 0 -1 0 0]   -283e3;	
         EA	EA	[1  2 -2 0 -1 0 0]  90000.0;
     }
