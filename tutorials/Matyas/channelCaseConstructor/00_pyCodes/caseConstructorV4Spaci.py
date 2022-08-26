@@ -393,9 +393,9 @@ for i in range(len((WLstX))):
 nCYLst = []
 for i in range(len((WLstY))):
     try:
-        if infoBLock[i%nBlocksX] == 'wall':
+        if infoBLock[i%nBlocksY] == 'wall':
             nCYLst.append(int(round(WLstY[i]/dY))*nTimesWall)
-        elif 'coat' in infoBLock[i%nBlocksX]:
+        elif 'coat' in infoBLock[i%nBlocksY]:
             nCYLst.append(int(round(WLstY[i]/dY))*nTimesCoat)
         else:
             nCYLst.append(int(round(WLstY[i]/dY)))
@@ -419,7 +419,7 @@ for i in range(len((WLstY))):
 # ~ # z direction discretization
 nCZLst = [int(round(length/dZ)) for length in LLst]
 
-print('Created disretization arrays: X, Y, Z',(nCXLst,nCYLst,nCZLst))
+print('Created discretization arrays: X, Y, Z',(nCXLst,nCYLst,nCZLst))
 
 
 
