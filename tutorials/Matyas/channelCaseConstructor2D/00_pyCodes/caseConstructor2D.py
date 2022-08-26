@@ -159,6 +159,9 @@ sh.copytree(baseCase, caseDir)
 # -- copy the data from the pyFolder
 for pyCode in pyList:
     sh.copyfile(pyFolder + pyCode + '.py', caseDir + 'ZZ_genScripts/' + pyCode + '.py')
+
+# -- copy stitchMeshSc.sh from the pyFolder
+sh.copyfile(pyFolder + 'stitchMeshSc.sh', caseDir + 'stitchMeshSc.sh')
     
 #-------------------------------------------------------------------
 # BLOCKMESHDICT PREPARATION
@@ -443,7 +446,7 @@ mergePairs = []
 stitchPairs = [
     ['masterPerp', 'slavePerp'],
     ['masterHor', 'slaveHor'],
-    ['masterVer', 'slaveVer'],
+    #['masterVer', 'slaveVer'],
 ]
 
 writeStitching('stitchMeshSc.sh', stitchPairs)
