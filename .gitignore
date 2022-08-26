@@ -48,6 +48,7 @@ untestedTutorials/reactingRect*
 # test cases
 tutorials/Matyas/caseConstructor/ZZ_cases/test/**
 tutorials/Matyas/channelCaseConstructor/testMatyas/**
+tutorials/Matyas/channelCaseConstructor2D/testMatyas/**
 
 *__pycache__
 
