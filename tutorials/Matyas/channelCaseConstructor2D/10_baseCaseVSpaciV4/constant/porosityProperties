@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\ 
+| ========                 |                                                 | 
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | 
+|  \    /   O peration     | Version:  4.1                                   | 
+|   \  /    A nd           | Web:      www.OpenFOAM.org                      | 
+|    \/     M anipulation  |                                                 | 
+\*---------------------------------------------------------------------------*/ 
+FoamFile 
+{ 
+ 	 version 	 2.0; 
+ 	 format 	 ascii; 
+ 	 class 		 dictionary; 
+ 	 location 	 "constant"; 
+ 	 object 	 porosityProperties; 
+} 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * // 
+
+inWallPorosity
+{
+	type		DarcyForchheimer;
+	active		yes;
+	cellZone	inWallPorosity;
+
+	DarcyForchheimerCoeffs
+	{
+		// d	(1 1 1);
+		d	(1.612903e+12 1.612903e+12 1.612903e+12);
+		// d	(1.612903e+13 1.612903e+13 1.612903e+13);
+		// d	(2.5E+12		2.5E+12 2.5E+12);
+		// d	(7.75e11		7.75e11 7.75e11);
+		f	(0.000000e+00 0.000000e+00 0.000000e+00);
+
+		coordinateSystem
+		{
+			type		cartesian;
+			origin		(0 0 0);
+			coordinateRotation
+			{
+				type	axesRotation;
+				e1		(1 0 0);
+				e2		(0 0 1);
+			}
+		}
+	}
+}
+coating
+{
+	type		DarcyForchheimer;
+	active		yes;
+	cellZone	coating;
+
+	DarcyForchheimerCoeffs
+	{
+		// d	(1 1 1);
+		// d	(2.5E+12 2.5E+12 2.5E+12);
+		d	(1.612903e+12 1.612903e+12 1.612903e+12);
+		f	(0.000000e+00 0.000000e+00 0.000000e+00);
+
+		coordinateSystem
+		{
+			type		cartesian;
+			origin		(0 0 0);
+			coordinateRotation
+			{
+				type	axesRotation;
+				e1		(1 0 0);
+				e2		(0 0 1);
+			}
+		}
+	}
+}
+// ************************************************************************* //
+
