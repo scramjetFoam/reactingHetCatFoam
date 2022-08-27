@@ -90,7 +90,7 @@ geomOrig = [0.0,0.0,0.0]                                                 #geomet
 cellSize = [1.0e-3, 1.0e-3]
 
 # -- case run properties - of.sh file
-nCores      = 2
+nCores      = 6
 startTime   = 0                                                         #simulation startTime
 endTime     = 1
 wrInt       = 0.01                                                      #simulation write interval
