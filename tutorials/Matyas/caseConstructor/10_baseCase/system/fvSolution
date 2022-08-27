@@ -48,14 +48,14 @@ solvers
         relTol          0.05;
     }
 
-    "(T|TFinal|TporMedia|TporMediaFinal)"
+    "(T|TFinal|TSolid|TSolidFinal)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
         tolerance       1e-09;
         relTol          0.01;
     }
-    "(TporMedia|TporMediaFinal)"
+    "(TSolid|TSolidFinal)"
     {   
         solver          PBiCGStab;
         preconditioner  DIC;
