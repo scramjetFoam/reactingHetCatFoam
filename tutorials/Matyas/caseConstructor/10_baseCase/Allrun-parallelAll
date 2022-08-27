@@ -20,7 +20,7 @@ cp -rf 0.org/* 0
 paraFoam -touch
 
 # run potentialFoam
-runApplication potentialFoam
+# runApplication potentialFoam
 
 # decompose the case
 runApplication decomposePar
