@@ -77,6 +77,20 @@ int main(int argc, char *argv[])
         mesh
     );
 
+    // -- read T field
+    volScalarField T
+    (
+        IOobject
+            (
+            "T", 
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    );
+
     // -- read rho field
     volScalarField reactingCellZone
     (
@@ -104,9 +118,44 @@ int main(int argc, char *argv[])
         IOobject::NO_WRITE      // dict is only read by the solver
         )
     );
+
+    // -- load the reactiveProperties dictionary
+    IOdictionary reactiveProperties
+    (
+        IOobject
+        (
+            "reactiveProperties",      // dictionary name
+            runTime.constant(),            // dict is found in "constant"
+            mesh,                      // registry for the dict
+            IOobject::MUST_READ,        // must exist, otherwise failure
+            IOobject::NO_WRITE          // dict is only read by the solver
+        )
+    );
+
+    // -- load the dictionary with the reaction data
+    IOdictionary transportProperties
+    (
+        IOobject
+        (
+            "transportProperties",      // dictionary name
+            runTime.constant(),            // dict is found in "constant"
+            mesh,                      // registry for the dict
+            IOobject::MUST_READ,        // must exist, otherwise failure
+            IOobject::NO_WRITE          // dict is only read by the solver
+        )
+    );
+
+
     // -- molar mass
     scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
-    
+
+    // -- load the kinetics info about reaction
+    dimensionedScalar k0  = reactiveProperties.subDict("reactProps").subDict("reaction01").lookup("k0");
+    dimensionedScalar EA  = reactiveProperties.subDict("reactProps").subDict("reaction01").lookup("EA");
+    dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR")); //gas constant
+
+    volScalarField k(k0*Foam::exp(-EA/(univR*T)));
+
     // -- integration (sum c_s*V in cellZone)
     scalar integral(0);
 
@@ -116,7 +165,7 @@ int main(int argc, char *argv[])
 
     //     // integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
     //     // integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
-        integral += mesh.V()[celli]*reactingCellZone[celli]*CO[celli]*rho[celli]/(molMR*1e-3);
+        integral += k[celli]*mesh.V()[celli]*reactingCellZone[celli]*CO[celli]*rho[celli]/(molMR*1e-3);
         // Info<<reactingCellZone[celli]<<endl;
     }
 

@@ -43,9 +43,9 @@ reactProps
     // -- first order CO reaction
     reaction01{
         kinSetupSwitch 2;                       // -- general power law kinetics
-        k0  k0  [0 0 -1 0 0 0 0]   5e5;
-        sHr sHr [1 2 -2 0 -1 0 0]   -283e3;	
-        EA	EA	[1  2 -2 0 -1 0 0]  90000.0;
+        k0  k0  [0 0 -1 0 0 0 0]   k0Set;
+        sHr sHr [1 2 -2 0 -1 0 0]   sHrSet;	
+        EA	EA	[1  2 -2 0 -1 0 0]  EASet;
     }
     
     // -- numerical properties for gradients

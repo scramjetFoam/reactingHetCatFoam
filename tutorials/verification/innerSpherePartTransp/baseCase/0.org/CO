@@ -16,19 +16,19 @@ FoamFile
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.01;
+internalField   uniform yCOSet;
 
 boundaryField
 {
     infinity
     {
         type            fixedValue;
-        value           uniform 0.01;
+        value           uniform yCOSet;
     }
     sphere
     {
         type            fixedValue;
-        value           uniform 0.01;
+        value           uniform yCOSet;
     }
 }
 

@@ -10,6 +10,6 @@ Includes:
     ZZ_cases
         -- folder to store created verification cases in
     
-    verDCRSphereInnerTrans.py
+    verInnerTransControl.py
         -- template of the control script for creation and running verification studies in the sphere
         
