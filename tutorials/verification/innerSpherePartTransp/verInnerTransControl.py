@@ -4,9 +4,6 @@
 # 1) try different parameters setups, check analytical profile in the isothermal cases, check order of the method (should be 2) in all cases
 
 # -- imports
-from math import gamma
-from re import X
-from time import time
 import numpy as np
 import os 
 import shutil as sh
@@ -21,7 +18,7 @@ def isFloat(val):
         return False
 
 # -- auxiliary function to change case params 
-# NOTETH can be done faster, but I dont to think about it
+# NOTETH can be done faster, but I did not want to think about it
 def changeInCaseFolders(file,whatLst,forWhatLst):
     print('Changing file %s, %s --> %s'%(file,str(whatLst),str(forWhatLst)))
     with open(caseDir + '/%s'%file, 'r') as fl:
@@ -34,8 +31,6 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
-# -- auxiliary function to load case params
-
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
 outFolder = 'ZZ_cases'
@@ -44,19 +39,20 @@ outFolder = 'ZZ_cases'
 # NOTETH: if 0 - isothermal study
 numOfTCorr = 1  
 
+# -- swicher if the simulation should be run or to just check results
 runSim = False
-runSim = True
+# runSim = True
 
 # -- case data
 yInf = 0.1     # molar fraction farfar from sphere
 p = 101325      # presure
-sHr = -138725599.72220203    # standard reaction enthalpy	
+sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
 R = 1           # sphere radius
 Rinf = 1.1         # infinite radius 
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  # cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # cell Size
-cellSizeLst = [0.1]  # cell Size
+cellSizeLst = [0.1]  # FV cell Size
 k0Lst = [1e2,5e2,1e3,5e3,1e4,1e5]      # reaction pre-exponential factor
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
@@ -72,7 +68,7 @@ if numOfTCorr == 0:
     resNp = np.zeros((len(cellSizeLst)))
     resNp2 = np.zeros((len(cellSizeLst)))
 else:
-    resNp = np.zeros((2,len(k0Lst)))
+    resNp = np.zeros((2,len(k0Lst)+1))
 
 # -- create case
 for TInd in range(len(TLst)):
@@ -92,7 +88,6 @@ for TInd in range(len(TLst)):
                     sh.rmtree(caseDir)
 
                 sh.copytree(baseCaseDir,caseDir)
-
 
                 # -- change the case files
                 changeInCaseFolders('0.org/T',['isoT'],[str(T)])
@@ -197,13 +192,13 @@ for TInd in range(len(TLst)):
                 beta = yInf*p/Runiv/T*(-sHr)*DEff/kappaEff/T
                 print('beta',beta,'thiele',thiele,'effect sim',etaSim)
                 resNp[:,k0Ind] = np.array([thiele,etaSim])
+                
 
             # NOTETH: inner + outer transport
             # BiM = kL*R/DEff             # Biot number
             # etaAnal = 3./(thiele**2) * (thiele*1./np.tanh(thiele)-1)/(1+(thiele*1./np.tanh(thiele)-1)/BiM)                      # analytical effectivness factor
             
             os.chdir('../../')
-
 if numOfTCorr == 0:
     plt.plot(cellSizeLst,resNp,label='eta diff (my)')
     # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
