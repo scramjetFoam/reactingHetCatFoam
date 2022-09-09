@@ -391,7 +391,7 @@ surfaceScalarField MGradT
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    -fvc::snGrad(epsEff)
+    fvc::snGrad(epsEff)
 );
 
 
