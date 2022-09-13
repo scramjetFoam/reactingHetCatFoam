@@ -7,9 +7,9 @@
     fvScalarMatrix EEqnS
     (
       // -- accumulation
-      CpEff*fvm::ddt(rhoEff,TSolid)
+      (1-epsEff)*CpS*fvm::ddt(rhoS,TSolid)
       // -- diffusion
-      - fvm::laplacian(kappaS*(1-epsEff), TSolid) 
+      - fvm::laplacian(kappaEff, TSolid) 
       ==
       // -- heat source from reaction 
       fvModels.source(dummyEEqn, TSolid)

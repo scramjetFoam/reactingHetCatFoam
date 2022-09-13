@@ -111,33 +111,33 @@ dimensionedScalar("kappaEff",kappaA.dimensions(),0.0)
 );
 
 // -- porous media heat capacity 
-volScalarField CpEff
+volScalarField CpS
 (
 IOobject
 (
-    "CpEff",
+    "CpS",
     runTime.timeName(),
     mesh,
     IOobject::NO_READ,
     IOobject::NO_WRITE
 ),
 mesh,
-dimensionedScalar("CpEff",dimEnergy/dimMass/dimTemperature,0.0)
+dimensionedScalar("CpS",dimEnergy/dimMass/dimTemperature,0.0)
 );
 
 // -- porous media density 
-volScalarField rhoEff
+volScalarField rhoS
 (
 IOobject
 (
-    "rhoEff",
+    "rhoS",
     runTime.timeName(),
     mesh,
     IOobject::NO_READ,
     IOobject::NO_WRITE
 ),
 mesh,
-dimensionedScalar("rhoEff",dimMass/dimVolume,0.0)
+dimensionedScalar("rhoS",dimMass/dimVolume,0.0)
 );
 
 // -- heat transfer coefficient
@@ -192,15 +192,15 @@ forAll(zoneLst,countI)
 {
     epsEff += zoneLst[countI]*(eps[countI]);
     // kappaEff += zoneLst[countI]*(kappaZ[countI]);
-    kappaEff += zoneLst[countI]*(kappaZ[countI])/(1-eps[countI]);
-    CpEff += zoneLst[countI]*(CpZ[countI]);
-    rhoEff += zoneLst[countI]*(rhoZ[countI]);
+    kappaEff += zoneLst[countI]*(kappaZ[countI]);
+    CpS += zoneLst[countI]*(CpZ[countI]);
+    rhoS += zoneLst[countI]*(rhoZ[countI]);
     kHEff += zoneLst[countI]*(kH[countI]);
     aZoneEff += zoneLst[countI]*(aZone[countI]);
 } 
 
 epsEff += freeChannel;
-volScalarField kappaS = kappaEff;
+// volScalarField kappaS = kappaEff;
 
 volScalarField kHEffA = kHEff*aZoneEff;
 
