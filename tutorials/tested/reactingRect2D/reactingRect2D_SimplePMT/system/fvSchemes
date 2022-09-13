@@ -62,7 +62,7 @@ laplacianSchemes
    laplacian((DEff*(thermo:rho|molM)),O2)		Gauss upwind MGradT uncorrected;
 
 //    laplacian((kappaEff*(1-epsEff)),TSolid)		Gauss linear uncorrected;
-   laplacian((kappaEff*(1-epsEff)),TSolid)		Gauss downwind MGradT uncorrected;
+   laplacian(kappaEff,TSolid)		Gauss downwind MGradT uncorrected;
    laplacian(((sumZones*kappaEff)*(1-epsEff)),TSolid)		Gauss downwind MGradT uncorrected;
    laplacian((((jedna-sumZones)*kappaEff)*(1-epsEff)),TSolid)		Gauss downwind MGradT uncorrected;
    laplacian(((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff),T)		Gauss downwind MGradT uncorrected;

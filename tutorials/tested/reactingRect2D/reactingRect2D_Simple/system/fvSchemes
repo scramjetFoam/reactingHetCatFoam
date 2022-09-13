@@ -62,7 +62,8 @@ laplacianSchemes
    // laplacian(kappaEff,T)		Gauss upwind phi uncorrected;
     // laplacian(kappaEff,T)		Gauss upwind MGradT uncorrected;
     laplacian(kappa*epsEff,T)		Gauss downwind MGradT uncorrected;
-    laplacian(((kappaEff*(1-epsEff))+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected;
+    // laplacian(((kappaEff*(1-epsEff))+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected;
+    laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected;
     // laplacian(kappaPokus,T)		Gauss upwind MGradT uncorrected;
    laplacian((rho*rAU),p)		Gauss linear uncorrected;
     //default                             Gauss upwind banana;       //orthogonal mesh
