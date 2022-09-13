@@ -6,8 +6,8 @@
     // -- enthalpy balance for porous media
     fvScalarMatrix EEqnS
     (
-      // -- diffusion
-      - fvm::laplacian(kappaS*(1-epsEff), TSolid) 
+      // -- diffusion of heat (kappaS = kappaEff/(1-epsEff), term = kappaS*(1-epsEff))
+      - fvm::laplacian(kappaEff, TSolid) 
       ==
       // -- heat source from reaction 
       fvModels.source(dummyEEqn, TSolid)

@@ -19,12 +19,12 @@
     );
 
     // -- efective kappa values, gas kappa in free channel, media kappa in zones
-    kappaEff += freeChannel*kappa;         
+    // kappaEff += freeChannel*kappa;         
     forAll(zoneLst,countI)
     {
-        kappaEff += zoneLst[countI]*(kappaZ[countI])/(1-eps[countI]);
+        kappaEff += zoneLst[countI]*(kappaZ[countI]);
     }
-    volScalarField kappaPM = kappaEff*(1-epsEff) + kappa*epsEff;
+    volScalarField kappaPM = kappaEff + kappa*epsEff;
 
 
     // -- minimal and maximal values of calculated fields

@@ -7,7 +7,7 @@
   volScalarField kappa (kappaA+kappaB*T+kappaC*Foam::pow(T,2)+kappaD*Foam::pow(T,3));
 
   // -- minimal and maximal values of calculated fields
-  Info << "Min (kappaEff): " << min(kappaS).value() << ", max (kappaEff): " << max(kappaS).value() << "." << endl;
+  Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
   Info << "Min (epsEff): " << min(epsEff).value() << ", max (kappaEff): " << max(epsEff).value() << "." << endl;
   Info << "Min (thermo.Cp): " << min(thermo.Cp()).value() << ", max (Cp): " << max(thermo.Cp()).value() << "." << endl;
   Info << "Min (thermo.rho): " << min(thermo.rho()).value() << ", max (thermo.rho): " << max(thermo.rho()).value() << "." << endl;

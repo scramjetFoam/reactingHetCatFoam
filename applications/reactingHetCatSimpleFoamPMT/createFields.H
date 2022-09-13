@@ -205,14 +205,14 @@ forAll(zoneLst,countI)
 {
     epsEff += zoneLst[countI]*(eps[countI]);
     // kappaEff += zoneLst[countI]*(kappaZ[countI]);
-    kappaEff += zoneLst[countI]*(kappaZ[countI])/(1-eps[countI]);
+    kappaEff += zoneLst[countI]*(kappaZ[countI]);
     CpEff += zoneLst[countI]*(CpZ[countI]);
     rhoEff += zoneLst[countI]*(rhoZ[countI]);
     kHEff += zoneLst[countI]*(kH[countI]);
     aZoneEff += zoneLst[countI]*(aZone[countI]);
 } 
 epsEff += freeChannel;
-volScalarField kappaS = kappaEff;
+// volScalarField kappaS = kappaEff;
 
 // -- find cells on the surface 
 // prepared for implementation of the interface heat source
