@@ -83,7 +83,7 @@ volScalarField sumZones
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     mesh,
     dimensionedScalar("sumZones",dimless,0.0)
@@ -338,7 +338,7 @@ surfaceScalarField MGradT
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    fvc::snGrad(thermo.T())
+    fvc::snGrad(epsEff)
 );
 
 Info<< "Creating field dpdt\n" << endl;
