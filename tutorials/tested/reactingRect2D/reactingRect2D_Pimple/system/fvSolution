@@ -95,7 +95,7 @@ PIMPLE
     nConcCorrectors 1;              // n of concentration calculations for each specie
     nTempCorrectors 1;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
-    nOuterCorrectors 150;             // n of outerCorrectors for pimple (1 --> PISO)
+    nOuterCorrectors 1000;             // n of outerCorrectors for pimple (1 --> PISO)
     consistent no;
     
     outerCorrectorResidualControl
