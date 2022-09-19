@@ -8,11 +8,11 @@
 
   // -- minimal and maximal values of calculated fields
   Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
-  Info << "Min (epsEff): " << min(epsEff).value() << ", max (kappaEff): " << max(epsEff).value() << "." << endl;
+  // Info << "Min (epsEff): " << min(epsEff).value() << ", max (kappaEff): " << max(epsEff).value() << "." << endl;
   Info << "Min (thermo.Cp): " << min(thermo.Cp()).value() << ", max (Cp): " << max(thermo.Cp()).value() << "." << endl;
   Info << "Min (thermo.rho): " << min(thermo.rho()).value() << ", max (thermo.rho): " << max(thermo.rho()).value() << "." << endl;
-  Info << "Min rhoEff: " << min(rhoEff).value() << ", max rhoEff: " << max(rhoEff).value() << "." << endl;
-  Info << "Min CpEff: " << min(CpEff).value() << ", max CpEff: " << max(CpEff).value() << "." << endl;
+  // Info << "Min rhoEff: " << min(rhoEff).value() << ", max rhoEff: " << max(rhoEff).value() << "." << endl;
+  // Info << "Min CpEff: " << min(CpEff).value() << ", max CpEff: " << max(CpEff).value() << "." << endl;
 
   // -- enthalpy balance for gas
   fvScalarMatrix EEqn
