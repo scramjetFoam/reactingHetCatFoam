@@ -1,0 +1,23 @@
+#!/bin/sh
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm -rf 0
+
+mkdir 0
+cp -rf 0.org/* 0
+
+# create geometry
+runApplication blockMesh
+
+# add reactive cell zone 
+runApplication snappyHexMesh -overwrite
+
+# add reactive cell zone 
+# runApplication topoSet
+
+paraFoam -touch
+
+application=`getApplication`
+runApplication $application
+
+runApplication intSrcSphere
