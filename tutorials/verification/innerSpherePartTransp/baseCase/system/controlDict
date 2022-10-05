@@ -20,11 +20,11 @@ application     customSolver;
 
 startFrom       startTime;
 
-startTime 	0;
+startTime 	    0;
 
 stopAt          endTime;
 
-endTime	100;
+endTime	        100;
 
 deltaT          1;
 
