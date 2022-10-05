@@ -10,9 +10,6 @@ import os
 import shutil as sh
 import matplotlib.pyplot as plt
 
-# -- MK: switch for dynamic simulation
-dynamic = True  # False
-
 # -- auxiliary function to determine if val is float
 def isFloat(val):
     try:
@@ -35,37 +32,45 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
-# -- setup study parameters here
-baseCaseDir = 'baseCase'
-outFolder = 'ZZ_cases'
-# MK: change naming for dynamic
-if dynamic:
-    baseCaseDir += '_dynamic'
-    outFolder += '_dynamic'
-
 # -- number of the enthalpy corrections
 # NOTETH: if 0 - isothermal study
-numOfTCorr = 1
-
-# MK: introduced "isothermal" bool for further use in logic
+numOfTCorr = 0  # 1
+# isothermal logic:
 isothermal = False
 if numOfTCorr == 0: 
     isothermal = True
 
 # -- swicher if the simulation should be run or to just check results
-runSim = True  # False
+runSim = True  
+# runSim = False
 
-# -- case data
-yInf = 0.1     # molar fraction farfar from sphere
+# -- case parameters
+yInf = 0.1      # molar fraction farfar from sphere
 p = 101325      # presure
 sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
 R = 1           # sphere radius
-Rinf = 1.1         # infinite radius
+Rinf = 1.1      # infinite radius
+inv = 2 # inlet velocity for dynamic sim
+# dynamic logic:
+dynamic = False
+if inv != 0: 
+    dynamic = True  
 # tube dimensions:
-length1 = 1.1
-length2 = 2.2
-width = 1.1
+length1 = 1.1        # inlet <-> sphere centre
+length2 = 3*length1  # sphere centre <-> outlet
+width = 1.1          # top|bottom wall <-> sphere centre
+
+# -- setup study parameters here
+baseCaseDir = 'baseCase'
+outFolder = 'ZZ_cases'
+
+# MK: change naming for dynamic
+if dynamic:
+    baseCaseDir += '_dynamic'
+    outFolder += '_dyn'
+if isothermal:
+    outFolder += '_isoT'
 
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  # cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # cell Size
@@ -76,10 +81,8 @@ TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numeri
 gamma = 20      # see line above
 # betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
 tort = 1      # tortuosity
-# solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
-solver = 'reactingHetCatSimpleFoam' # used solver
-    # reacingHetCatSimpleFoamPMT
-    # reacingHetCatPimpleFoam
+solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
+solver = solverLst[0]
 kappaEff = 1
 
 # -- numpy array with results
@@ -89,7 +92,10 @@ if isothermal:
 else:
     resNp = np.zeros((2,len(k0Lst)+1))
 
-# -- create case
+# -- create case for:
+# -- 1) varying T
+# -- 2) varying k0
+# -- 3) varysing cS
 for TInd in range(len(TLst)):
     for k0Ind in range(len(k0Lst)):
         for cellSizeInd in range(len(cellSizeLst)):
@@ -97,14 +103,14 @@ for TInd in range(len(TLst)):
             T = TLst[TInd]
             k0 = k0Lst[k0Ind]
             EA = gamma*Runiv*T
+
             # -- create caseFolder based on baseCase
             caseName = 'intraTrasn_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g'%(yInf,R,T,cellSize,k0,tort)
-            if dynamic: caseName += '_dynamic'  # MK: change for dynamic
             caseDir = '%s/%s/'%(outFolder,caseName)
 
             if runSim:
                 print('Preparing case %s'%caseName)
-                if os.path.isdir(caseDir):                                          #ensure, that the caseDir is clear
+                if os.path.isdir(caseDir):  # ensure the caseDir is clear
                     sh.rmtree(caseDir)
 
                 sh.copytree(baseCaseDir,caseDir)
@@ -112,8 +118,10 @@ for TInd in range(len(TLst)):
                 # -- change the case files
                 changeInCaseFolders('0.org/T',['isoT'],[str(T)])
                 changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
+                changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDisc'],[str(length1),str(length2),str(width),str(int(Rinf/cellSize)*2)])
+                if dynamic: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDisc'],[str(length1),str(length2),str(width),str(int(Rinf/cellSize)*2)])
+                else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(Rinf),str(int(Rinf/cellSize)*2)])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
                 changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet'],[str(kappaEff),str(tort)])
@@ -158,7 +166,7 @@ for TInd in range(len(TLst)):
                     print('k not found.')
 
             # -- compute analytical results
-            k0Art = k0*np.exp(-EA/(Runiv*T))        # definition in 2020 Chandra Direct numerical simulation of a noniso...
+            k0Art = k0*np.exp(-EA/(Runiv*T))  # definition in 2020 Chandra Direct numerical simulation of a noniso...
             rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T
             thiele = R*(k0Art/DEff)**(0.5)  # thiele modulus
             
@@ -223,7 +231,6 @@ for TInd in range(len(TLst)):
 
 ## -- create plot
 dirName = 'ZZZ_res'
-if dynamic: dirName += '_dynamic'
 if not os.path.exists(dirName): os.mkdir(dirName)  # MK: create folder for result png if it doesn't exist
 if isothermal:
     plt.plot(cellSizeLst,resNp,label='eta diff (my)')
@@ -240,7 +247,7 @@ else:
     fileName = 'mult_steadySt.png'
 # MK: this is common for both if&else
 plt.title(title)
-plt.savefig('ZZZ_res/%s'%(fileName))
+plt.savefig('%s/%s'%(dirName,fileName))
 plt.yscale('log')
 plt.xscale('log')
 plt.legend()
