@@ -32,9 +32,44 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
+def pars_from_log():
+    templog = open('templog.%s'%solver, 'w')
+    templog.write(os.popen('tail -n 150 log.%s'%solver).read())
+    templog.close()
+    print('Reading parameters from log file.')
+    with open('templog.%s'%solver, 'r') as fl:
+        lines = fl.readlines() 
+    #DFree
+    for lineInd in range(len(lines)-1,0,-1):    # -- go from back to get latest result
+        if lines[lineInd].find('DFree') >= 0:
+            DFree = float(lines[lineInd].split(' ')[-1].replace('\n',''))
+            print('DFree = %g'%DFree)
+            break
+        if lineInd == 0:
+            print('DFree not found.')
+    #DEff
+    for lineInd in range(len(lines)-1,0,-1):
+        if lines[lineInd].find('DEff') >= 0:
+            DEff = float(lines[lineInd].split(',')[0].split(' ')[-1].replace('\n',''))
+            print('DEff = %g'%DEff)
+            break
+        if lineInd == 0:
+            print('DEff not found.')
+    #k
+    for lineInd in range(len(lines)-1,0,-1):
+        if lines[lineInd].find('max(k)') >= 0:
+            k = float(lines[lineInd].split(' ')[-1].replace(').\n',''))
+            print('k = %g'%k)
+            break
+        if lineInd == 0:
+            print('k not found.')
+    os.remove('templog.%s'%solver)
+    return DFree, DEff, k0
+
+
 # -- number of the enthalpy corrections
-# NOTETH: if 0 - isothermal study
-numOfTCorr = 0  # 1
+# NOTE TH: if 0 - isothermal study
+numOfTCorr = 0
 # isothermal logic:
 isothermal = False
 if numOfTCorr == 0: 
@@ -51,7 +86,7 @@ sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)
 Runiv = 8.314   # universal gas constant
 R = 1           # sphere radius
 Rinf = 1.1      # infinite radius
-inv = 2 # inlet velocity for dynamic sim
+inv = 0         # inlet velocity
 # dynamic logic:
 dynamic = False
 if inv != 0: 
@@ -75,7 +110,7 @@ if isothermal:
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  # cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # cell Size
 cellSizeLst = [0.1]  # FV cell Size
-k0Lst = [1e2,5e2,1e3,5e3,1e4,1e5]      # reaction pre-exponential factor
+k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
@@ -136,34 +171,7 @@ for TInd in range(len(TLst)):
             # -- load Dfree, Deff, and k from log file
             # NOTETH: this can be slow (in that case maybe use something like tail?)
             # This can be nicely done in custom function
-            print('Reading parameters from log file.')
-            with open('log.%s'%solver, 'r') as fl:
-                lines = fl.readlines()
-            
-            #DFree
-            for lineInd in range(len(lines)-1,0,-1):    # -- go from back to get latest result
-                if lines[lineInd].find('DFree') >= 0:
-                    DFree = float(lines[lineInd].split(' ')[-1].replace('\n',''))
-                    print('DFree = %g'%DFree)
-                    break
-                if lineInd == 0:
-                    print('DFree not found.')
-            #DEff
-            for lineInd in range(len(lines)-1,0,-1):
-                if lines[lineInd].find('DEff') >= 0:
-                    DEff = float(lines[lineInd].split(',')[0].split(' ')[-1].replace('\n',''))
-                    print('DEff = %g'%DEff)
-                    break
-                if lineInd == 0:
-                    print('DEff not found.')
-            #k
-            for lineInd in range(len(lines)-1,0,-1):
-                if lines[lineInd].find('max(k)') >= 0:
-                    k = float(lines[lineInd].split(' ')[-1].replace(').\n',''))
-                    print('k = %g'%k)
-                    break
-                if lineInd == 0:
-                    print('k not found.')
+            DEff, DFree, k0 = pars_from_log()
 
             # -- compute analytical results
             k0Art = k0*np.exp(-EA/(Runiv*T))  # definition in 2020 Chandra Direct numerical simulation of a noniso...
@@ -231,7 +239,10 @@ for TInd in range(len(TLst)):
 
 ## -- create plot
 dirName = 'ZZZ_res'
-if not os.path.exists(dirName): os.mkdir(dirName)  # MK: create folder for result png if it doesn't exist
+if dynamic:    dirName += '_dyn'
+if isothermal: dirName += '_isoT'
+
+if not os.path.exists(dirName): os.mkdir(dirName)  # MK: mkdir for res png if doesn't exist
 if isothermal:
     plt.plot(cellSizeLst,resNp,label='eta diff (my)')
     # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
