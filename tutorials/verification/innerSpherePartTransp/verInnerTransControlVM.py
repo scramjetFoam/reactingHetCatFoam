@@ -44,7 +44,10 @@ def pars_from_log(pars, solver):
     for par_key in par_keys:
         for lineInd in range(len(lines)-1,0,-1):
             if lines[lineInd].find(pars[par_key][0]) >= 0:
-                val = re.findall("\d+[./]\d+e[-/]\d+", lines[lineInd])[pars[par_key][1]]
+                try:
+                    val = re.findall("\d+[./]\d+e[-/]\d+", lines[lineInd])[pars[par_key][1]]
+                except:
+                    val = re.findall("\d+[./]\d+", lines[lineInd])[pars[par_key][1]]
                 par_vals.append(float(val))
                 print('%s = %s'%(par_key, val))
                 break
