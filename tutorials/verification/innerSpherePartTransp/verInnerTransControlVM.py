@@ -7,6 +7,7 @@
 # -- imports
 import numpy as np
 import os 
+import re
 import shutil as sh
 import matplotlib.pyplot as plt
 
@@ -32,40 +33,25 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
-def pars_from_log():
-    templog = open('templog.%s'%solver, 'w')
-    templog.write(os.popen('tail -n 150 log.%s'%solver).read())
-    templog.close()
+def pars_from_log(pars, solver):
+    par_vals = []
+    par_keys = list(pars.keys())
+    
+    # prepare & open short temporary log file:
     print('Reading parameters from log file.')
-    with open('templog.%s'%solver, 'r') as fl:
-        lines = fl.readlines() 
-    #DFree
-    for lineInd in range(len(lines)-1,0,-1):    # -- go from back to get latest result
-        if lines[lineInd].find('DFree') >= 0:
-            DFree = float(lines[lineInd].split(' ')[-1].replace('\n',''))
-            print('DFree = %g'%DFree)
-            break
-        if lineInd == 0:
-            print('DFree not found.')
-    #DEff
-    for lineInd in range(len(lines)-1,0,-1):
-        if lines[lineInd].find('DEff') >= 0:
-            DEff = float(lines[lineInd].split(',')[0].split(' ')[-1].replace('\n',''))
-            print('DEff = %g'%DEff)
-            break
-        if lineInd == 0:
-            print('DEff not found.')
-    #k
-    for lineInd in range(len(lines)-1,0,-1):
-        if lines[lineInd].find('max(k)') >= 0:
-            k = float(lines[lineInd].split(' ')[-1].replace(').\n',''))
-            print('k = %g'%k)
-            break
-        if lineInd == 0:
-            print('k not found.')
-    os.remove('templog.%s'%solver)
-    return DFree, DEff, k0
-
+    with open('tmplog.%s'%solver, 'w') as tmplog: tmplog.write(os.popen('tail -n 100 log.%s'%solver).read())
+    with open('tmplog.%s'%solver, 'r') as tmplog: lines = tmplog.readlines() 
+    for par_key in par_keys:
+        for lineInd in range(len(lines)-1,0,-1):
+            if lines[lineInd].find(pars[par_key][0]) >= 0:
+                val = re.findall("\d+[./]\d+e[-/]\d+", lines[lineInd])[pars[par_key][1]]
+                par_vals.append(float(val))
+                print('%s = %s'%(pars[par_key][0], val))
+                break
+            if lineInd == 0:
+                par_vals.append("N/A")
+                print('%s not found'%pars[par_key][0])
+    return par_vals
 
 # -- number of the enthalpy corrections
 # NOTE TH: if 0 - isothermal study
@@ -171,7 +157,9 @@ for TInd in range(len(TLst)):
             # -- load Dfree, Deff, and k from log file
             # NOTETH: this can be slow (in that case maybe use something like tail?)
             # This can be nicely done in custom function
-            DEff, DFree, k0 = pars_from_log()
+            pars = {'DEff':('DEff', 0), 'DFree':('DFree',-1), 'k':('max(k)', -1)}
+            par_vals = pars_from_log(pars, solver)
+            DEff, DFree, k = par_vals
 
             # -- compute analytical results
             k0Art = k0*np.exp(-EA/(Runiv*T))  # definition in 2020 Chandra Direct numerical simulation of a noniso...
