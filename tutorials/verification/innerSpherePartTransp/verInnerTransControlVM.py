@@ -34,11 +34,11 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
         fl.writelines(data)
 
 def pars_from_log(pars, solver):
+    print('Reading parameters from log file.')
     par_vals = []
     par_keys = list(pars.keys())
     
     # prepare & open short temporary log file:
-    print('Reading parameters from log file.')
     with open('tmplog.%s'%solver, 'w') as tmplog: tmplog.write(os.popen('tail -n 100 log.%s'%solver).read())
     with open('tmplog.%s'%solver, 'r') as tmplog: lines = tmplog.readlines() 
     for par_key in par_keys:
@@ -46,7 +46,7 @@ def pars_from_log(pars, solver):
             if lines[lineInd].find(pars[par_key][0]) >= 0:
                 val = re.findall("\d+[./]\d+e[-/]\d+", lines[lineInd])[pars[par_key][1]]
                 par_vals.append(float(val))
-                print('%s = %s'%(pars[par_key][0], val))
+                print('%s = %s'%(par_key, val))
                 break
             if lineInd == 0:
                 par_vals.append("N/A")
