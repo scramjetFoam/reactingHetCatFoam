@@ -37,11 +37,11 @@ outFolder = 'ZZ_cases'
 
 # -- number of the enthalpy corrections
 # NOTETH: if 0 - isothermal study
-numOfTCorr = 1  
+numOfTCorr = 0  
 
 # -- swicher if the simulation should be run or to just check results
 runSim = False
-# runSim = True
+runSim = True
 
 # -- case data
 yInf = 0.1     # molar fraction farfar from sphere

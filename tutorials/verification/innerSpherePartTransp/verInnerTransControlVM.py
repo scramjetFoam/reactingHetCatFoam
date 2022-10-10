@@ -34,7 +34,7 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
         fl.writelines(data)
 
 def pars_from_log(pars, solver):
-    
+    """Read params given by a dictionary from a temporary log file."""
     print('Reading parameters from log file.')
     par_vals = []
     par_keys = list(pars.keys())
@@ -95,10 +95,10 @@ if dynamic:
     outFolder += '_dyn'
 if isothermal:
     outFolder += '_isoT'
-
-# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  # cell Size
-# cellSizeLst = [0.5,0.25,0.125,0.0625]  # cell Size
+  
 cellSizeLst = [0.1]  # FV cell Size
+# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
+# cellSizeLst = [0.5,0.25,0.125,0.0625]
 k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
@@ -157,24 +157,22 @@ for TInd in range(len(TLst)):
             else:
                 os.chdir(caseDir)
 
-            # -- load Dfree, Deff, and k from log file
-            # NOTETH: this can be slow (in that case maybe use something like tail?)
-            # This can be nicely done in custom function
-            # TODO: Fix these positions.
-            pars = {'DEff':('DEff', 0), 'DFree':('DFree',-1), 'k':('max(k)', -1)}
+            # -- load DFree, Deff, and k from log file
+            pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
             par_vals = pars_from_log(pars, solver)
-            DEff, DFree, k = par_vals
+            DFree, DEff, k = par_vals
 
             # -- compute analytical results
-            k0Art = k0*np.exp(-EA/(Runiv*T))  # definition in 2020 Chandra Direct numerical simulation of a noniso...
-            rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T
-            thiele = R*(k0Art/DEff)**(0.5)  # thiele modulus
+            k0Art = k0*np.exp(-EA/(Runiv*T))                            # definition in 2020 Chandra Direct numerical simulation of a noniso...
+            rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T             # ideal reaction source
+            thiele = R*(k0Art/DEff)**(0.5)                              # thiele modulus
             
             # -- compute simulation results
+            # NOTE MK: use my own function
             # -- read real source
             with open('log.intSrcSphere', 'r') as fl:
                 lines = fl.readlines()
-            #reaction source
+            # reaction source
             for lineInd in range(len(lines)-1,0,-1):
                 if lines[lineInd].find('reaction source') >= 0:
                     rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
@@ -182,11 +180,12 @@ for TInd in range(len(TLst)):
                 if lineInd == 0:
                     print('Reaction source not found.')
             print('reaction source = %g'%rS)
-            etaSim = rS/rSqIdeal
             
-            # -- in the isothermal cases we can compare profiles
+            etaSim = rS/rSqIdeal                                        # simulation effectivness factor
+            
+            # -- in the isothermal cases we can compare concentration profiles
             if isothermal: 
-                etaAnal = 3./(thiele**2) * (thiele*1./np.tanh(thiele) - 1)                      # analytical effectivness factor
+                etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1)  # analytical effectivness factor
                 print('Simulation effectivness factor is %g, relative error = %g'%(etaSim,(etaAnal-etaSim)/etaAnal))
                 print('\nThiele modulus = %g\nAnalytical effectivness factor is %g'%(thiele,etaAnal))   
                 # -- load concetration profile to compare with analytical solution
@@ -230,12 +229,15 @@ for TInd in range(len(TLst)):
 
 
 ## -- create plot
+
+# create &or name directory for res plot:
 dirName = 'ZZZ_res'
 if dynamic:    dirName += '_dyn'
 if isothermal: dirName += '_isoT'
+if not os.path.exists(dirName): os.mkdir(dirName)
 
-if not os.path.exists(dirName): os.mkdir(dirName)  # MK: mkdir for res png if doesn't exist
-if isothermal:
+# create plot:
+if isothermal:  # for isothermal cases, dependence of error on mesh
     plt.plot(cellSizeLst,resNp,label='eta diff (my)')
     # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
     plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
@@ -248,7 +250,6 @@ else:
     plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
     title = 'Dependence of the error on the mesh.'
     fileName = 'mult_steadySt.png'
-# MK: this is common for both if&else
 plt.title(title)
 plt.savefig('%s/%s'%(dirName,fileName))
 plt.yscale('log')
