@@ -34,6 +34,7 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
         fl.writelines(data)
 
 def pars_from_log(pars, solver):
+    
     print('Reading parameters from log file.')
     par_vals = []
     par_keys = list(pars.keys())
@@ -44,16 +45,15 @@ def pars_from_log(pars, solver):
     for par_key in par_keys:
         for lineInd in range(len(lines)-1,0,-1):
             if lines[lineInd].find(pars[par_key][0]) >= 0:
-                try:
-                    val = re.findall("\d+[./]\d+e[-/]\d+", lines[lineInd])[pars[par_key][1]]
-                except:
-                    val = re.findall("\d+[./]\d+", lines[lineInd])[pars[par_key][1]]
+                num_lst = [t[0] for t in re.findall("(\d+[./]\d*e?-?\d*)|(\d+[./]\d*)", lines[lineInd])]
+                val = num_lst[pars[par_key][1]]
                 par_vals.append(float(val))
                 print('%s = %s'%(par_key, val))
                 break
             if lineInd == 0:
                 par_vals.append("N/A")
                 print('%s not found'%pars[par_key][0])
+    os.remove('tmplog.%s'%solver)
     return par_vals
 
 # -- number of the enthalpy corrections
@@ -160,6 +160,7 @@ for TInd in range(len(TLst)):
             # -- load Dfree, Deff, and k from log file
             # NOTETH: this can be slow (in that case maybe use something like tail?)
             # This can be nicely done in custom function
+            # TODO: Fix these positions.
             pars = {'DEff':('DEff', 0), 'DFree':('DFree',-1), 'k':('max(k)', -1)}
             par_vals = pars_from_log(pars, solver)
             DEff, DFree, k = par_vals
