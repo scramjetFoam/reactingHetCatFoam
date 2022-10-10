@@ -22,6 +22,7 @@ def isFloat(val):
 # -- auxiliary function to change case params 
 # NOTETH can be done faster, but I did not want to think about it
 def changeInCaseFolders(file,whatLst,forWhatLst):
+    """Set params in files copied from baseCase."""
     print('Changing file %s, %s --> %s'%(file,str(whatLst),str(forWhatLst)))
     with open(caseDir + '/%s'%file, 'r') as fl:
         data = fl.readlines()
@@ -33,6 +34,7 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
+# -- auxilary function to read parameters from log files
 def pars_from_log(pars, solver):
     """Read params given by a dictionary from a temporary log file."""
     print('Reading parameters from log file.')
