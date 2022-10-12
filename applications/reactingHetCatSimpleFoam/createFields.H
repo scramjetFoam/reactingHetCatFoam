@@ -36,25 +36,58 @@ forAll(zoneNames,countI)
     word currentZone = zoneNames[countI];
     Info<< "Reading the zone " << currentZone << " and saving it as volScalarField." << endl;
 
+    bool loadFromFile = false;
+
     // -- load cellZone as 0 volScalarField
-    zoneLst.set
-    (
-        countI,
-        new volScalarField
+    if (transportProperties.subDict(currentZone).found("loadFromFile"))
+    {
+        transportProperties.subDict(currentZone).lookup("loadFromFile") >> loadFromFile;
+    }
+
+    if (loadFromFile)
+    {
+        zoneLst.set
         (
-            IOobject
+            countI,
+            new volScalarField
             (
-                currentZone,
-                runTime.timeName(),
+                IOobject
+                (
+                    currentZone,
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh
+                // dimensionedScalar (currentZone,dimless,0.0),
+                // "zeroGradient"
+            )
+        );
+        Info << "Zone " << currentZone << " has been loaded from file." << endl;
+    }
+    else
+    {
+        zoneLst.set
+        (
+            countI,
+            new volScalarField
+            (
+                IOobject
+                (
+                    currentZone,
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
                 mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedScalar (currentZone,dimless,0.0),
-            "zeroGradient"
-        )
-    );
+                dimensionedScalar (currentZone,dimless,0.0),
+                "zeroGradient"
+            )
+        );
+        Info << "Zone " << currentZone << " has been created from cellZone." << endl;
+    }
 }
 
 // -- set to 1, where the cellZone is
@@ -76,16 +109,16 @@ forAll(zoneNames,countI)
 // -- porosity
 volScalarField epsEff
 (
-IOobject
-(
-    "epsEff",
-    runTime.timeName(),
+    IOobject
+        (
+            "epsEff",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
     mesh,
-    IOobject::NO_READ,
-    IOobject::NO_WRITE
-),
-mesh,
-dimensionedScalar("epsEff",dimless,0.0)
+    dimensionedScalar("epsEff",dimless,0.0)
 );
 
 // -- prepare the effective diffusion coefficient
