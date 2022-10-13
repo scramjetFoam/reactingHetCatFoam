@@ -7,35 +7,27 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
+    version     2.0;
     format      ascii;
     class       dictionary;
-    object      topoSetDict;
+    object      residuals;
 }
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-actions
-(
+residuals
     {
-        name reactingCells;
-        type cellSet;
-        action new;
-        source boxToCell;
-        sourceInfo
-        {
-            box (-100 -100 -100) (100 100 100);
-        }
+        functionObjectLibs ("libutilityFunctionObjects.so");
+        type    residuals;
+        writeControl    timeStep;
+        writeInterval   1;
+        fields
+        (
+            U
+            p
+	        T
+	        CO
+            O2
+            CO2
+        );
     }
-    {
-        name    reactingCellZone;
-        type    cellZoneSet;
-        action  new;
-        source  setToCellZone;
-        sourceInfo
-        {
-            set reactingCells;
-        }
-    } 
-);
 
-// ************************************************************************* //

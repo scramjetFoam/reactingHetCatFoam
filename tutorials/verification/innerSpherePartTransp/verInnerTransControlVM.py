@@ -2,10 +2,12 @@
 
 # -- TODO:
 # 1) try different parameters setups, check analytical profile in the isothermal cases, check order of the method (should be 2) in all cases
+# 2) MK: script arguments for numOfTCorr, dynamic & runSim
 
 # -- imports
 import numpy as np
 import os 
+import re
 import shutil as sh
 import matplotlib.pyplot as plt
 
@@ -20,6 +22,7 @@ def isFloat(val):
 # -- auxiliary function to change case params 
 # NOTETH can be done faster, but I did not want to think about it
 def changeInCaseFolders(file,whatLst,forWhatLst):
+    """Set params in files copied from baseCase."""
     print('Changing file %s, %s --> %s'%(file,str(whatLst),str(forWhatLst)))
     with open(caseDir + '/%s'%file, 'r') as fl:
         data = fl.readlines()
@@ -31,46 +34,94 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
-# -- setup study parameters here
-baseCaseDir = 'baseCase'
-outFolder = 'ZZ_cases'
+# -- auxilary function to read parameters from log files
+def pars_from_log(pars, solver):
+    """Read params given by a dictionary from a temporary log file."""
+    print('Reading parameters from log file.')
+    par_vals = []
+    par_keys = list(pars.keys())
+    
+    # prepare & open short temporary log file:
+    with open('tmplog.%s'%solver, 'w') as tmplog: tmplog.write(os.popen('tail -n 100 log.%s'%solver).read())
+    with open('tmplog.%s'%solver, 'r') as tmplog: lines = tmplog.readlines() 
+    for par_key in par_keys:
+        for lineInd in range(len(lines)-1,0,-1):
+            if lines[lineInd].find(pars[par_key][0]) >= 0:
+                num_lst = [t[0] for t in re.findall("(\d+[./]\d*e?-?\d*)|(\d+[./]\d*)", lines[lineInd])]
+                val = num_lst[pars[par_key][1]]
+                par_vals.append(float(val))
+                print('%s = %s'%(par_key, val))
+                break
+            if lineInd == 0:
+                par_vals.append("N/A")
+                print('%s not found'%pars[par_key][0])
+    os.remove('tmplog.%s'%solver)
+    return par_vals
 
 # -- number of the enthalpy corrections
-# NOTETH: if 0 - isothermal study
-numOfTCorr = 0  
+# NOTE TH: if 0 - isothermal study
+numOfTCorr = 0
+# isothermal logic:
+isothermal = False
+if numOfTCorr == 0: 
+    isothermal = True
 
 # -- swicher if the simulation should be run or to just check results
-runSim = False
-runSim = True
+runSim = True  
+# runSim = False
 
-# -- case data
-yInf = 0.1     # molar fraction farfar from sphere
+# -- case parameters
+yInf = 0.1      # molar fraction farfar from sphere
 p = 101325      # presure
 sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
 R = 1           # sphere radius
-Rinf = 1.1         # infinite radius 
-# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  # cell Size
-# cellSizeLst = [0.5,0.25,0.125,0.0625]  # cell Size
+Rinf = 1.1      # infinite radius
+inv = 0         # inlet velocity
+# dynamic logic:
+dynamic = False
+if inv != 0: 
+    dynamic = True  
+# tube dimensions:
+length1 = 1.1        # inlet <-> sphere centre
+length2 = 3*length1  # sphere centre <-> outlet
+width = 1.1          # top|bottom wall <-> sphere centre
+
+# -- setup study parameters here
+baseCaseDir = 'baseCase'
+outFolder = 'ZZ_cases'
+
+# MK: change naming for dynamic
+if dynamic:
+    baseCaseDir += '_dynamic'
+    outFolder += '_dyn'
+if isothermal:
+    outFolder += '_isoT'
+  
 cellSizeLst = [0.1]  # FV cell Size
-k0Lst = [1e2,5e2,1e3,5e3,1e4,1e5]      # reaction pre-exponential factor
+# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
+# cellSizeLst = [0.5,0.25,0.125,0.0625]
+k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
 # betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
 tort = 1      # tortuosity
-# solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
-solver = 'reactingHetCatSimpleFoam' # used solver
+solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
+solver = solverLst[0]
 kappaEff = 1
 
 # -- numpy array with results
-if numOfTCorr == 0:
+if isothermal:
     resNp = np.zeros((len(cellSizeLst)))
     resNp2 = np.zeros((len(cellSizeLst)))
 else:
     resNp = np.zeros((2,len(k0Lst)+1))
 
-# -- create case
+# -- create case for:
+# -- 1) varying T
+# -- 2) varying k0
+# -- 3) varysing cS
 for TInd in range(len(TLst)):
     for k0Ind in range(len(k0Lst)):
         for cellSizeInd in range(len(cellSizeLst)):
@@ -78,13 +129,14 @@ for TInd in range(len(TLst)):
             T = TLst[TInd]
             k0 = k0Lst[k0Ind]
             EA = gamma*Runiv*T
+
             # -- create caseFolder based on baseCase
             caseName = 'intraTrasn_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g'%(yInf,R,T,cellSize,k0,tort)
             caseDir = '%s/%s/'%(outFolder,caseName)
 
             if runSim:
                 print('Preparing case %s'%caseName)
-                if os.path.isdir(caseDir):                                          #ensure, that the caseDir is clear
+                if os.path.isdir(caseDir):  # ensure the caseDir is clear
                     sh.rmtree(caseDir)
 
                 sh.copytree(baseCaseDir,caseDir)
@@ -92,8 +144,10 @@ for TInd in range(len(TLst)):
                 # -- change the case files
                 changeInCaseFolders('0.org/T',['isoT'],[str(T)])
                 changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
+                changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                changeInCaseFolders('system/blockMeshDict',['dSN','nDisc'],[str(Rinf),str(int(Rinf/cellSize)*2)])
+                if dynamic: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDisc'],[str(length1),str(length2),str(width),str(int(Rinf/cellSize)*2)])
+                else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(Rinf),str(int(Rinf/cellSize)*2)])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
                 changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet'],[str(kappaEff),str(tort)])
@@ -105,48 +159,22 @@ for TInd in range(len(TLst)):
             else:
                 os.chdir(caseDir)
 
-            # -- load Dfree, Deff, and k from log file
-            # NOTETH: this can be slow (in that case maybe use something like tail?)
-            # This can be nicely done in custom function
-            print('Reading parameters from log file.')
-            with open('log.%s'%solver, 'r') as fl:
-                lines = fl.readlines()
-            
-            #DFree
-            for lineInd in range(len(lines)-1,0,-1):    # -- go from back to get latest result
-                if lines[lineInd].find('DFree') >= 0:
-                    DFree = float(lines[lineInd].split(' ')[-1].replace('\n',''))
-                    print('DFree = %g'%DFree)
-                    break
-                if lineInd == 0:
-                    print('DFree not found.')
-            #DEff
-            for lineInd in range(len(lines)-1,0,-1):
-                if lines[lineInd].find('DEff') >= 0:
-                    DEff = float(lines[lineInd].split(',')[0].split(' ')[-1].replace('\n',''))
-                    print('DEff = %g'%DEff)
-                    break
-                if lineInd == 0:
-                    print('DEff not found.')
-            #k
-            for lineInd in range(len(lines)-1,0,-1):
-                if lines[lineInd].find('max(k)') >= 0:
-                    k = float(lines[lineInd].split(' ')[-1].replace(').\n',''))
-                    print('k = %g'%k)
-                    break
-                if lineInd == 0:
-                    print('k not found.')
+            # -- load DFree, Deff, and k from log file
+            pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
+            par_vals = pars_from_log(pars, solver)
+            DFree, DEff, k = par_vals
 
             # -- compute analytical results
-            k0Art = k0*np.exp(-EA/(Runiv*T))        # definition in 2020 Chandra Direct numerical simulation of a noniso...
-            rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T
-            thiele = R*(k0Art/DEff)**(0.5)  # thiele modulus
+            k0Art = k0*np.exp(-EA/(Runiv*T))                            # definition in 2020 Chandra Direct numerical simulation of a noniso...
+            rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T             # ideal reaction source
+            thiele = R*(k0Art/DEff)**(0.5)                              # thiele modulus
             
             # -- compute simulation results
+            # NOTE MK: use my own function
             # -- read real source
             with open('log.intSrcSphere', 'r') as fl:
                 lines = fl.readlines()
-            #reaction source
+            # reaction source
             for lineInd in range(len(lines)-1,0,-1):
                 if lines[lineInd].find('reaction source') >= 0:
                     rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
@@ -154,11 +182,12 @@ for TInd in range(len(TLst)):
                 if lineInd == 0:
                     print('Reaction source not found.')
             print('reaction source = %g'%rS)
-            etaSim = rS/rSqIdeal
             
-            # -- in the isothermal cases we can compare profiles
-            if numOfTCorr == 0: 
-                etaAnal = 3./(thiele**2) * (thiele*1./np.tanh(thiele) - 1)                      # analytical effectivness factor
+            etaSim = rS/rSqIdeal                                        # simulation effectivness factor
+            
+            # -- in the isothermal cases we can compare concentration profiles
+            if isothermal: 
+                etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1)  # analytical effectivness factor
                 print('Simulation effectivness factor is %g, relative error = %g'%(etaSim,(etaAnal-etaSim)/etaAnal))
                 print('\nThiele modulus = %g\nAnalytical effectivness factor is %g'%(thiele,etaAnal))   
                 # -- load concetration profile to compare with analytical solution
@@ -199,24 +228,33 @@ for TInd in range(len(TLst)):
             # etaAnal = 3./(thiele**2) * (thiele*1./np.tanh(thiele)-1)/(1+(thiele*1./np.tanh(thiele)-1)/BiM)                      # analytical effectivness factor
             
             os.chdir('../../')
-if numOfTCorr == 0:
+
+
+## -- create plot
+
+# create &or name directory for res plot:
+dirName = 'ZZZ_res'
+if dynamic:    dirName += '_dyn'
+if isothermal: dirName += '_isoT'
+if not os.path.exists(dirName): os.mkdir(dirName)
+
+# create plot:
+if isothermal:  # for isothermal cases, dependence of error on mesh
     plt.plot(cellSizeLst,resNp,label='eta diff (my)')
     # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
     plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
     # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
     plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
     plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
-    plt.title('Dependence of the error on the mesh.')
-    plt.savefig('ZZZ_res/error_mesh.png')
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.legend()
-    plt.show()
+    title = 'Dependence of the error on the mesh.'
+    fileName = 'error_mesh.png'
 else:
     plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
-    plt.title('Multiple steady states.')
-    plt.savefig('ZZZ_res/mult_steadySt.png')
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.legend()
-    plt.show()
+    title = 'Dependence of the error on the mesh.'
+    fileName = 'mult_steadySt.png'
+plt.title(title)
+plt.savefig('%s/%s'%(dirName,fileName))
+plt.yscale('log')
+plt.xscale('log')
+plt.legend()
+plt.show()
