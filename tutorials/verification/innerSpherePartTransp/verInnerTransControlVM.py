@@ -87,15 +87,15 @@ sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)
 Runiv = 8.314   # universal gas constant
 R = 1           # sphere radius
 Rinf = 1.1      # infinite radius
-inv = 5         # inlet velocity
+inv = 0.1         # inlet velocity
 # flow logic:
 flow = False
 if inv != 0: 
     flow = True  
 # tube dimensions:
-length1 = 3*R        # inlet <-> sphere centre
-length2 = 5*R  # sphere centre <-> outlet
-width = 2*R          # top|bottom wall <-> sphere centre
+length1 = 6*Rinf        # inlet <-> sphere centre
+length2 = 10*Rinf  # sphere centre <-> outlet
+width = 3*Rinf          # top|bottom wall <-> sphere centre
 
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
@@ -111,7 +111,8 @@ if isothermal:
 cellSizeLst = [0.1]  # FV cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
-k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
+#k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
+k0Lst = [1e5]
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
@@ -165,8 +166,9 @@ for TInd in range(len(TLst)):
                 changeInCaseFolders('system/snappyHexMeshDict',['spR'],[str(R)])
                 # -- run the simulation
                 os.chdir(caseDir)
-                # os.system('./AllrunIntraSphere')
-                os.system('./Allrun')
+                # os.system('./AllrunIntraSphere') # --> only runs inside the sphere
+                # os.system('./Allrun') # --> for flow cases
+                os.system('./Allrun-parallel')
 
             else:
                 os.chdir(caseDir)
