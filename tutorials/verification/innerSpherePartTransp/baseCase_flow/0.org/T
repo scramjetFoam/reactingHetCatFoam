@@ -32,7 +32,7 @@ boundaryField
     }
     sides
     {
-        type    zeroGradient;
+        type    symmetry;
     }
     sphere
     {

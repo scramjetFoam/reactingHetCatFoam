@@ -7,38 +7,49 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     1.0;
+    version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      CO;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+//application     reactingHetCatSimpleFoam;
+application     customSolver;
 
-internalField   uniform yCOSet;
+startFrom       startTime;
 
-boundaryField
-{
-    inlet
-    {
-        type            fixedValue;
-        value           uniform yCOSet;
-    }
-    outlet
-    {
-        type            zeroGradient;
-    }
-    sides
-    {
-        type            zeroGradient;
-    }
-    sphere
-    {
-        type            fixedValue;
-        value           uniform yCOSet;
-    }
-    
-}
+startTime 	    0;
+
+stopAt          endTime;
+
+endTime	        1000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval 	5;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
 
 // ************************************************************************* //
+
+functions
+{
+      #include "residuals"
+}
