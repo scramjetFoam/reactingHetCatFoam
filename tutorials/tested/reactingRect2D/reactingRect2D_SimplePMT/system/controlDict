@@ -18,19 +18,22 @@ FoamFile
 //application     reactingHetCatSimpleFoam;
 application     reactingHetCatSimpleFoamPMT;
 
-startFrom       startTime;
+//startFrom       startTime;
+startFrom       latestTime;
 
 startTime 	0;
 
 stopAt          endTime;
 
+//endTime	1500;
 endTime	1500;
 
 deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval 	50;
+writeInterval 	1500;
+//writeInterval 	1;
 
 purgeWrite      0;
 
