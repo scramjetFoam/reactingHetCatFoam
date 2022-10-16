@@ -1,0 +1,91 @@
+<<<<<<< HEAD:tutorials/verification/innerSpherePartTransp/baseCase_dynamic/0.org/CO
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     1.0;
+    format      ascii;
+    class       volScalarField;
+    object      CO;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform yCOSet;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform yCOSet;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    sides
+    {
+        type            zeroGradient;
+    }
+    sphere
+    {
+        type            fixedValue;
+        value           uniform yCOSet;
+    }
+    
+}
+
+// ************************************************************************* //
+=======
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     1.0;
+    format      ascii;
+    class       volScalarField;
+    object      CO;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform yCOSet;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform yCOSet;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    sides
+    {
+        type            symmetry;
+    }
+    sphere
+    {
+        type            fixedValue;
+        value           uniform yCOSet;
+    }
+    
+}
+
+// ************************************************************************* //
+>>>>>>> 00108f551382890234d2b5989ffac74602e16a99:tutorials/verification/innerSpherePartTransp/baseCase_flow/0.org/CO
