@@ -33,11 +33,11 @@ boundaryField
     {
         type            symmetry;
     }
-    sphere
-    {
-        type            fixedValue;
-        value           uniform yCOSet;
-    }
+    // sphere
+    // {
+    //     type            fixedValue;
+    //     value           uniform yCOSet;
+    // }
     
 }
 

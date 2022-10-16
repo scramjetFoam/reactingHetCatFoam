@@ -28,15 +28,17 @@ boundaryField
     }
     outlet
     {
-        type    zeroGradient;
+        // type    zeroGradient;
+        type    fixedValue;
+        value   uniform isoT;
     }
     sides
     {
         type    symmetry;
     }
-    sphere
-    {
-        type    fixedValue;
-        value   uniform isoT;
-    }
+    // sphere
+    // {
+    //     type    fixedValue;
+    //     value   uniform isoT;
+    // }
 }
