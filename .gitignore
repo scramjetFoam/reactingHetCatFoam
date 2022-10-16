@@ -50,6 +50,8 @@ tutorials/Matyas/caseConstructor/ZZ_cases/test/**
 tutorials/Matyas/channelCaseConstructor/testMatyas/**
 tutorials/Matyas/channelCaseConstructor2D/testMatyas/**
 
+diff**
+
 *__pycache__
 
 *.pyc
