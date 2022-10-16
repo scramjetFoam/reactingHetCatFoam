@@ -23,14 +23,13 @@ boundaryField
 {
     inlet
     {
-        type    fixedValue;
-        value   uniform isoT;
+        // type    fixedValue;
+        // value   uniform isoT;
+        type    zeroGradient;
     }
     outlet
     {
-        // type    zeroGradient;
-        type    fixedValue;
-        value   uniform isoT;
+        type    zeroGradient;
     }
     sides
     {

@@ -85,9 +85,9 @@ yInf = 0.1      # molar fraction farfar from sphere
 p = 101325      # presure
 sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
-R = 0.5           # sphere radius
+R = 1           # sphere radius
 Rinf = 1.1      # infinite radius
-inv = 0.01         # inlet velocity
+inv = 0.07         # inlet velocity
 # flow logic:
 flow = False
 if inv != 0: 
@@ -108,7 +108,7 @@ if flow:
 if isothermal:
     outFolder += '_isoT'
   
-cellSizeLst = [0.1]  # FV cell Size
+cellSizeLst = [0.01]  # FV cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
 #k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
@@ -130,9 +130,7 @@ else:
     resNp = np.zeros((2,len(k0Lst)+1))
 
 # -- create case for:
-# -- 1) varying T
-# -- 2) varying k0
-# -- 3) varysing cS
+
 for TInd in range(len(TLst)):
     for k0Ind in range(len(k0Lst)):
         for cellSizeInd in range(len(cellSizeLst)):
@@ -162,7 +160,6 @@ for TInd in range(len(TLst)):
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
                 changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet'],[str(kappaEff),str(tort)])
-                # sphere radius:
                 changeInCaseFolders('system/snappyHexMeshDict',['spR'],[str(R)])
                 # -- run the simulation
                 os.chdir(caseDir)
@@ -181,10 +178,10 @@ for TInd in range(len(TLst)):
             # -- compute analytical results
             k0Art = k0*np.exp(-EA/(Runiv*T))                            # definition in 2020 Chandra Direct numerical simulation of a noniso...
             rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T             # ideal reaction source
-            thiele = R*(k0Art/DEff)**(0.5)                              # thiele modulus
+            thiele = R*(k0Art/DEff)**(1/2)                              # thiele modulus
             
             # -- compute simulation results
-            # NOTE MK: use my own function
+            # NOTE MK: use custom function
             # -- read real source
             with open('log.intSrcSphere', 'r') as fl:
                 lines = fl.readlines()
