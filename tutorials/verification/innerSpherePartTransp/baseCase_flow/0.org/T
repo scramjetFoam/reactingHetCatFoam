@@ -23,8 +23,9 @@ boundaryField
 {
     inlet
     {
-        type    fixedValue;
-        value   uniform isoT;
+        // type    fixedValue;
+        // value   uniform isoT;
+        type    zeroGradient;
     }
     outlet
     {
@@ -34,9 +35,9 @@ boundaryField
     {
         type    symmetry;
     }
-    sphere
-    {
-        type    fixedValue;
-        value   uniform isoT;
-    }
+    // sphere
+    // {
+    //     type    fixedValue;
+    //     value   uniform isoT;
+    // }
 }

@@ -29,19 +29,20 @@ boundaryField
     
     outlet
     {
-        type    zeroGradient;
+        type            inletOutlet;
+        value           $internalField;
+        inletValue      uniform (0 0 0);
     }
     
     sides
     {
         type    symmetry;
     }
-
-    sphere
-    {
-        type    fixedValue;
-	    value	uniform (0 0 0.0);
-    } 
+    // sphere
+    // {
+    //     type    fixedValue;
+	//     value	uniform (0 0 0.0);
+    // } 
 }
 
 
