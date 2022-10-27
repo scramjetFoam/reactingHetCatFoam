@@ -6,6 +6,8 @@ rm -rf 0
 mkdir 0
 cp -rf 0.org/* 0
 
+mkdir dynamicCode
+
 # create geometry
 runApplication blockMesh
 

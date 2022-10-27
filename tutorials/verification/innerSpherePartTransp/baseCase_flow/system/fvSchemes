@@ -30,7 +30,7 @@ gradSchemes
 divSchemes
 {
     // default                             bounded Gauss vanLeer;
-    default                             bounded Gauss linear;
+    default                             bounded Gauss SFCD;
     // default                             bounded Gauss linearUpwind grad(U);
   //  default                             bounded Gauss upwind;
     // div(phi,U)                          bounded Gauss upwind;

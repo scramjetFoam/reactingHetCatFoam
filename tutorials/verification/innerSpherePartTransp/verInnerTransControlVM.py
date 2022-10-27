@@ -85,17 +85,17 @@ yInf = 0.1      # molar fraction farfar from sphere
 p = 101325      # presure
 sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
-R = 1           # sphere radius
+R = 0.01           # sphere radius
 Rinf = 1.1      # infinite radius
-inv = 0.07         # inlet velocity
+inv = 0.0558        # inlet velocity
 # flow logic:
 flow = False
 if inv != 0: 
     flow = True  
 # tube dimensions:
-length1 = 3*R       # inlet <-> sphere centre
-length2 = 2*R       # sphere centre <-> outlet
-width = 2*R         # top|bottom wall <-> sphere centre
+length1 = 15*R       # inlet <-> sphere centre
+length2 = 45*R       # sphere centre <-> outlet
+width = 15*R         # top|bottom wall <-> sphere centre
 
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
@@ -108,7 +108,7 @@ if flow:
 if isothermal:
     outFolder += '_isoT'
   
-cellSizeLst = [0.01]  # FV cell Size
+cellSizeLst = [R/3]  # FV cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
 #k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
@@ -140,7 +140,7 @@ for TInd in range(len(TLst)):
             EA = gamma*Runiv*T
 
             # -- create caseFolder based on baseCase
-            caseName = 'intraTrasn_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g'%(yInf,R,T,cellSize,k0,tort)
+            caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
             caseDir = '%s/%s/'%(outFolder,caseName)
 
             if runSim:
@@ -155,7 +155,7 @@ for TInd in range(len(TLst)):
                 changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
                 changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDisc'],[str(length1),str(length2),str(width),str(int(length1/cellSize*2))])
+                if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
                 else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(Rinf),str(int(Rinf/cellSize*2))])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
