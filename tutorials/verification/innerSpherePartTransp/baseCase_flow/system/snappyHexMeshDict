@@ -37,6 +37,12 @@ geometry
         centre          (0 0 0);
         radius          spR;
     }
+	refBox
+    {
+        type searchableBox;
+        min (-0.05 -0.04 -0.04);
+        max (0.18 0.04 0.04);
+    }
 };
 
 
@@ -111,7 +117,8 @@ castellatedMeshControls
         sphere
         {
             // Surface-wise min and max refinement level
-            level (1 1);
+             level (2 2);
+            // level (1 1);
             cellZone reactingCellZone;
             faceZone batt1;
             // cellZone batt1;
@@ -141,9 +148,21 @@ castellatedMeshControls
         sphere
         {
             mode inside;
-            level 1;
+            level 2;
             // levels ((1e-5 2));
             // cellZone rashigs;
+        }
+		sphere
+        {
+            mode distance;
+            // //~ level 1;
+            levels  ((0.01 3));
+            // cellZone rashigs;
+        }
+                refBox
+        {
+            mode inside;
+            levels ((1E4 2));
         }
     }
 
@@ -215,7 +234,7 @@ addLayersControls
     // Per final patch (so not geometry!) the layer information
     layers
     {
-        rashigs
+        sphere
         {
             nSurfaceLayers 2;
         }

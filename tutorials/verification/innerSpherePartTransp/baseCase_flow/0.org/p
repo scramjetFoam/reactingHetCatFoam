@@ -43,17 +43,26 @@ boundaryField
     }
     sides
     {
-        type    symmetry;
+        type    zeroGradient;
     }
-    // sphere
-    // {
-    //     type    totalPressure;
-    //     p0      uniform 101325;
-    //     value   uniform 101325;
+    sphere
+    {
+        type    totalPressure;
+        p0      uniform 101325;
+        value   uniform 101325;
     
-    //     U       U;
-    //     phi     phi;
-    // }
+        U       U;
+        phi     phi;
+    }
+            sphere_slave
+    {
+                type    totalPressure;
+        p0      uniform 101325;
+        value   uniform 101325;
+    
+        U       U;
+        phi     phi;
+    }
 }
 
 // ************************************************************************* //

@@ -31,13 +31,18 @@ boundaryField
     }
     sides
     {
-        type            symmetry;
+        type            zeroGradient;
     }
-    // sphere
-    // {
-    //     type            fixedValue;
-    //     value           uniform yCOSet;
-    // }
+    sphere
+    {
+        type            fixedValue;
+        value           uniform 0.1;
+    }
+        sphere_slave
+    {
+        type            fixedValue;
+        value           uniform 0.1;
+    }
     
 }
 

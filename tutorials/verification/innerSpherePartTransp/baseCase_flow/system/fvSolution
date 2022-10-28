@@ -105,8 +105,8 @@ relaxationFactors
 {
     fields
     {
-        p           0.1;
-        U           0.2;
+        p           0.2;
+        U           0.4;
         // T           0.5;
         // "(CO|O2|CO2)" 	 0.0001;
     }

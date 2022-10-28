@@ -22,6 +22,9 @@ import os
 import re
 import shutil as sh
 import matplotlib.pyplot as plt
+import sys
+
+print(sys.argv)
 
 # -- auxiliary function to determine if val is float
 def isFloat(val):
@@ -78,24 +81,26 @@ if numOfTCorr == 0:
 
 # -- swicher if the simulation should be run or to just check results
 runSim = True  
-# runSim = False
+# runSim = False    
 
 # -- case parameters
 yInf = 0.1      # molar fraction farfar from sphere
 p = 101325      # presure
-sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)	
+sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
-R = 1           # sphere radius
+R = 0.01           # sphere radius
 Rinf = 1.1      # infinite radius
-inv = 0.07         # inlet velocity
+# inv = 0.0558        # inlet velocity
+inv = 0.1116        # inlet velocity
 # flow logic:
 flow = False
 if inv != 0: 
     flow = True  
 # tube dimensions:
-length1 = 3*R       # inlet <-> sphere centre
-length2 = 2*R       # sphere centre <-> outlet
-width = 2*R         # top|bottom wall <-> sphere centre
+length1 = 15*R       # inlet <-> sphere centre
+length2 = 45*R       # sphere centre <-> outlet
+width = 15*R         # top|bottom wall <-> sphere centre
+DFreeZ = 1e-5
 
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
@@ -108,11 +113,12 @@ if flow:
 if isothermal:
     outFolder += '_isoT'
   
-cellSizeLst = [0.01]  # FV cell Size
+# cellSizeLst = [R/3]  # FV cell Size
+cellSizeLst = [0.7*R]  # FV cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
 #k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
-k0Lst = [1e2]
+k0Lst = [5e8]
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
@@ -140,7 +146,7 @@ for TInd in range(len(TLst)):
             EA = gamma*Runiv*T
 
             # -- create caseFolder based on baseCase
-            caseName = 'intraTrasn_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g'%(yInf,R,T,cellSize,k0,tort)
+            caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
             caseDir = '%s/%s/'%(outFolder,caseName)
 
             if runSim:
@@ -155,11 +161,11 @@ for TInd in range(len(TLst)):
                 changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
                 changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDisc'],[str(length1),str(length2),str(width),str(int(length1/cellSize*2))])
+                if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
                 else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(Rinf),str(int(Rinf/cellSize*2))])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
-                changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet'],[str(kappaEff),str(tort)])
+                changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
                 changeInCaseFolders('system/snappyHexMeshDict',['spR'],[str(R)])
                 # -- run the simulation
                 os.chdir(caseDir)
@@ -172,8 +178,10 @@ for TInd in range(len(TLst)):
 
             # -- load DFree, Deff, and k from log file
             pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
-            par_vals = pars_from_log(pars, solver)
-            DFree, DEff, k = par_vals
+            # par_vals = pars_from_log(pars, solver)
+            # DFree, DEff, k = par_vals
+            DFree, DEff, k = 1e-5, 1e-5, 2.06
+            DEff = DFree/tort*0.5           
 
             # -- compute analytical results
             k0Art = k0*np.exp(-EA/(Runiv*T))                            # definition in 2020 Chandra Direct numerical simulation of a noniso...
@@ -189,12 +197,13 @@ for TInd in range(len(TLst)):
             for lineInd in range(len(lines)-1,0,-1):
                 if lines[lineInd].find('reaction source') >= 0:
                     rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
+                    etaSim = rS/rSqIdeal  # simulation effectivness factor
+                    print('reaction source = %g'%rS)
                     break
                 if lineInd == 0:
                     print('Reaction source not found.')
-            print('reaction source = %g'%rS)
             
-            etaSim = rS/rSqIdeal  # simulation effectivness factor
+            
             
             # -- in the isothermal cases we can compare concentration profiles
             if isothermal and not flow: 
@@ -235,8 +244,33 @@ for TInd in range(len(TLst)):
                 print('beta',beta,'thiele',thiele,'effect sim',etaSim)
                 resNp[:,k0Ind] = np.array([thiele,etaSim])
                 
-            # elif flow:
+            elif flow:
             # NOTETH: inner + outer transport
+                nu = 5.5862252e-05
+                Re = inv * (R*2) / nu
+                Sc = nu / DFree
+                ShC = 2 + 0.6 * Re**0.5 * Sc**(1./3)
+                print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
+
+                with open('log.integrace','r') as fl:
+                    lines = fl.readlines()
+                
+                inds = [0,0]
+                names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO"]
+                for lineInd in range(len(lines)):
+                    for j in range(len(names)):
+                        if  names[j] in lines[lineInd]:
+                            inds[j] = lineInd
+                cCO = float(lines[inds[0]].split('=')[1])
+                gradCCO = float(lines[inds[1]].split('=')[1])
+                j = -DFree*gradCCO   #/(4*np.pi*R**2)
+                km = j/(yInf*p/Runiv/T-cCO)
+                Sh = km*(2*R)/DFree
+
+                print('correlation: Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
+                print('simulation: thiele = %g, gradYCO = %g, yCO = %g, j = %g, km = %g, Sh = %g'%(thiele, gradCCO, cCO, j,km,Sh))
+                
+
             # BiM = kL*R/DEff             # Biot number
             # etaAnal = 3./(thiele**2) * (thiele*1./np.tanh(thiele)-1)/(1+(thiele*1./np.tanh(thiele)-1)/BiM)                      # analytical effectivness factor
             
@@ -252,22 +286,23 @@ if isothermal: dirName += '_isoT'
 if not os.path.exists(dirName): os.mkdir(dirName)
 
 # create plot:
-if isothermal:
-    plt.plot(cellSizeLst,resNp,label='eta diff (my)')
-    # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
-    plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
-    # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
-    plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
-    plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
-    title = 'Dependence of the error on the mesh.'
-    fileName = 'error_mesh.png'
-else:
-    plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
-    title = 'Multiple steady states.'
-    fileName = 'mult_steadySt.png'
-plt.title(title)
-plt.savefig('%s/%s'%(dirName,fileName))
-plt.yscale('log')
-plt.xscale('log')
-plt.legend()
-plt.show()
+if not flow:
+    if isothermal:
+        plt.plot(cellSizeLst,resNp,label='eta diff (my)')
+        # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
+        plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
+        # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
+        plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
+        plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
+        title = 'Dependence of the error on the mesh.'
+        fileName = 'error_mesh.png'
+    else:
+        plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+        title = 'Multiple steady states.'
+        fileName = 'mult_steadySt.png'
+    plt.title(title)
+    plt.savefig('%s/%s'%(dirName,fileName))
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.legend()
+    plt.show()
