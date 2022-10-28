@@ -22,6 +22,9 @@ import os
 import re
 import shutil as sh
 import matplotlib.pyplot as plt
+import sys
+
+print(sys.argv)
 
 # -- auxiliary function to determine if val is float
 def isFloat(val):
@@ -77,8 +80,8 @@ if numOfTCorr == 0:
     isothermal = True
 
 # -- swicher if the simulation should be run or to just check results
-runSim = True  
-# runSim = False
+# runSim = True  
+runSim = False
 
 # -- case parameters
 yInf = 0.1      # molar fraction farfar from sphere
@@ -87,7 +90,8 @@ sHr = -138725599.72220203    # standard reaction enthalpy (physical 283e3)
 Runiv = 8.314   # universal gas constant
 R = 0.01           # sphere radius
 Rinf = 1.1      # infinite radius
-inv = 0.0558        # inlet velocity
+# inv = 0.0558        # inlet velocity
+inv = 0.1116        # inlet velocity
 # flow logic:
 flow = False
 if inv != 0: 
@@ -108,7 +112,8 @@ if flow:
 if isothermal:
     outFolder += '_isoT'
   
-cellSizeLst = [R/3]  # FV cell Size
+# cellSizeLst = [R/3]  # FV cell Size
+cellSizeLst = [0.33*R]  # FV cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
 #k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
@@ -235,8 +240,27 @@ for TInd in range(len(TLst)):
                 print('beta',beta,'thiele',thiele,'effect sim',etaSim)
                 resNp[:,k0Ind] = np.array([thiele,etaSim])
                 
-            # elif flow:
+            elif flow:
             # NOTETH: inner + outer transport
+                nu = 5.5862252e-05
+                Re = inv * (R*2) / nu
+                Sc = nu / DFree
+                ShC = 2 + 0.6 * Re**0.5 * Sc**(1./3)
+                print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
+
+                with open('dataFromInt.csv','r') as fl:
+                    lines = fl.readlines()
+                
+                toInt = float(lines[1].split(',')[-3])
+                yAvg = float(lines[1].split(',')[0])
+                j = -DFree*toInt/(4*np.pi*R**2)
+                km = j/(yInf-yAvg)
+                Sh = km*(2*R)/DFree
+
+                print('correlation: Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
+                print('simulation: j = %g, km = %g, Sh = %g'%(j,km,Sh))
+                
+
             # BiM = kL*R/DEff             # Biot number
             # etaAnal = 3./(thiele**2) * (thiele*1./np.tanh(thiele)-1)/(1+(thiele*1./np.tanh(thiele)-1)/BiM)                      # analytical effectivness factor
             
