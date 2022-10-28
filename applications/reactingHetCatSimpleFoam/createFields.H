@@ -296,6 +296,37 @@ surfaceScalarField MGradT
     fvc::snGrad(epsEff)
 );
 
+//-- surface fields for sources computation
+surfaceScalarField gradCCO
+(
+    IOobject
+    (
+        "gradCCO",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    // fvc::snGrad(MFrList[0])*mag(mesh.Sf())
+    fvc::snGrad(MFrList[0]*thermo.p()/thermo.T()/univR)
+);
+
+//-- surface field for kappaG interpolation
+surfaceScalarField cCOS
+(
+    IOobject
+    (
+        "cCOS",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    fvc::interpolate(MFrList[0]*thermo.p()/thermo.T()/univR)
+);
+
 Info<< "Creating thermophysical transport model\n" << endl;
 autoPtr<fluidThermophysicalTransportModel> thermophysicalTransport
 (

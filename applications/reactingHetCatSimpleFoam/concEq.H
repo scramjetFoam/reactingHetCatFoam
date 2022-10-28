@@ -34,6 +34,14 @@ forAll(specieNames,lstI)
         DABLst[DABLst.size()-1]*Foam::pow(thermo.T(),1.75)/thermo.p()
     );
 
+    // -- if diffusion coeficient is setup previously dont compute it
+    if (transportProperties.subDict(currSpName).found("D"))
+    {
+        dimensionedScalar D(transportProperties.subDict(currSpName).lookup("D"));//R constant
+        DifMix = 0*DifMix + D;
+        Info << "Difussivity loaded from transport properties" <<endl;
+    }
+
     // -- prepare Knudsen diffusivity
     volScalarField DKn
     (
