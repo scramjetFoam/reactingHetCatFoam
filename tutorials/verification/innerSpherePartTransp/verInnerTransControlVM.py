@@ -84,7 +84,7 @@ runSim = True
 # runSim = False
 
 # -- case parameters
-yInf = 0.1      # molar fraction farfar from sphere
+yInf = 0.01      # molar fraction farfar from sphere
 p = 101325      # presure
 sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
@@ -100,6 +100,7 @@ if inv != 0:
 length1 = 15*R       # inlet <-> sphere centre
 length2 = 45*R       # sphere centre <-> outlet
 width = 15*R         # top|bottom wall <-> sphere centre
+DFreeZ = 1e-5
 
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
@@ -113,16 +114,16 @@ if isothermal:
     outFolder += '_isoT'
   
 # cellSizeLst = [R/3]  # FV cell Size
-cellSizeLst = [0.33*R]  # FV cell Size
+cellSizeLst = [0.7*R]  # FV cell Size
 # cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
 #k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
-k0Lst = [5e8]
+k0Lst = [1e9]
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
 # betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
-tort = 1      # tortuosity
+tort = 0.5      # tortuosity
 solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
 solver = solverLst[0]
 kappaEff = 1
@@ -251,20 +252,23 @@ for TInd in range(len(TLst)):
                 ShC = 2 + 0.6 * Re**0.5 * Sc**(1./3)
                 print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
 
-                with open('dataFromInt.csv','r') as fl:
+                with open('log.integrace','r') as fl:
                     lines = fl.readlines()
-                
-                toInt = float(lines[1].split(',')[-3])
-                yAvg = float(lines[1].split(',')[0])
-                j = -DFree*toInt/(4*np.pi*R**2)
-                km = j/(yInf-yAvg)
+
+                inds = [0,0]
+                names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO"]
+                for lineInd in range(len(lines)):
+                    for j in range(len(names)):
+                        if  names[j] in lines[lineInd]:
+                            inds[j] = lineInd
+                cCO = float(lines[inds[0]].split('=')[1])
+                gradCCO = float(lines[inds[1]].split('=')[1])
+                j = -DFree*gradCCO #/(4*np.pi*R**2)
+                km = j/(yInf*p/Runiv/T-cCO)
                 Sh = km*(2*R)/DFree
 
                 print('correlation: Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
-                print('simulation: j = %g, km = %g, Sh = %g'%(j,km,Sh))
-                
-
-            
+                print('simulation: thiele = %g, gradYCO = %g, yCO = %g, j = %g, km = %g, Sh = %g'%(thiele, gradCCO, cCO, j,km,Sh))
             os.chdir('../../')
 
 

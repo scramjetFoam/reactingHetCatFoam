@@ -35,14 +35,4 @@ boundaryField
     {
         type    zeroGradient;
     }
-        sphere_slave
-    {
-        type            fixedValue;
-        value           uniform 0.1;
-    }
-     sphere
-    {
-        type            fixedValue;
-        value           uniform 0.1;
-    }
 }
