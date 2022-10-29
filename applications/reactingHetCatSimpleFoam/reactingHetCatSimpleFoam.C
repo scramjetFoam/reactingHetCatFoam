@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
 
         // gradYCO = fvc::snGrad(MFrList[0])*mag(mesh.Sf());
         // gradYCO = fvc::snGrad(MFrList[0])/mag(mesh.Sf());
-        gradCCO = fvc::snGrad(MFrList[0]*thermo.p()/thermo.T()/univR);
-        cCOS = fvc::interpolate(MFrList[0]*thermo.p()/thermo.T()/univR);
+        // gradCCO = fvc::snGrad(MFrList[0]*thermo.p()/thermo.T()/univR);
+
         
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"

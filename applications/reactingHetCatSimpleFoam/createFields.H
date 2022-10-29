@@ -307,9 +307,27 @@ surfaceScalarField gradCCO
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
+    // dimensionedScalar ("dummyEEqn",dimMass/dimLength*Foam::pow(dimTime,-2)/dimTemperature,1.0)
     // linearInterpolate(U*rho*Cp) & mesh.Sf()
     // fvc::snGrad(MFrList[0])*mag(mesh.Sf())
-    fvc::snGrad(MFrList[0]*thermo.p()/thermo.T()/univR)
+    // fvc::snGrad(MFrList[0]*thermo.p()/thermo.T()/univR)
+    fvc::snGrad(dimensionedScalar("jedna",dimLength*dimLength/dimTime,1)*MFrList[0]*thermo.p()/thermo.T()/univR)
+
+);
+surfaceScalarField gradYCO
+(
+    IOobject
+    (
+        "gradYCO",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    // fvc::snGrad(MFrList[0])*mag(mesh.Sf())
+    // fvc::snGrad(MFrList[0]*thermo.p()/thermo.T()/univR)
+    fvc::snGrad(dimensionedScalar("jedna",dimLength*dimLength/dimTime,1)*MFrList[0])
 );
 
 //-- surface field for kappaG interpolation
@@ -324,7 +342,22 @@ surfaceScalarField cCOS
         IOobject::AUTO_WRITE
     ),
     // linearInterpolate(U*rho*Cp) & mesh.Sf()
-    fvc::interpolate(MFrList[0]*thermo.p()/thermo.T()/univR)
+    fvc::interpolate(dimensionedScalar("jedna",dimLength*dimLength/dimTime,1)*MFrList[0]*thermo.p()/thermo.T()/univR)
+);
+
+//-- surface field for kappaG interpolation
+surfaceScalarField yCOS
+(
+    IOobject
+    (
+        "yCOS",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    // linearInterpolate(U*rho*Cp) & mesh.Sf()
+    fvc::interpolate(dimensionedScalar("jedna",dimLength*dimLength/dimTime,1)*MFrList[0])
 );
 
 Info<< "Creating thermophysical transport model\n" << endl;

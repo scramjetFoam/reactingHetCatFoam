@@ -123,7 +123,7 @@ k0Lst = [1e9]
 TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
 # betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
-tort = 0.5      # tortuosity
+tort = 5      # tortuosity
 solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
 solver = solverLst[0]
 kappaEff = 1
@@ -255,20 +255,26 @@ for TInd in range(len(TLst)):
                 with open('log.integrace','r') as fl:
                     lines = fl.readlines()
 
-                inds = [0,0]
-                names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO"]
+                inds = [0,0,0,0]
+                names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO",'areaAverage(batt1) of yCOS','areaAverage(batt1) of gradYCO']
                 for lineInd in range(len(lines)):
                     for j in range(len(names)):
                         if  names[j] in lines[lineInd]:
                             inds[j] = lineInd
                 cCO = float(lines[inds[0]].split('=')[1])
                 gradCCO = float(lines[inds[1]].split('=')[1])
-                j = -DFree*gradCCO #/(4*np.pi*R**2)
+                yCO = float(lines[inds[2]].split('=')[1])
+                gradYCO = float(lines[inds[3]].split('=')[1])
+                j = -gradCCO #/(4*np.pi*R**2)
                 km = j/(yInf*p/Runiv/T-cCO)
                 Sh = km*(2*R)/DFree
 
+                jY = -gradYCO #/(4*np.pi*R**2)
+                kmY = jY/(yInf-yCO)
+                ShY = kmY*(2*R)/DFree
+
                 print('correlation: Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
-                print('simulation: thiele = %g, gradYCO = %g, yCO = %g, j = %g, km = %g, Sh = %g'%(thiele, gradCCO, cCO, j,km,Sh))
+                print('simulation: thiele = %g, gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g\ngradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(thiele, gradCCO, cCO, j,km,Sh,gradYCO, yCO, jY,kmY,ShY))
             os.chdir('../../')
 
 

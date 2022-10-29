@@ -108,6 +108,11 @@ forAll(specieNames,lstI)
         // + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvOptions, linearized -- part implicit, part explicit
         + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvModels, linearized -- part implicit, part explicit
     );
+
+    gradCCO = fvc::snGrad(DEff*MFrList[0]*thermo.p()/thermo.T()/univR);
+    gradYCO = fvc::snGrad(DEff*MFrList[0]);
+    cCOS = fvc::interpolate(DEff*MFrList[0]*thermo.p()/thermo.T()/univR);
+    yCOS = fvc::interpolate(DEff*MFrList[0]);
 	    
     // fvOptions.constrain(concEq);
     fvConstraints.constrain(concEq);
