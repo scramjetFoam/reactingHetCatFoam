@@ -38,6 +38,9 @@
     (
         // -- convection
         fvm::div(phi*linearInterpolate(thermo.Cp()), T)
+
+        // --mechanical heat source
+        + fvc::div(phi, volScalarField("K", 0.5*magSqr(U)))
         ==
         // -- diffusion
         fvm::laplacian(kappaPM, T)
