@@ -34,7 +34,7 @@ divSchemes
     // default                             bounded Gauss linear;
     // default                             bounded Gauss linearUpwind grad(U);
   //  default                             bounded Gauss upwind;
-    div(phi,U)                          bounded Gauss linearUpwind grad(U);;
+    div(phi,U)                          bounded Gauss linearUpwind grad(U);
  //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
  //   div(phi,K)                          bounded Gauss linearUpwind grad(U);
  //   div(phi,k)                          bounded Gauss linearUpwind grad(U);
@@ -60,9 +60,9 @@ laplacianSchemes
 
    default                             none;       //orthogonal mesh
    laplacian((rho*nuEff),U)		Gauss linear corrected 0.2;
-   laplacian((DEff*CO),(thermo:rho|molM))		Gauss upwind MGradT uncorrected;
-   laplacian((DEff*(thermo:rho|molM)),CO)		Gauss upwind MGradT uncorrected;
-   laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected; //MK
+   laplacian((DEff*CO),(thermo:rho|molM))		Gauss upwind MGradT corrected 0.2;
+   laplacian((DEff*(thermo:rho|molM)),CO)		Gauss upwind MGradT corrected 0.2;
+   laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT corrected 0.2; //MK
    laplacian((rho*rAU),p)		Gauss linear corrected 0.2;
 
    // laplacian((DEff*CO2),(thermo:rho|molM))		Gauss upwind phi uncorrected;

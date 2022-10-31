@@ -73,6 +73,7 @@ def pars_from_log(pars, solver):
     return par_vals
 
 # -- number of the enthalpy corrections
+numOfTCorr = 1
 numOfTCorr = 0
 # isothermal logic:
 isothermal = False
@@ -84,27 +85,69 @@ runSim = True
 # runSim = False
 
 # -- case parameters
-yInf = 0.01      # molar fraction farfar from sphere
+yInf = 0.2      # molar fraction farfar from sphere
+# yInfLst = [0.02]      # molar fraction farfar from sphere
 p = 101325      # presure
-sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
+# sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
+# sHrLst = [-12307920,-123079200,-1230792000]     # standard reaction enthalpy (physical 283e3)	
+# sHrLst = [-300e3/10,-300e3/5,-300e3]     # standard reaction enthalpy (physical 283e3)	
 Runiv = 8.314   # universal gas constant
-R = 0.01           # sphere radius
-Rinf = 1.1      # infinite radius
+R = 0.1           # sphere radius
 # inv = 0.0558        # inlet velocity
+# inv = 0        # inlet velocity
 inv = 0.1116        # inlet velocity
-# flow logic:
-flow = False
-if inv != 0: 
-    flow = True  
 # tube dimensions:
-length1 = 15*R       # inlet <-> sphere centre
-length2 = 45*R       # sphere centre <-> outlet
-width = 15*R         # top|bottom wall <-> sphere centre
+length1 = 1.1*R       # inlet <-> sphere centre
+length2 = length1       # sphere centre <-> outlet
+width = length1         # top|bottom wall <-> sphere centre
+
 DFreeZ = 1e-5
 
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
 outFolder = 'ZZ_cases'
+  
+# cellSizeLst = [R/3]  # FV cell Size
+# cellSizeLst = [0.5*R]  # FV cell Size
+# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
+# cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
+#k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
+# k0Lst = [1e9]
+k0Lst = [1e9,1e9,1e9,1e9,1e9,1e9]
+thieleLst = [0.2,0.5,0.75,1.,2,4]
+# thieleLst = [1.]
+# k0Lst = [1e5]
+# EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
+TLst = [300]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
+gamma = 20      # see line above
+beta = 0.6
+# betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
+tort = 2      # tortuosity
+solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
+solver = solverLst[0]
+kappaEff = 2
+# kappaEff = 0.024375 
+
+# flow logic:
+flow = False
+if inv != 0: 
+    flow = True  
+    R = 0.01           # sphere radius
+    # tube dimensions:
+    length1 = 15*R       # inlet <-> sphere centre
+    # length1 = 6*R       # inlet <-> sphere centre
+    length2 = 45*R       # sphere centre <-> outlet
+    # length2 = 15*R       # sphere centre <-> outlet
+    width = 15*R         # top|bottom wall <-> sphere centre
+    # width = 6*R         # top|bottom wall <-> sphere centre
+    yInf = 0.01      # molar fraction farfar from sphere
+    kappaEff = 1
+    sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
+    tort = 5      # tortuosity
+    TLst = [500]
+    k0Lst = [1e9]
+
+cellSizeLst = [0.7*R]  # FV cell Size
 
 # MK: change naming for flow
 if flow:
@@ -112,21 +155,6 @@ if flow:
     outFolder += '_flow'
 if isothermal:
     outFolder += '_isoT'
-  
-# cellSizeLst = [R/3]  # FV cell Size
-cellSizeLst = [0.7*R]  # FV cell Size
-# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
-# cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
-#k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
-k0Lst = [1e9]
-# EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
-TLst = [500]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
-gamma = 20      # see line above
-# betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
-tort = 5      # tortuosity
-solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
-solver = solverLst[0]
-kappaEff = 1
 
 # -- numpy array with results
 if isothermal:
@@ -137,6 +165,7 @@ else:
 
 # -- create case for:
 
+# for tortInd in range(len(tortLst)):
 for TInd in range(len(TLst)):
     for k0Ind in range(len(k0Lst)):
         for cellSizeInd in range(len(cellSizeLst)):
@@ -144,6 +173,14 @@ for TInd in range(len(TLst)):
             T = TLst[TInd]
             k0 = k0Lst[k0Ind]
             EA = gamma*Runiv*T
+            # tort = tortLst[k0Ind]
+            
+            DEff = DFreeZ/tort*0.5  
+
+            if not flow:
+                k0 = (thieleLst[k0Ind]/R)**2*DEff/(np.exp(-EA/(Runiv*T)))
+                sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
+            
 
             # -- create caseFolder based on baseCase
             caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
@@ -162,16 +199,21 @@ for TInd in range(len(TLst)):
                 changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
                 if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
-                else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(Rinf),str(int(Rinf/cellSize*2))])
+                else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(length1),str(int(length1/cellSize*2))])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
                 changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
                 changeInCaseFolders('system/snappyHexMeshDict',['spR'],[str(R)])
+                changeInCaseFolders('system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
                 # -- run the simulation
                 os.chdir(caseDir)
                 # os.system('./AllrunIntraSphere') # --> only runs inside the sphere
                 # os.system('./Allrun') # --> for flow cases
-                os.system('./Allrun-parallel')
+                # os.system('ls')
+                if flow:
+                    os.system('./Allrun-parallel')
+                else:
+                    os.system('./AllrunIntraSphere')
 
             else:
                 os.chdir(caseDir)
@@ -180,13 +222,14 @@ for TInd in range(len(TLst)):
             pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
             # par_vals = pars_from_log(pars, solver)
             # DFree, DEff, k = par_vals
-            DFree, DEff, k = 1e-5, 1e-5, 2.06
-            DEff = DFree/tort*0.5           
+            DFree, k = DFreeZ, k0*np.exp(-EA/(Runiv*T)) 
 
-            # -- compute analytical results
+            # -- compute case parameters
             k0Art = k0*np.exp(-EA/(Runiv*T))                            # definition in 2020 Chandra Direct numerical simulation of a noniso...
+            thiele = R*np.sqrt(k0Art/DEff)
             rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T             # ideal reaction source
-            thiele = R*(k0Art/DEff)**(1/2)                              # thiele modulus
+            print('Case with thiele = %g'%thiele)        
+
             
             # -- compute simulation results
             # NOTE MK: use custom function
@@ -197,19 +240,18 @@ for TInd in range(len(TLst)):
             for lineInd in range(len(lines)-1,0,-1):
                 if lines[lineInd].find('reaction source') >= 0:
                     rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
-                    etaSim = rS/rSqIdeal  # simulation effectivness factor
-                    print('reaction source = %g'%rS)
+                    # -- simulation effectivness factor
+                    etaSim = rS/rSqIdeal  
                     break
                 if lineInd == 0:
                     print('Reaction source not found.')
             
-            
-            
             # -- in the isothermal cases we can compare concentration profiles
             if isothermal and not flow: 
                 # -- analytical effectivness factor
-                etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1)  
-                print('Simulation effectivness factor is %g, relative error = %g'%(etaSim,(etaAnal-etaSim)/etaAnal))
+                etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1) 
+                print('Reaction source = %g, simulation effectivness factor is %g, relative error = %g'%(rS,etaSim,(etaAnal-etaSim)/etaAnal))
+
                 print('\nThiele modulus = %g\nAnalytical effectivness factor is %g'%(thiele,etaAnal))   
                 # -- load concetration profile to compare with analytical solution
                 timeLst = os.listdir('./')
@@ -240,8 +282,8 @@ for TInd in range(len(TLst)):
             
             # -- in the nonisothermal case we can compare eta-thiele diagram
             elif not isothermal and not flow:
-                beta = yInf*p/Runiv/T*(-sHr)*DEff/kappaEff/T
-                print('beta',beta,'thiele',thiele,'effect sim',etaSim)
+                etaSim = rS/rSqIdeal  # simulation effectivness factor
+                print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
                 resNp[:,k0Ind] = np.array([thiele,etaSim])
                 
             elif flow:
@@ -249,7 +291,7 @@ for TInd in range(len(TLst)):
                 nu = 5.5862252e-05
                 Re = inv * (R*2) / nu
                 Sc = nu / DFree
-                ShC = 2 + 0.6 * Re**0.5 * Sc**(1./3)
+                ShC = 2 + 0.6 * Re**0.5 * Sc**(0.3333333)
                 print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
 
                 with open('log.integrace','r') as fl:
@@ -277,6 +319,8 @@ for TInd in range(len(TLst)):
                 print('simulation: thiele = %g, gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g\ngradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(thiele, gradCCO, cCO, j,km,Sh,gradYCO, yCO, jY,kmY,ShY))
             os.chdir('../../')
 
+# flow = False
+# isothermal=False
 
 ## -- create plot
 
@@ -298,12 +342,20 @@ if not flow:
         title = 'Dependence of the error on the mesh.'
         fileName = 'error_mesh.png'
     else:
+        with open('baseCase/analRes06.csv' ,'r') as fl:
+            lines = fl.readlines()
+        analRes = np.zeros((len(lines)-1,2))
+        for i in range(1,len(lines)):
+            analRes[i-1,:] = np.array(lines[i].split(',')) 
+        # plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+        plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
         plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+        # plt.plot(analRes[:,0], analRes[:,1])#,resNp[0,:],resNp[1,:],'x',label='sim res.')
         title = 'Multiple steady states.'
         fileName = 'mult_steadySt.png'
     plt.title(title)
-    plt.savefig('%s/%s'%(dirName,fileName))
     plt.yscale('log')
     plt.xscale('log')
     plt.legend()
+    plt.savefig('%s/%s'%(dirName,fileName))
     plt.show()
