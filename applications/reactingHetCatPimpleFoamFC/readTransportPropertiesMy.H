@@ -50,6 +50,14 @@ wordList zoneNames
     transportProperties.lookup("zones")
 );
 
+word diffusion = "Fick";
+
+if (transportProperties.found("diffusionType"))
+{
+    diffusion = word(transportProperties.lookup("diffusionType"));
+}
+
+Info << "Diffusion type: " << diffusion <<endl;
 
 Info<< "Loaded species are\n" << specieNames << endl;
 Info<< "Loaded zones are\n" << zoneNames << endl;

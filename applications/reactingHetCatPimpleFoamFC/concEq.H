@@ -1,12 +1,11 @@
-// -- solve the concentration equation for all chemical species
-
 // -- update sum of the molar fractions without reference
 sumWithoutRef = 0*sumWithoutRef;
-sumJDif = 0*sumJDif;
+if (diffusion == "FickConv")
+{
+    sumJDif = 0*sumJDif;
+}
 
-// -- total molar concentration
-volScalarField cTot(rho/Mg);
-
+// -- solve the concentration equation for all chemical species
 forAll(specieNames,lstI)
 {
     // -- get current name of the specie that is solved for
@@ -15,10 +14,9 @@ forAll(specieNames,lstI)
     Info<<"\nWorking on the specie: "<<currSpName<<endl;
 
     volScalarField& currSp	= MFrList[lstI];                	//current concentration field
-
+    
     if (lstI != specieNames.size()-1)
     {
-
         // -- DIFUSION COEFICIENT CALCULATION 
         // -- difussivity of the specie in the reference gas see 22_Hlavaty_MSc
 
@@ -42,10 +40,10 @@ forAll(specieNames,lstI)
         // -- Diffusion coeficient of the mixture -- default reference gas diffusion + add temperature and pressure dependence (see Fuller)
         volScalarField DifMix
         (
-            DABLst[DABLst.size()-1]*Foam::pow(thermo.T(),1.75)/p
+            DABLst[DABLst.size()-1]*Foam::pow(thermo.T(),1.75)/thermo.p()
         );
 
-        // -- prepare Knudsen diffusivity
+        // // -- prepare Knudsen diffusivity
         volScalarField DKn
         (
             IOobject
@@ -79,49 +77,42 @@ forAll(specieNames,lstI)
             DEff = 0*DEff + D;
         }
 
-        DEff.correctBoundaryConditions();
-
-        // --  calculation of total concentration
-        // volScalarField cTot(thermo.rho()/molMList[molMList.size()-1]);
-        // volScalarField cTot(rho/molMList[molMList.size()-1]);
-
         // -- inform about calculated properties
-        Info << "Min cTot: " << min(cTot).value() << ", max cTot: " << max(cTot).value() << endl;
-        Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
-        Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
-        Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
-        Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
+        if (debug == 1){
+            Info << "Min rho: " << min(rho).value() << ", max rho: " << max(rho).value() << endl;
+            Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
+            Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
+            Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
+        }
+        if (debug <= 2 && debug != 0)
+        {
+            Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
+        }
 
-
-        // -- calculate convective molar flux at the face 
-        // surfaceScalarField phiUCTot
-        // (
-        //     IOobject
-        //     (
-        //         "phiU",
-        //         runTime.timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::NO_WRITE
-        //     ),
-        //     linearInterpolate(U*cTot) & mesh.Sf()
-        // );
-        
-
-        // -- balance of the specie
         fvScalarMatrix concEq
         (
-            fvm::ddt(rho/Mg,currSp) //+ fvm::ddt(1./Mg,currSp)*rho                                              
-            // + fvm::div(phiUCTot, currSp)
-            // + fvm::div(phi/molMList[molMList.size()-1], currSp)
-            
-            + fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
+            fvm::ddt(rho/Mg,currSp) +
+            // -- convection
+            fvm::div((linearInterpolate(rho*(U)/Mg) & mesh.Sf()), currSp)
             ==
-            fvm::laplacian(DEff*cTot, currSp)                              
-            + fvc::laplacian(DEff*currSp, cTot)       
-            // + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvOptions, linearized -- part implicit, part explicit
-            + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvModels, linearized -- part implicit, part explicit
+            // -- diffusion
+            fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              
+            + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())       
+            // -- source
+            + fvModels.source(dummyConcEqn, currSp)
         );
+        if (diffusion == "FickConv")
+        {
+            concEq = fvScalarMatrix
+                (
+                    fvm::ddt(rho/Mg,currSp) +
+                    fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
+                    ==
+                    fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              
+                    + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())     
+                    + fvModels.source(dummyConcEqn, currSp)
+                );
+        }
             
         // fvOptions.constrain(concEq);
         fvConstraints.constrain(concEq);
@@ -136,27 +127,34 @@ forAll(specieNames,lstI)
         
         forAll(currSp,cellI)
         { 
-        //	 currSp[cellI] = min(max(currSp[cellI],0),1);                    //clip unreal molar fractions
             currSp[cellI] = max(currSp[cellI],0); 
         }
 
         sumWithoutRef += currSp;
-        jIList[lstI] = - (DEff*(fvc::grad(cTot*currSp)));
-        sumJDif += (DEff*(fvc::grad(cTot*currSp)));
+        if (diffusion == "FickConv")
+        {
+            sumJDif += (DEff*(fvc::grad(thermo.p()/univR/thermo.T()*currSp)));
+        }
     }
     else{
         currSp = dimensionedScalar("jedna",dimless,1) - sumWithoutRef;
-        jIList[lstI] = - sumJDif;
     }
 }
 
-// -- update molar mass of the gas and velocity from diffusion
-UD = -sumJDif/MFrList[MFrList.size()-1]*Mg/rho;
+if (diffusion == "FickConv")
+{
+    // -- update molar mass of the gas and velocity from diffusion
+    UD = -sumJDif/MFrList[MFrList.size()-1]*Mg/rho;
 
-Info << "Min UD: " << min(UD).value() << ", max UD: " << max(UD).value() << endl;
+    if (debug != 0)
+    {
+            Info << "Min UD: " << min(UD).value() << ", max UD: " << max(UD).value() << endl;
+    }
 
-// -- update phi
-// phi = linearInterpolate(rho*U) & mesh.Sf();
-phiD = linearInterpolate(rho*UD) & mesh.Sf();
+    // -- update phi
+    // phi = linearInterpolate(rho*U) & mesh.Sf();
+    phiD = linearInterpolate(rho*UD) & mesh.Sf();
 
-UD.correctBoundaryConditions();
+    UD.correctBoundaryConditions();
+}
+
