@@ -1,278 +1,32 @@
-Info<< "Reading the concentrations \n" << endl;
-Info<< "Reading the concentrations \n" << endl;
+// -- debug level, so far I have 3 debug levels, see ifs below
+int debug = 0;
 
-// -- creating field Mg -- molar mass of gas
-Info<< "Reading field Mg\n" << endl;
-volScalarField Mg
-(
-    IOobject
-    (
-        "Mg",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("Mg",dimMass/dimMoles,0.0)
-);
-
-// prepare list to store the concentrations in
-PtrList<volScalarField> MFrList(specieNames.size());
-PtrList<volVectorField> jIList(specieNames.size());
-
-forAll(specieNames,countI)
+if (simple.dict().found("debug"))
 {
-    word currentSp = specieNames[countI];
-    Info<< "Reading the concentration of the: " << currentSp << endl;
-
-    MFrList.set
-    (
-        countI,
-        new volScalarField
-        (
-            IOobject
-            (
-                currentSp,
-                runTime.timeName(),
-                mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh
-        )
-    );
-    Mg += molMList[countI]*MFrList[countI];
-    // Info<<molMList[countI]<<max(MFrList[countI])<<min(MFrList[countI])<<endl;
-
-    // -- creating velocity enforced by diffusion for specie
-    word jiDiffcurrentSp = "jiDiff" + specieNames[countI];
-    jIList.set
-    (
-        countI,
-        new volVectorField
-        (
-            IOobject
-            (
-                jiDiffcurrentSp,
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedVector ("jiDiff",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
-            // dimensionedVector ("jiDiff",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
-        )
-    );
-}
-volVectorField sumJDif
-(
-    IOobject
-    (
-        "sumJDif",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    mesh,
-    // dimensionedVector ("UDiMiSum",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
-    // dimensionedVector ("UDiMiSum",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
-    // dimensionedVector ("jiDiff",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
-    dimensionedVector ("sumJDif",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
-    // dimensionedScalar ("dummyConcEqn",dimless,1.0)
-);
-
-// prepare list to store volScalarField  with the zone inside
-// NOTE: 1 - zone is active here
-//       0 - zone is not active here
-
-PtrList<volScalarField> zoneLst(zoneNames.size());
-forAll(zoneNames,countI)
-{
-    word currentZone = zoneNames[countI];
-    Info<< "Reading the zone " << currentZone << " and saving it as volScalarField." << endl;
-
-    // -- load cellZone as 0 volScalarField
-    zoneLst.set
-    (
-        countI,
-        new volScalarField
-        (
-            IOobject
-            (
-                currentZone,
-                runTime.timeName(),
-                mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedScalar (currentZone,dimless,0.0),
-            "zeroGradient"
-        )
-    );
+    debug = readScalar(simple.dict().lookup("debug"));
 }
 
-// -- set to 1, where the cellZone is
-forAll(zoneNames,countI)
+IOobject::writeOption writeOption1 = IOobject::NO_WRITE;
+IOobject::writeOption writeOption2 = IOobject::NO_WRITE;
+if (debug == 1)
 {
-    word currentZone = zoneNames[countI];
-
-    labelList cellZoneIDs_ = mesh.cellZones().findIndices(currentZone);
-
-    const labelList& cells = mesh.cellZones()[cellZoneIDs_[0]];
-    forAll(cells, celli)
-    {
-        zoneLst[countI][cells[celli]] = 1;
-    }
-    zoneLst[countI].correctBoundaryConditions();
-    
+    writeOption1 = IOobject::AUTO_WRITE;
+}
+if (debug <= 2 && debug != 0)
+{
+    writeOption2 = IOobject::AUTO_WRITE;
 }
 
-// -- porosity
-volScalarField epsEff
-(
-IOobject
-(
-    "epsEff",
-    runTime.timeName(),
-    mesh,
-    IOobject::NO_READ,
-    IOobject::NO_WRITE
-),
-mesh,
-dimensionedScalar("epsEff",dimless,0.0)
-);
+#include "createFieldsFromMesh.H"
 
-// -- porosity
-volVectorField permEff
-(
-    IOobject
-    (
-        "permEff",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedVector("permEff",dimless/dimLength/dimLength,vector (0, 0, 0))
-);
+#include "createFieldsFromTransProp.H"
 
-// -- prepare the effective diffusion coefficient
-volScalarField DEff
-(
-    IOobject
-    (
-        "DEff",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("DEff",dimLength*dimLength/dimTime,0.0)
-    // (1.0-max(isOnWallCoat,isInWallCoat))*DifMix +
-    // isOnWallCoat*(porEpsC/(tortC*(1.0/DifMix+1.0/DKn)))+
-    // isInWallCoat*(porEpsS/(tortS*(1.0/DifMix+1.0/DKn))) 
-);
-
-// -- prepare sum of the molar fractions without reference
-volScalarField sumWithoutRef
-(
-    IOobject
-    (
-        "sumWithoutRef",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("sumWithoutRef",dimless,0.0)
-    // (1.0-max(isOnWallCoat,isInWallCoat))*DifMix +
-    // isOnWallCoat*(porEpsC/(tortC*(1.0/DifMix+1.0/DKn)))+
-    // isInWallCoat*(porEpsS/(tortS*(1.0/DifMix+1.0/DKn))) 
-);
-
-// -- free channels --> free channels = 1 - sum all zones 
-volScalarField sumZones
-(
-    IOobject
-    (
-        "sumZones",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("sumZones",dimless,0.0)
-); 
-
-forAll(zoneLst,countI)
-{
-    sumZones += zoneLst[countI];
-    epsEff += zoneLst[countI]*(eps[countI]);
-    permEff += zoneLst[countI]*perm[countI];
-}
-volScalarField freeChannel = dimensionedScalar("jedna",dimless,1.0)-sumZones;
-epsEff += freeChannel;
+#include "createEffProp.H"
 
 
-// -- reading field U
-Info<< "Reading field U\n" << endl;
-volVectorField U
-(
-    IOobject
-    (
-        "U",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-// -- reading field UD -- velocity enforced by diffusion
-Info<< "Reading field UD\n" << endl;
-volVectorField UD
-(
-    IOobject
-    (
-        "UD",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-
-// // -- creating velocity enforced by diffusion for specie
-// volVectorField sumFick
-// (
-//     IOobject
-//     (
-//         "sumFick",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         IOobject::NO_WRITE
-//     ),
-//     mesh,
-//     // dimensionedVector ("UDiMiSum",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
-//     // dimensionedVector ("UDiMiSum",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
-//     // dimensionedVector ("jiDiff",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
-//     dimensionedVector ("sumFick",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
-//     // dimensionedScalar ("dummyConcEqn",dimless,1.0)
-// );
-
-// -- dummy volScalarField to resolve dimension problem in conc.H fvOptions inconsistent source
+// -- dummy volScalarFields to resolve dimension problem in conc.H fvOptions inconsistent source
+//NOTE: I dont know why this is necessary, dimensions are correct
+//but openFOAM doesnt think so :(
 volScalarField dummyConcEqn
 (
     IOobject
@@ -281,16 +35,13 @@ volScalarField dummyConcEqn
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        writeOption1
     ),
     mesh,
     dimensionedScalar ("dummyConcEqn",dimMoles/dimVolume,1.0)
     // dimensionedScalar ("dummyConcEqn",dimless,1.0)
 );
 
-// -- dummy volScalarField to resolve dimension problem in conc.H fvOptions inconsistent source
-//NOTE: I dont know why this is necessary, dimensions are correct
-//but openFOAM doesnt think so :(
 volScalarField dummyEEqn
 (
     IOobject
@@ -304,23 +55,6 @@ volScalarField dummyEEqn
     mesh,
     dimensionedScalar ("dummyEEqn",dimMass/dimLength*Foam::pow(dimTime,-2)/dimTemperature,1.0)
 );
-
-// -- T field from mesh
-// Info<< "Reading field T\n" << endl;
-// volScalarField T
-// (
-//     IOobject
-//     (
-//         "T",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::MUST_READ,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh
-// );
-
-//-- surface field for kappaG interpolation
 
 Info<< "Reading thermophysical properties\n" << endl;
 
@@ -362,7 +96,7 @@ surfaceScalarField phiD
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        writeOption2
     ),
     linearInterpolate(rho*UD) & mesh.Sf()
 );
@@ -387,21 +121,6 @@ autoPtr<compressible::momentumTransportModel> turbulence
         phi,
         thermo
     )
-);
-
-//-- surface field for kappaG interpolation
-surfaceScalarField MGradT
-(
-    IOobject
-    (
-        "MGradT",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    // linearInterpolate(U*rho*Cp) & mesh.Sf()
-    fvc::snGrad(epsEff)
 );
 
 Info<< "Creating thermophysical transport model\n" << endl;

@@ -1,5 +1,13 @@
 {
-    const volScalarField& psi = thermo.psi();
+    // thermo.psi() = Mg/univR/thermo.T();
+    // const volScalarField& psi = thermo.psi();
+
+    // Info<< max(psi)<<endl;
+
+    // const volScalarField& psi = rho/p;
+    // volScalarField psi = rho/p;
+    volScalarField psi = Mg/univR/thermo.T();
+
 
     tmp<volVectorField> tHbyA;
     if (pressureImplicitPorosity)
@@ -25,13 +33,13 @@
 
     closedVolume = adjustPhi(phiHbyA, U, p);
 
-    volVectorField RHSbyA(trAU()*explRHS);
+    // volVectorField RHSbyA(trAU()*explRHS);
 
-    surfaceScalarField phiRHSbyA
-    (
-        "phiRHSbyA",
-        fvc::interpolate(rho)*fvc::flux(RHSbyA)
-    );
+    // surfaceScalarField phiRHSbyA
+    // (
+    //     "phiRHSbyA",
+    //     fvc::interpolate(rho)*fvc::flux(RHSbyA)
+    // );
 
     while (simple.correctNonOrthogonal())
     {
@@ -45,7 +53,7 @@
              ==
                 // - fvc::div(phiD) +
                 fvc::div(phiHbyA)
-                + fvc::div(phiRHSbyA)
+                // + fvc::div(phiRHSbyA)
             );
         }
 
@@ -77,6 +85,7 @@
         {
             // phi = phiHbyA - pEqn.flux() + phiRHSbyA;
             // phi = phiHbyA - pEqn.flux() + phiRHSbyA;
+            // phi = phiHbyA - pEqn.flux() + phiD;
             phi = phiHbyA - pEqn.flux();// - phiD;
             // phiD = linearInterpolate(rho*UD) & mesh.Sf();
             // phi = phiHbyA - pEqn.flux() + fvc::flux(trAU()*explRHS);
@@ -91,7 +100,8 @@
 
     if (pressureImplicitPorosity)
     {
-        U = HbyA - (trTU() & fvc::grad(p)) + trAU()*explRHS;
+        U = HbyA - (trTU() & fvc::grad(p)); //+ trAU()*explRHS;
+        // U = HbyA - (trTU() & fvc::grad(p)) + trAU()*explRHS;
     }
     else
     {
@@ -126,12 +136,13 @@
         Mg += MFrList[lstI] * molMList[lstI];
     }
 
-    Info <<max(rho)<<endl;
+    // Info <<max(rho)<<endl;
 
     // -- update rho
-    rho = p/univR/thermo.T()*Mg;
+    rho = thermo.p()/univR/thermo.T()*Mg;
+    thermo.rho() = rho;
 
-    Info <<max(rho)<<endl;
+    // Info <<max(rho)<<endl;
     
     rho.relax();
 }

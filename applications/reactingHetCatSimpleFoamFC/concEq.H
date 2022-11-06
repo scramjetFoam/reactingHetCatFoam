@@ -1,7 +1,3 @@
-// -- update diffusion velocity of the so far species
-// jiDiff = 0*jiDiff;
-// sumFick = 0*sumFick;
-
 // -- update sum of the molar fractions without reference
 sumWithoutRef = 0*sumWithoutRef;
 sumJDif = 0*sumJDif;
@@ -81,60 +77,28 @@ forAll(specieNames,lstI)
             DEff = 0*DEff + D;
         }
 
-        // volScalarField DEff = DABLstEff_Fick()
-
-        // DEff.correctBoundaryConditions();
-
-        // --  calculation of total concentration
-        // volScalarField cTot(thermo.rho()/Mg);
-        // volScalarField cTot(rho/molMList[0]);
-
         // -- inform about calculated properties
-        Info << "Min cTot: " << min(cTot).value() << ", max cTot: " << max(cTot).value() << endl;
-        Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
-        Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
-        Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
-        Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
+        if (debug == 1){
+            Info << "Min cTot: " << min(cTot).value() << ", max cTot: " << max(cTot).value() << endl;
+            Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
+            Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
+            Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
+        }
+        if (debug <= 2 && debug != 0)
+        {
+            Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
+        }
 
-
-        // -- calculate convective molar flux at the face 
-        // surfaceScalarField phiUCTot
-        // (
-        //     IOobject
-        //     (
-        //         "phiU",
-        //         runTime.timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::NO_WRITE
-        //     ),
-        //     linearInterpolate(U*cTot) & mesh.Sf()
-        // );
-        
-
-        // -- balance of the specie
         fvScalarMatrix concEq
         (
-            // fvm::ddt(cTot,currSp)                                               
-            // fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
-            // fvm::div((linearInterpolate(thermo.rho()*(U+UD)/Mg) & mesh.Sf()), currSp)
-            // fvm::div(phi/molMList[0], currSp)
-            // fvm::div(phi/linearInterpolate(Mg), currSp)
-            // fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
-            // fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
-            // fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
+            // -- convection
             fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
-            // fvm::div((linearInterpolate(rho*(U)/Mg) & mesh.Sf()), currSp)
-            // fvm::div((linearInterpolate(rho*(U)/Mg) & mesh.Sf()), currSp)
-            // fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
-            // fvm::div(phi/molMList[molMList.size()-1], currSp)
-            // fvm::div(linearInterpolate(cTot*U) & mesh.Sf(), currSp)
-            // fvm::div((linearInterpolate(thermo.rho()*(U)) & mesh.Sf())/Mg, currSp)
             ==
+            // -- diffusion
             fvm::laplacian(DEff*cTot, currSp)                              
             + fvc::laplacian(DEff*currSp, cTot)       
-            // + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvOptions, linearized -- part implicit, part explicit
-            + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvModels, linearized -- part implicit, part explicit
+            // -- source
+            + fvModels.source(dummyConcEqn, currSp)
         );
             
         // fvOptions.constrain(concEq);
@@ -150,17 +114,14 @@ forAll(specieNames,lstI)
         
         forAll(currSp,cellI)
         { 
-        //	 currSp[cellI] = min(max(currSp[cellI],0),1);                    //clip unreal molar fractions
             currSp[cellI] = max(currSp[cellI],0); 
         }
 
         sumWithoutRef += currSp;
-        jIList[lstI] = - (DEff*(fvc::grad(cTot*currSp)));
         sumJDif += (DEff*(fvc::grad(cTot*currSp)));
     }
     else{
         currSp = dimensionedScalar("jedna",dimless,1) - sumWithoutRef;
-        jIList[lstI] = - sumJDif;
     }
 }
 

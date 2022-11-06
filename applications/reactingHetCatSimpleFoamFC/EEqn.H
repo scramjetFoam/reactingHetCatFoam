@@ -27,11 +27,13 @@
     volScalarField kappaPM = kappaEff + kappa*epsEff;
 
 
-    // -- minimal and maximal values of calculated fields
-    Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
-    Info << "Min (kappaPokus): " << min(kappaPM).value() << ", max (kappaPokus): " << max(kappaPM).value() << "." << endl;
-    Info << "Min (thermo.Cp): " << min(thermo.Cp()).value() << ", max (Cp): " << max(thermo.Cp()).value() << "." << endl;
-    Info << "Min (thermo.rho): " << min(thermo.rho()).value() << ", max (thermo.rho): " << max(thermo.rho()).value() << "." << endl;
+    if (debug == 1){
+        // -- minimal and maximal values of calculated fields
+        Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
+        Info << "Min (kappaPokus): " << min(kappaPM).value() << ", max (kappaPokus): " << max(kappaPM).value() << "." << endl;
+        Info << "Min (thermo.Cp): " << min(thermo.Cp()).value() << ", max (Cp): " << max(thermo.Cp()).value() << "." << endl;
+        Info << "Min (thermo.rho): " << min(thermo.rho()).value() << ", max (thermo.rho): " << max(thermo.rho()).value() << "." << endl;
+    }
 
     // enthalpy balance of the porous media temperature
     fvScalarMatrix EEqn
