@@ -54,6 +54,20 @@ wordList zoneNames
 Info<< "Loaded species are\n" << specieNames << endl;
 Info<< "Loaded zones are\n" << zoneNames << endl;
 
+// -- type of the assumed diffusion
+// ---- 1) Fick -- Fick diffusion without convective fluxes forced by diffussion
+// ---- 2) FickConv -- Fick diffusion with convective fluxes forced by diffussion
+// ---- 3) SMConv -- Stefan-Maxwell with convective fluxes forced by diffussion
+
+word diffusion = "Fick";
+
+if (transportProperties.found("diffusionType"))
+{
+    diffusion = word(transportProperties.lookup("diffusionType"));
+}
+
+Info << "Diffusion type: " << diffusion <<endl;
+
 // -- prepare the output variables - volumetric diffusion coeficients for individual species
 PtrList<dimensionedScalar> volDiffLst(specieNames.size());		// list of volumetric diffusion coeficients + reference
 PtrList<dimensionedScalar> molMList(specieNames.size());		    // list of molatr masses + reference

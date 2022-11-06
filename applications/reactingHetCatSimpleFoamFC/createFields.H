@@ -6,6 +6,8 @@ if (simple.dict().found("debug"))
     debug = readScalar(simple.dict().lookup("debug"));
 }
 
+Info << "Debug level: " << debug <<endl;
+
 IOobject::writeOption writeOption1 = IOobject::NO_WRITE;
 IOobject::writeOption writeOption2 = IOobject::NO_WRITE;
 if (debug == 1)
