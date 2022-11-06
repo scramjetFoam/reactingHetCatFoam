@@ -41,37 +41,21 @@ volVectorField U
     mesh
 );
 
-if (diffusion == "FickConv")
-{
-    // -- reading field UD -- velocity enforced by diffusion
-    Info<< "Reading field UD\n" << endl;
-    volVectorField UD
+// -- reading field UD -- velocity enforced by diffusion
+Info<< "Reading field UD\n" << endl;
+volVectorField UD
+(
+    IOobject
     (
-        IOobject
-        (
-            "UD",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    );
-}
+        "UD",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
 
-// -- T field from mesh
-// Info<< "Reading field T\n" << endl;
-// volScalarField T
-// (
-//     IOobject
-//     (
-//         "T",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::MUST_READ,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh
-// );
+
 
 
