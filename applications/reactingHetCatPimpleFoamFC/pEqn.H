@@ -1,10 +1,6 @@
-Info << max(rho).value() << " " << min(rho).value() <<endl;
-
 // -- update rho
 rho = thermo.p()/univR/thermo.T()*Mg;
 thermo.rho() = rho;
-
-Info << max(rho).value() << " " << min(rho).value() <<endl;
 
 // Info <<max(rho)<<endl;
 
