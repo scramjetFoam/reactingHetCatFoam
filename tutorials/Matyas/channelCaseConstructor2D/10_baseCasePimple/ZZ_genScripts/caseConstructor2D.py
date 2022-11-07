@@ -63,13 +63,13 @@ mediaInfoDict = {
 mediaName = 'uncurved1layer'
 
 # -- base openfoam folder for simulations
-baseCase = '../10_baseCasePimple/'
+baseCase = '../10_baseCaseVSpaciV4/'
 
 # -- out openfoam folder
-outFolder= '../testTomas/'
+outFolder= '../testMatyas/'
 
 # -- name of the simulation folder
-name = 'pimple_test_%s_2D'%mediaName
+name = 'test_%s_2D'%mediaName
 
 #-----------------------------------------------------------------------
 # CASE/RUN SETTINGS
@@ -89,7 +89,7 @@ nCh = 2                                                                 # number
 
 # --length dimensions
 LBf1 = 1.0e-3   # 7.0e-3                                                # length of buffer in front of channels
-LBf2 = 20.0e-3   #                                                       # length of buffer behind channels
+LBf2 = 5.0e-3   #                                                       # length of buffer behind channels
 LPl = 1.0e-3   # 1.0e-3                                                # plug length
 LCh = 10.0e-3  # 76.2e-3, 30.2e-3                                      # channel length (total, including the plugs, but WITHOUT the buffers)
 
@@ -102,11 +102,11 @@ LLst = [LBf1, LPl, LCh, LPl, LBf2]
 #-----------------------------------------------------------------------
 # MESH DATA
 #-----------------------------------------------------------------------
-dX, dY, dZ   = 20e-6, 20e-6, 20e-6
+dX, dY, dZ   = 80e-6, 80e-6, 120e-6
 
 # -- multiplication factors for number of cells in coating and wall
-nTimesCoat = 1
-nTimesWall = 1
+nTimesCoat = 2
+nTimesWall = 2
 
 #-----------------------------------------------------------------------
 # CASE PARAMETERS

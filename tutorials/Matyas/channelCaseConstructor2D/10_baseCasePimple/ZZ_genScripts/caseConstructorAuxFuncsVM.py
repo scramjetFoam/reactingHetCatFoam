@@ -337,7 +337,6 @@ class porosityPropsWriterClass:
         
         retStr.append('\tDarcyForchheimerCoeffs\n\t{\n')
         retStr.append('\t\td\t(%e %e %e);\n'%tuple(dVec))
-        retStr.append('\t\tdPerm\tdPerm\t[0 -2 0 0 0 0 0]\t(%e %e %e);\n'%tuple(dVec))
         retStr.append('\t\tf\t(%e %e %e);\n\n'%tuple(fVec))
         
         retStr.append('\t\tcoordinateSystem\n\t\t{\n')
