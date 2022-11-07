@@ -138,7 +138,7 @@ forAll(zoneNames,countI)
     perm.set
     (
         // countI, new dimensionedVector(porosityProperties.subDict("reactingCellZone").subDict("DarcyForchheimerCoeffs").lookup("d"))
-        countI, new dimensionedVector(porosityProperties.subDict("reactingCellZone").subDict("DarcyForchheimerCoeffs").lookup("dPerm"))
+        countI, new dimensionedVector(porosityProperties.subDict(currentZone).subDict("DarcyForchheimerCoeffs").lookup("dPerm"))
     );
 
 }
