@@ -136,5 +136,20 @@ dimensionedScalar kappaC(transportProperties.subDict("ref").lookup("kappaC"));//
 dimensionedScalar kappaD(transportProperties.subDict("ref").lookup("kappaD"));//R constant
     
     
-    
-    
+// -- prepare free difusion coeficients of the current specie against all other species 
+// -- here without T and p dependence
+PtrList<dimensionedScalar> DABLst(specieNames.size());
+forAll(specieNames,lstI)
+{
+    // diffusion coefficients according to Fuller without temperature and pressure dependence
+    DABLst.set
+    (
+        lstI,
+        new dimensionedScalar(
+            "DAB",
+            Foam::pow(dimLength,2)/dimTime/Foam::pow(dimTemperature,1.75)*dimPressure,
+            ((0.014)/(Foam::sqrt(2.0/(1e-3/molMList[lstI] + 1e-3/molMList[specieNames.size()-1]))*Foam::pow(Foam::pow(volDiffLst[lstI],1.0/3.0)+Foam::pow(volDiffLst[specieNames.size()-1],1.0/3.0),2))).value()
+        )
+    );
+}   
+        

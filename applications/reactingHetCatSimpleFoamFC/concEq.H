@@ -20,44 +20,13 @@ forAll(specieNames,lstI)
         // -- DIFUSION COEFICIENT CALCULATION 
         // -- difussivity of the specie in the reference gas see 22_Hlavaty_MSc
 
-        // -- prepare free difusion coeficients of the current specie against all other species 
-        // -- NOTE: at the moment we use only diffusion of the specie in the reference gas (nitrogen) -- last member of the list
-        PtrList<dimensionedScalar> DABLst(specieNames.size());
-        forAll(DABLst,lstII)
-        {
-            // diffusion coefficients according to Fuller without temperature and pressure dependence
-            DABLst.set
-            (
-                lstII,
-                new dimensionedScalar(
-                    "DAB",
-                    Foam::pow(dimLength,2)/dimTime/Foam::pow(dimTemperature,1.75)*dimPressure,
-                    ((0.014)/(Foam::sqrt(2.0/(1e-3/molMList[lstII] + 1e-3/molMList[lstI]))*Foam::pow(Foam::pow(volDiffLst[lstI],1.0/3.0)+Foam::pow(volDiffLst[lstII],1.0/3.0),2))).value()
-                )
-            );
-        }
-
         // -- Diffusion coeficient of the mixture -- default reference gas diffusion + add temperature and pressure dependence (see Fuller)
         volScalarField DifMix
         (
-            DABLst[DABLst.size()-1]*Foam::pow(thermo.T(),1.75)/thermo.p()
+            DABLst[lstI]*Foam::pow(thermo.T(),1.75)/thermo.p()
         );
 
-        // // -- prepare Knudsen diffusivity
-        volScalarField DKn
-        (
-            IOobject
-            (
-                "DKn",
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh,
-            dimensionedScalar("DKn",DifMix.dimensions(),0.0)
-        );
-
+        DKn = 0*DifMix;                    // reset knudsen
         DKn += freeChannel*DifMix;         // free-channel (not used, but cant be 0)
         forAll(zoneLst,countI)
         {
@@ -100,6 +69,7 @@ forAll(specieNames,lstI)
             // -- source
             + fvModels.source(dummyConcEqn, currSp)
         );
+
         if (diffusion == "FickConv")
         {
             concEq = fvScalarMatrix

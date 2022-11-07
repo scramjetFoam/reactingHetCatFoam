@@ -88,3 +88,18 @@ surfaceScalarField MGradT
     // linearInterpolate(U*rho*Cp) & mesh.Sf()
     fvc::snGrad(epsEff)
 );
+
+// // -- prepare Knudsen diffusivity
+volScalarField DKn
+(
+    IOobject
+    (
+        "DKn",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("DKn",dimLength*dimLength/dimTime,0.0)
+);
