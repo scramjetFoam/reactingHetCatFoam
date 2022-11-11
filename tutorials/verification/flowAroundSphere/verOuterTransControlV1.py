@@ -48,30 +48,6 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
     with open(caseDir + '/%s'%file, 'w') as fl:
         fl.writelines(data)
 
-# -- auxilary function to read parameters from log files
-def pars_from_log(pars, solver):
-    """Read params given by a dictionary from a temporary log file."""
-    print('Reading parameters from log file:')
-    par_vals = []
-    par_keys = list(pars.keys())
-    
-    # create, read & remove temporary log file:
-    with open('tmplog.%s'%solver, 'w') as tmplog: tmplog.write(os.popen('tail -n 100 log.%s'%solver).read())
-    with open('tmplog.%s'%solver, 'r') as tmplog: lines = tmplog.readlines() 
-    for par_key in par_keys:
-        for lineInd in range(len(lines)-1,0,-1):
-            if lines[lineInd].find(pars[par_key][0]) >= 0:
-                num_lst = [t[0] for t in re.findall("(\d+[./]\d*e?-?\d*)|(\d+[./]\d*)", lines[lineInd])]
-                val = num_lst[pars[par_key][1]]
-                par_vals.append(float(val))
-                print('%s = %s'%(par_key, val))
-                break
-            if lineInd == 0:
-                par_vals.append("N/A")
-                print('%s not found'%pars[par_key][0])
-    os.remove('tmplog.%s'%solver)
-    return par_vals
-
 # -- number of the enthalpy corrections
 numOfTCorr = 1
 numOfTCorr = 0
@@ -173,10 +149,7 @@ for flowInd in range(len(tortLst)):
                 else:
                     os.chdir(caseDir)
 
-                # -- load DFree, Deff, and k from log file
-                pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
-                # par_vals = pars_from_log(pars, solver)
-                # DFree, DEff, k = par_vals
+                # -- set DFree and k
                 DFree, k = DFreeZ, k0*np.exp(-EA/(Runiv*T)) 
 
                 # -- compute case parameters
@@ -187,11 +160,10 @@ for flowInd in range(len(tortLst)):
 
                 
                 # -- compute simulation results
-                # NOTE MK: use custom function
                 # -- read real source
                 with open('log.intSrcSphere', 'r') as fl:
                     lines = fl.readlines()
-                # reaction source
+                # -- reaction source
                 for lineInd in range(len(lines)-1,0,-1):
                     if lines[lineInd].find('reaction source') >= 0:
                         rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
@@ -203,8 +175,6 @@ for flowInd in range(len(tortLst)):
 
                 # NOTETH: inner + outer transport
                 # -- diffusivity ratio
-                # print("DEff = %g"%DEff)
-                # print("DFree = %g"%DFree)
                 print('DEff/DFree = %g'%(DEff/DFree))
 
                 # -- Sherwood
@@ -240,7 +210,7 @@ for flowInd in range(len(tortLst)):
                 print('gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g\ngradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(gradCCO, cCO, j,km,Sh,gradYCO, yCO, jY,kmY,ShY))
 
                 # -- effectivness
-                # cpmpute etaAnal
+                # compute etaAnal
                 kmC = ShC*DFree/(2*R)
                 BiM = kmC*R/DEff
                 etaAnal = 3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM)
@@ -320,14 +290,4 @@ if not flow:
     plt.savefig('%s/%s'%(dirName,fileName))
     plt.show()
 elif flow and not runSim:
-    # Sh = f(Re)
-    # eta = f(Re)
-    # for various torts
-
-    # 1. open cases run for flow and get the data
-    # --> create output files: 
-    #     
-    #     ShC + Sh + Re + tort
-    # --> 
-
     pass
