@@ -60,3 +60,6 @@ flow1D*
 *__pycache__
 
 *.pyc
+
+# python script for recompilation and permission granting
+magic.py
