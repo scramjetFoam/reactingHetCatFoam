@@ -51,7 +51,7 @@ def changeInCaseFolders(file,whatLst,forWhatLst):
 # -- auxilary function to read parameters from log files
 def pars_from_log(pars, solver):
     """Read params given by a dictionary from a temporary log file."""
-    print('Reading parameters from log file:')
+    print('Reading parameters from log file.')
     par_vals = []
     par_keys = list(pars.keys())
     
@@ -74,7 +74,7 @@ def pars_from_log(pars, solver):
 
 # -- number of the enthalpy corrections
 numOfTCorr = 1
-numOfTCorr = 0
+# numOfTCorr = 0
 # isothermal logic:
 isothermal = False
 if numOfTCorr == 0: 
@@ -82,10 +82,10 @@ if numOfTCorr == 0:
 
 # -- swicher if the simulation should be run or to just check results
 runSim = True  
-# runSim = False
+runSim = False
 
 # -- case parameters
-yInf = 0.2      # molar fraction farfar from sphere
+yInf = 0.02      # molar fraction farfar from sphere
 # yInfLst = [0.02]      # molar fraction farfar from sphere
 p = 101325      # presure
 # sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
@@ -94,8 +94,8 @@ p = 101325      # presure
 Runiv = 8.314   # universal gas constant
 R = 0.1           # sphere radius
 # inv = 0.0558        # inlet velocity
-# inv = 0        # inlet velocity
-inv = 0.1116        # inlet velocity
+inv = 0        # inlet velocity
+# inv = 0.1116        # inlet velocity
 # tube dimensions:
 length1 = 1.1*R       # inlet <-> sphere centre
 length2 = length1       # sphere centre <-> outlet
@@ -113,8 +113,10 @@ outFolder = 'ZZ_cases'
 # cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
 #k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
 # k0Lst = [1e9]
-k0Lst = [1e9,1e9,1e9,1e9,1e9,1e9]
-thieleLst = [0.2,0.5,0.75,1.,2,4]
+k0Lst = [1e9,1e9,1e9,1e9,1e9]
+k0Lst = [1e9,1e9,1e9]
+thieleLst = [0.5,0.75,1.,2,4]
+thieleLst = [0.5,0.75,1.]
 # thieleLst = [1.]
 # k0Lst = [1e5]
 # EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
@@ -132,23 +134,22 @@ kappaEff = 2
 flow = False
 if inv != 0: 
     flow = True  
-    R = 0.01
-    length1 = 15*R
-    length2 = 45*R
-    width = 15*R
-    yInf = 0.01
+    R = 0.01           # sphere radius
+    # tube dimensions:
+    length1 = 15*R       # inlet <-> sphere centre
+    # length1 = 6*R       # inlet <-> sphere centre
+    length2 = 45*R       # sphere centre <-> outlet
+    # length2 = 15*R       # sphere centre <-> outlet
+    width = 15*R         # top|bottom wall <-> sphere centre
+    # width = 6*R         # top|bottom wall <-> sphere centre
+    yInf = 0.01      # molar fraction farfar from sphere
     kappaEff = 1
-    sHr = -283e3	
-    tort = 5
+    sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
+    tort = 5      # tortuosity
     TLst = [500]
-    k0Lst = [1e13,1e12]
-    k0Lst = [4e8,4e8]
+    k0Lst = [1e9]
 
-# cellSizeLst = [1*R,0.7*R,0.5*R,0.4*R,0.3*R]  # FV cell Size
-# cellSizeLst = [R]  # FV cell Size
-# cellSizeLst = [0.8*R,0.7*R,0.6*R,0.5*R]  # FV cell Size
-cellSizeLst = [0.6*R]  # FV cell Size
-nCellsSp = 30
+cellSizeLst = [0.5*R]  # FV cell Size
 
 # MK: change naming for flow
 if flow:
@@ -165,36 +166,16 @@ else:
     resNp = np.zeros((2,len(k0Lst)+1))
 
 # -- create case for:
-if flow:
-    tortLst = [
-       0.5,
-       5,
-    #    0.5,
-    #    0.5
-    #    5,
-#        50, 
-#        5, 
-#        5]
-]
-    # tortLst = [0.5]
-    invLst = [0.11,0.11]#,0.05,0.22,0.44]
-#    invLst =  [
-    #    0.2234490088,
-#        0.2234490088,
-#        0.2234490088,
-#        0.0279311261,
-#        0.1117245044]
-for flowInd in range(len(tortLst)):
-    for TInd in range(len(TLst)):
-        # for k0Ind in range(len(k0Lst)):
+
+# for tortInd in range(len(tortLst)):
+for TInd in range(len(TLst)):
+    for k0Ind in range(len(k0Lst)):
         for cellSizeInd in range(len(cellSizeLst)):
-            # -- set parameters
             cellSize = cellSizeLst[cellSizeInd]
             T = TLst[TInd]
-            k0 = k0Lst[flowInd]
+            k0 = k0Lst[k0Ind]
             EA = gamma*Runiv*T
-            inv = invLst[flowInd]
-            tort = tortLst[flowInd]
+            # tort = tortLst[k0Ind]
             
             DEff = DFreeZ/tort*0.5  
 
@@ -219,7 +200,6 @@ for flowInd in range(len(tortLst)):
                 changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
                 changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                # if flow: changeInCaseFolders('system/blockMeshDict',['spR','inR','bMinVal','bMaxVal','xMinVal','xMaxVal','nCellsSp'],[str(R),str(R/2.),str(-width/2),str(width/2),str(-length1),str(length2),str(nCellsSp)])
                 if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
                 else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(length1),str(int(length1/cellSize*2))])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
@@ -229,6 +209,9 @@ for flowInd in range(len(tortLst)):
                 changeInCaseFolders('system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
                 # -- run the simulation
                 os.chdir(caseDir)
+                # os.system('./AllrunIntraSphere') # --> only runs inside the sphere
+                # os.system('./Allrun') # --> for flow cases
+                # os.system('ls')
                 if flow:
                     os.system('./Allrun-parallel')
                 else:
@@ -307,16 +290,11 @@ for flowInd in range(len(tortLst)):
                 
             elif flow:
             # NOTETH: inner + outer transport
-                # -- diffusivity ratio
-                # print("DEff = %g"%DEff)
-                # print("DFree = %g"%DFree)
-                print('DEff/DFree = %g'%(DEff/DFree))
-
-                # -- Sherwood
-                nu = 5.58622522e-05
+                nu = 5.5862252e-05
                 Re = inv * (R*2) / nu
                 Sc = nu / DFree
                 ShC = 2 + 0.6 * Re**0.5 * Sc**(0.3333333)
+                print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
 
                 with open('log.integrace','r') as fl:
                     lines = fl.readlines()
@@ -331,56 +309,16 @@ for flowInd in range(len(tortLst)):
                 gradCCO = float(lines[inds[1]].split('=')[1])
                 yCO = float(lines[inds[2]].split('=')[1])
                 gradYCO = float(lines[inds[3]].split('=')[1])
-                j = gradCCO #/(4*np.pi*R**2)
+                j = -gradCCO #/(4*np.pi*R**2)
                 km = j/(yInf*p/Runiv/T-cCO)
                 Sh = km*(2*R)/DFree
 
-                jY = gradYCO #/(4*np.pi*R**2)
+                jY = -gradYCO #/(4*np.pi*R**2)
                 kmY = jY/(yInf-yCO)
                 ShY = kmY*(2*R)/DFree
-                print('Re = %g'%Re)
-                print('correlation: ShC = %g, Sc = %g'%(ShC,Sc))
-                print('simulation:  Sh =  %g'%(Sh))
-                print('gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g\ngradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(gradCCO, cCO, j,km,Sh,gradYCO, yCO, jY,kmY,ShY))
 
-                # -- effectivness
-                # cpmpute etaAnal
-                kmC = ShC*DFree/(2*R)
-                BiM = kmC*R/DEff
-                etaAnal = 3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM)
-                
-                # read etaSim
-                with open('log.intSrcSphere', 'r') as fl:
-                    lines = fl.readlines()
-                for lineInd in range(len(lines)-1,0,-1):
-                    if lines[lineInd].find('reaction source') >= 0:
-                        rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
-                        etaSim = rS/rSqIdeal
-                        # print('reaction source = %g'%rS)
-                        print('etaSim =  %g\netaAnal = %g'%(etaSim, etaAnal))
-                        break
-                    if lineInd == 0:
-                        print('Reaction source not found.')
-                
-                # write data for plotting
-                if not os.path.exists('../../ZZZ_res'): os.mkdir('../../ZZZ_res')
-                mode = 'r'
-                if not os.path.isfile('../../ZZZ_res/flow.csv'): mode = 'w'
-                with open('../../ZZZ_res/flow.csv', mode) as f:
-                    if mode == 'w': pass
-                    else:
-                        lines = f.readlines()
-                wr = True
-                for lineInd in range(len(lines)):
-                    test = ['%g'%tort, '%g'%Re]
-                    if test==lines[lineInd].split(',')[0:2]: 
-                        wr=False
-                        break
-                if wr: 
-                    with open('../../ZZZ_res/flow.csv','a') as f: 
-                        f.writelines('%g,%g,%g,%g,%g,%g\n'%(tort,Re,Sh,ShC,etaSim,etaAnal))
-
-
+                print('correlation: Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
+                print('simulation: thiele = %g, gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g\ngradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(thiele, gradCCO, cCO, j,km,Sh,gradYCO, yCO, jY,kmY,ShY))
             os.chdir('../../')
 
 # flow = False
@@ -421,17 +359,5 @@ if not flow:
     plt.yscale('log')
     plt.xscale('log')
     plt.legend()
-    plt.savefig('%s/%s'%(dirName,fileName))
+    # plt.savefig('%s/%s'%(dirName,fileName))
     plt.show()
-elif flow and not runSim:
-    # Sh = f(Re)
-    # eta = f(Re)
-    # for various torts
-
-    # 1. open cases run for flow and get the data
-    # --> create output files: 
-    #     
-    #     ShC + Sh + Re + tort
-    # --> 
-
-    pass
