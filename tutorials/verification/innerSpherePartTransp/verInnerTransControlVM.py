@@ -132,22 +132,22 @@ kappaEff = 2
 flow = False
 if inv != 0: 
     flow = True  
-    R = 0.01
-    length1 = 15*R
-    length2 = 45*R
-    width = 15*R
-    yInf = 0.01
+    R = 0.01           # sphere radius
+    # tube dimensions:
+    length1 = 15*R       # inlet <-> sphere centre
+    # length1 = 6*R       # inlet <-> sphere centre
+    length2 = 45*R       # sphere centre <-> outlet
+    # length2 = 15*R       # sphere centre <-> outlet
+    width = 15*R         # top|bottom wall <-> sphere centre
+    # width = 6*R         # top|bottom wall <-> sphere centre
+    yInf = 0.01      # molar fraction farfar from sphere
     kappaEff = 1
-    sHr = -283e3	
-    tort = 5
+    sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
+    tort = 5      # tortuosity
     TLst = [500]
-    k0Lst = [1e11]
+    k0Lst = [1e9]
 
-# cellSizeLst = [1*R,0.7*R,0.5*R,0.4*R,0.3*R]  # FV cell Size
-# cellSizeLst = [R]  # FV cell Size
-# cellSizeLst = [0.8*R,0.7*R,0.6*R,0.5*R]  # FV cell Size
-cellSizeLst = [0.8*R]  # FV cell Size
-nCellsSp = 30
+cellSizeLst = [0.7*R]  # FV cell Size
 
 # MK: change naming for flow
 if flow:
@@ -218,7 +218,6 @@ for flowInd in range(len(tortLst)):
                     changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
                     changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                     changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                    # if flow: changeInCaseFolders('system/blockMeshDict',['spR','inR','bMinVal','bMaxVal','xMinVal','xMaxVal','nCellsSp'],[str(R),str(R/2.),str(-width/2),str(width/2),str(-length1),str(length2),str(nCellsSp)])
                     if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
                     else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(length1),str(int(length1/cellSize*2))])
                     changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
@@ -228,6 +227,9 @@ for flowInd in range(len(tortLst)):
                     changeInCaseFolders('system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
                     # -- run the simulation
                     os.chdir(caseDir)
+                # os.system('./AllrunIntraSphere') # --> only runs inside the sphere
+                # os.system('./Allrun') # --> for flow cases
+                # os.system('ls')
                     if flow:
                         os.system('./Allrun-parallel')
                     else:
@@ -316,6 +318,7 @@ for flowInd in range(len(tortLst)):
                     Re = inv * (R*2) / nu
                     Sc = nu / DFree
                     ShC = 2 + 0.6 * Re**0.5 * Sc**(0.3333333)
+                    print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
 
                     with open('log.integrace','r') as fl:
                         lines = fl.readlines()
