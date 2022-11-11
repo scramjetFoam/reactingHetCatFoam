@@ -86,7 +86,7 @@ solvers
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors 2;              // n of concentration calculations for each specie
+    nConcCorrectors 1;              // n of concentration calculations for each specie
     nTempCorrectors nTCorr;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
 
