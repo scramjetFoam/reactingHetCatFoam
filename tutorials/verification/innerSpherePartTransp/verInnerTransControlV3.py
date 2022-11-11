@@ -1,7 +1,5 @@
 # -- Script to do verification simulation of isothermal reaction inside sphere
 
-# -- TODO: try different parameters setups, check analytical profile in the isothermal cases, check order of the method (should be 2) in all cases
-
 # -- NOTE:
 # (1) isothermal study (numOfTCorr = 0)
 #     -> effectivness comparison (analytical x simulation)
@@ -14,6 +12,8 @@
 # (3) flow study (inv > 0)
 #     -> comparison of effectivness for different Biot numbers (Ds/Df ratios)
 #     -> dependence of the error on the mesh
+# (4) flow study let to separate file
+#     -> parameters set to get curve from Chandra
 
 
 # -- imports
@@ -74,7 +74,7 @@ def pars_from_log(pars, solver):
 
 # -- number of the enthalpy corrections
 numOfTCorr = 1
-# numOfTCorr = 0
+
 # isothermal logic:
 isothermal = False
 if numOfTCorr == 0: 
@@ -82,79 +82,42 @@ if numOfTCorr == 0:
 
 # -- swicher if the simulation should be run or to just check results
 runSim = True  
-runSim = False
+# runSim = False
 
 # -- case parameters
 yInf = 0.02      # molar fraction farfar from sphere
-# yInfLst = [0.02]      # molar fraction farfar from sphere
-p = 101325      # presure
-# sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
-# sHrLst = [-12307920,-123079200,-1230792000]     # standard reaction enthalpy (physical 283e3)	
-# sHrLst = [-300e3/10,-300e3/5,-300e3]     # standard reaction enthalpy (physical 283e3)	
+p = 101325      # presure	
 Runiv = 8.314   # universal gas constant
 R = 0.1           # sphere radius
-# inv = 0.0558        # inlet velocity
-inv = 0        # inlet velocity
-# inv = 0.1116        # inlet velocity
-# tube dimensions:
+
+# -- tube dimensions:
 length1 = 1.1*R       # inlet <-> sphere centre
 length2 = length1       # sphere centre <-> outlet
 width = length1         # top|bottom wall <-> sphere centre
 
 DFreeZ = 1e-5
+inv = 0
 
 # -- setup study parameters here
 baseCaseDir = 'baseCase'
 outFolder = 'ZZ_cases'
   
-# cellSizeLst = [R/3]  # FV cell Size
-# cellSizeLst = [0.5*R]  # FV cell Size
-# cellSizeLst = [0.5,0.25,0.125,0.0625,0.03125]  
-# cellSizeLst = [0.5,0.25,0.125,0.0625]  # MK
-#k0Lst = [1e2, 5e2, 1e3, 5e3, 1e4, 1e5]      # reaction pre-exponential factor
-# k0Lst = [1e9]
-k0Lst = [1e9,1e9,1e9,1e9,1e9]
-k0Lst = [1e9,1e9,1e9]
+# -- NOTE: k0Lst not used 
 thieleLst = [0.5,0.75,1.,2,4]
-thieleLst = [0.5,0.75,1.]
-# thieleLst = [1.]
-# k0Lst = [1e5]
-# EA = 90e3     # reaction activation energy (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
+
 TLst = [300]   # temperature (set according to gamma) 2020 Chandra Direct numerical simulation of a noniso...
 gamma = 20      # see line above
 beta = 0.6
-# betaLst = [0.4,0.6,0.8] set according to T) 2020 Chandra Direct numerical simulation of a noniso...
+
 tort = 2      # tortuosity
 solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO'] # used solver
 solver = solverLst[0]
 kappaEff = 2
-# kappaEff = 0.024375 
 
-# flow logic:
-flow = False
-if inv != 0: 
-    flow = True  
-    R = 0.01           # sphere radius
-    # tube dimensions:
-    length1 = 15*R       # inlet <-> sphere centre
-    # length1 = 6*R       # inlet <-> sphere centre
-    length2 = 45*R       # sphere centre <-> outlet
-    # length2 = 15*R       # sphere centre <-> outlet
-    width = 15*R         # top|bottom wall <-> sphere centre
-    # width = 6*R         # top|bottom wall <-> sphere centre
-    yInf = 0.01      # molar fraction farfar from sphere
-    kappaEff = 1
-    sHr = -283e3    # standard reaction enthalpy (physical 283e3)	
-    tort = 5      # tortuosity
-    TLst = [500]
-    k0Lst = [1e9]
-
+# -- blockMesh cell dimension -- NOTE: in snappy much more refined (4 4) on sphere
 cellSizeLst = [0.5*R]  # FV cell Size
 
 # MK: change naming for flow
-if flow:
-    baseCaseDir += '_flow'
-    outFolder += '_flow'
 if isothermal:
     outFolder += '_isoT'
 
@@ -163,29 +126,28 @@ if isothermal:
     resNp = np.zeros((len(cellSizeLst)))
     resNp2 = np.zeros((len(cellSizeLst)))
 else:
-    resNp = np.zeros((2,len(k0Lst)+1))
+    resNp = np.zeros((2,len(thieleLst)+1))
 
 # -- create case for:
 
 # for tortInd in range(len(tortLst)):
 for TInd in range(len(TLst)):
-    for k0Ind in range(len(k0Lst)):
+    for thieleInd in range(len(thieleLst)):
         for cellSizeInd in range(len(cellSizeLst)):
             cellSize = cellSizeLst[cellSizeInd]
             T = TLst[TInd]
-            k0 = k0Lst[k0Ind]
             EA = gamma*Runiv*T
             # tort = tortLst[k0Ind]
             
             DEff = DFreeZ/tort*0.5  
 
-            if not flow:
-                k0 = (thieleLst[k0Ind]/R)**2*DEff/(np.exp(-EA/(Runiv*T)))
-                sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
+            # -- set parameters for kinetics to ensure thiele, gamma, beta
+            k0 = (thieleLst[thieleInd]/R)**2*DEff/(np.exp(-EA/(Runiv*T)))
+            sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
             
 
             # -- create caseFolder based on baseCase
-            caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
+            caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g'%(thieleLst[thieleInd],beta,cellSize)
             caseDir = '%s/%s/'%(outFolder,caseName)
 
             if runSim:
@@ -200,22 +162,16 @@ for TInd in range(len(TLst)):
                 changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
                 changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
                 changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-                if flow: changeInCaseFolders('system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
-                else: changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(length1),str(int(length1/cellSize*2))])
+                changeInCaseFolders('system/blockMeshDict',['dSN', 'nDisc'],[str(length1),str(int(length1/cellSize*2))])
                 changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
                 changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
                 changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
                 changeInCaseFolders('system/snappyHexMeshDict',['spR'],[str(R)])
                 changeInCaseFolders('system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
+                
                 # -- run the simulation
                 os.chdir(caseDir)
-                # os.system('./AllrunIntraSphere') # --> only runs inside the sphere
-                # os.system('./Allrun') # --> for flow cases
-                # os.system('ls')
-                if flow:
-                    os.system('./Allrun-parallel')
-                else:
-                    os.system('./AllrunIntraSphere')
+                os.system('./AllrunIntraSphere')
 
             else:
                 os.chdir(caseDir)
@@ -249,7 +205,7 @@ for TInd in range(len(TLst)):
                     print('Reaction source not found.')
             
             # -- in the isothermal cases we can compare concentration profiles
-            if isothermal and not flow: 
+            if isothermal: 
                 # -- analytical effectivness factor
                 etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1) 
                 print('Reaction source = %g, simulation effectivness factor is %g, relative error = %g'%(rS,etaSim,(etaAnal-etaSim)/etaAnal))
@@ -283,81 +239,42 @@ for TInd in range(len(TLst)):
                 plt.show()
             
             # -- in the nonisothermal case we can compare eta-thiele diagram
-            elif not isothermal and not flow:
+            elif not isothermal:
                 etaSim = rS/rSqIdeal  # simulation effectivness factor
                 print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
-                resNp[:,k0Ind] = np.array([thiele,etaSim])
-                
-            elif flow:
-            # NOTETH: inner + outer transport
-                nu = 5.5862252e-05
-                Re = inv * (R*2) / nu
-                Sc = nu / DFree
-                ShC = 2 + 0.6 * Re**0.5 * Sc**(0.3333333)
-                print('Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
-
-                with open('log.integrace','r') as fl:
-                    lines = fl.readlines()
-
-                inds = [0,0,0,0]
-                names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO",'areaAverage(batt1) of yCOS','areaAverage(batt1) of gradYCO']
-                for lineInd in range(len(lines)):
-                    for j in range(len(names)):
-                        if  names[j] in lines[lineInd]:
-                            inds[j] = lineInd
-                cCO = float(lines[inds[0]].split('=')[1])
-                gradCCO = float(lines[inds[1]].split('=')[1])
-                yCO = float(lines[inds[2]].split('=')[1])
-                gradYCO = float(lines[inds[3]].split('=')[1])
-                j = -gradCCO #/(4*np.pi*R**2)
-                km = j/(yInf*p/Runiv/T-cCO)
-                Sh = km*(2*R)/DFree
-
-                jY = -gradYCO #/(4*np.pi*R**2)
-                kmY = jY/(yInf-yCO)
-                ShY = kmY*(2*R)/DFree
-
-                print('correlation: Re = %g, Sc = %g, ShC = %g'%(Re,Sc,ShC))
-                print('simulation: thiele = %g, gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g\ngradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(thiele, gradCCO, cCO, j,km,Sh,gradYCO, yCO, jY,kmY,ShY))
+                resNp[:,thieleInd] = np.array([thiele,etaSim])
             os.chdir('../../')
-
-# flow = False
-# isothermal=False
-
-## -- create plot
 
 # create &or name directory for res plot:
 dirName = 'ZZZ_res'
-if flow:    dirName += '_flow'
 if isothermal: dirName += '_isoT'
 if not os.path.exists(dirName): os.mkdir(dirName)
 
 # create plot:
-if not flow:
-    if isothermal:
-        plt.plot(cellSizeLst,resNp,label='eta diff (my)')
-        # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
-        plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
-        # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
-        plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
-        plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
-        title = 'Dependence of the error on the mesh.'
-        fileName = 'error_mesh.png'
-    else:
-        with open('baseCase/analRes06.csv' ,'r') as fl:
-            lines = fl.readlines()
-        analRes = np.zeros((len(lines)-1,2))
-        for i in range(1,len(lines)):
-            analRes[i-1,:] = np.array(lines[i].split(',')) 
-        # plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
-        plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
-        plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
-        # plt.plot(analRes[:,0], analRes[:,1])#,resNp[0,:],resNp[1,:],'x',label='sim res.')
-        title = 'Multiple steady states.'
-        fileName = 'mult_steadySt.png'
-    plt.title(title)
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.legend()
-    # plt.savefig('%s/%s'%(dirName,fileName))
-    plt.show()
+if isothermal:
+    plt.plot(cellSizeLst,resNp,label='eta diff (my)')
+    # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
+    plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
+    # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
+    plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
+    plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
+    title = 'Dependence of the error on the mesh.'
+    fileName = 'error_mesh.png'
+else:
+    with open('baseCase/analRes06.csv' ,'r') as fl:
+        lines = fl.readlines()
+    analRes = np.zeros((len(lines)-1,2))
+    for i in range(1,len(lines)):
+        analRes[i-1,:] = np.array(lines[i].split(',')) 
+    # plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+    plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
+    plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+    # plt.plot(analRes[:,0], analRes[:,1])#,resNp[0,:],resNp[1,:],'x',label='sim res.')
+    title = 'Multiple steady states.'
+    fileName = 'mult_steadySt.png'
+plt.title(title)
+plt.yscale('log')
+plt.xscale('log')
+plt.legend()
+# plt.savefig('%s/%s'%(dirName,fileName))
+plt.show()
