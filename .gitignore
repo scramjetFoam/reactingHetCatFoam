@@ -42,13 +42,17 @@ log.*
 ZZ_cases*
 ZZZ_res*
 myStf
+settings.json
 
 untestedTutorials/reactingRect*
+untestedTutorials/test*
+untestedTutorials/ver*
 
 # test cases
 tutorials/Matyas/caseConstructor/ZZ_cases/test/**
 tutorials/Matyas/channelCaseConstructor/testMatyas/**
 tutorials/Matyas/channelCaseConstructor2D/testMatyas/**
+tutorials/Matyas/channelCaseConstructor2D/testTomas/**
 
 diff**
 flow1D*
