@@ -2,10 +2,12 @@
 # script for verification cases with flow past a spherical particle
 
 # -- Script for verification simulation of conjugated mass transport
-# NOTE: SCRIPT ARGUMENTS
-# -- "makeMesh"
-# -- "runSim"
-# -- "showPlots"
+# NOTE: SCRIPT USES ARGUMENTS
+#       -- "makeMesh": prepare mesh for each cellSize 
+#           (this must be done manually if protoMesh doesn't exist yet)
+#       -- "runSim": run the simulation
+#       -- "showPlots": shows Plots
+#       -- "getCsv": generate csv files for TeX plots 
 
 # -- imports
 import numpy as np
@@ -86,6 +88,7 @@ if makeMesh:
         os.chdir(meshDir)
         os.system('./Allmesh')
         os.chdir('../../../')
+
 
 # -- create case for:
 cases = [(inv,k0,cellSize,tort) for inv in invLst for k0 in k0Lst for cellSize in cellSizeLst for tort in tortLst]
