@@ -29,11 +29,14 @@ args = sys.argv
 runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
+getCsv = (True if 'getCsv' in args else False)
 
 # -- directory naming
 baseCaseDir = 'baseCase_flow'
 outFolder = 'ZZ_cases_flow'
-flow = True
+ZZZ_path = 'ZZZ_res'
+ZZZ_file = 'flow.csv'
+ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
 
 # -- case parameters
 yInf = 0.01         # molar fraction farfar from sphere
@@ -55,9 +58,14 @@ width = 15*R        # top|bottom wall <-> sphere centre
 # -- list parameters
 invLst = [0.11,0.22]                # inlet velocity
 k0Lst = [1e9]                       # reaction pre-exponential factor
-cellSizeLst = [0.7*R]               # FV cell Size
+cellSizeLst = [0.35*R]              # FV cell Size
 tortLst = [0.5,5]                   # tortuosity
 
+# ARCHIVED SETTINGS 12. 11. 2022 (12 cases)
+invLst = [0.0275,0.11,0.22,0.44]
+k0Lst = [1e9]
+cellSizeLst = [0.35*R]
+tortLst = [0.5,5,50]
 
 # -- prepare mesh for each cellSize
 if makeMesh:
@@ -107,6 +115,7 @@ for case in cases:
         changeInCaseFolders(caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
         # -- run simulation
         os.chdir(caseDir)
+        os.system('chmod u=rwx Allrun-parallel')
         os.system('./Allrun-parallel')
     else: 
         os.chdir(caseDir)
@@ -131,7 +140,7 @@ for case in cases:
     yCO = float(lines[inds[2]].split('=')[1])
     gradYCO = float(lines[inds[3]].split('=')[1])
     
-    j, jY = -gradCCO, -gradYCO #/(4*np.pi*R**2)
+    j, jY = gradCCO, gradYCO #/(4*np.pi*R**2)
     km, kmY = j/(yInf*p/Runiv/T-cCO), jY/(yInf-yCO)
     Sh, ShY = km*(2*R)/DFree, kmY*(2*R)/DFree
 
@@ -148,24 +157,20 @@ for case in cases:
     eta_sim = rS/rSqIdeal
 
     # eta_anal [old]
-    BiM = -km*R/DEff
-    # BiM = km*R/DEff ???
+    BiM = km*R/DEff
     eta_anal = 3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM)
 
-    # log report:
-    print('### Case with Thiele = %g'%thiele)
-    print('\tBiM_corr = %g\n\teta_corr = %g'%(BiM_corr, eta_corr))
-    print('\teta_sim = %g'%(eta_sim))
-    print('\t(BiM_anal = %g),\n\t(eta_anal = %g)'%(BiM, eta_anal))
 
-
-    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_anal,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
-    write_to_csv(tort,Re,Sh,Sh_corr,eta_sim,eta_corr)
-
-    if showPlots:
-        filepath = 'ZZZ_res_flow.csv'
-        # Sh_plt(filepath, Re1, Re2, nu, DFree, tort)
-        eta_plt(filepath, tort)
-
+    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,eta_anal,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
     os.chdir('../../')
+    flow_csv(ZZZ_path,ZZZ_filepath,tort,Re,eta_sim,eta_corr,eta_anal)
 
+    
+
+if showPlots:
+    for tort in tortLst:
+        eta_plt(ZZZ_filepath, tort)
+    eta_err_plt(ZZZ_filepath, tortLst, invLst)
+
+if getCsv:
+    generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst)
