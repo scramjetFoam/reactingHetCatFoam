@@ -115,11 +115,10 @@ kappaEff = 2
 # -- blockMesh cell dimension -- NOTE: in snappy much more refined (4 4) on sphere
 cellSizeLst = [0.5*R]  # FV cell Size
 
-# MK: change naming for flow
 if isothermal:
     outFolder += '_isoT'
 
-# -- numpy array with results
+# -- numpy array for results
 if isothermal:
     resNp = np.zeros((len(cellSizeLst)))
     resNp2 = np.zeros((len(cellSizeLst)))
@@ -128,7 +127,6 @@ else:
 
 # -- create case for:
 
-# for tortInd in range(len(tortLst)):
 for TInd in range(len(TLst)):
     for thieleInd in range(len(thieleLst)):
         for cellSizeInd in range(len(cellSizeLst)):
@@ -173,7 +171,7 @@ for TInd in range(len(TLst)):
                 os.chdir(caseDir)
 
             # -- load DFree, Deff, and k from log file
-            pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
+            # pars = {'DFree':('DFree',-1), 'DEff':('DEff', 0), 'k':('max(k)', -1)}
             # par_vals = pars_from_log(pars, solver)
             # DFree, DEff, k = par_vals
             DFree, k = DFreeZ, k0*np.exp(-EA/(Runiv*T)) 
@@ -186,11 +184,10 @@ for TInd in range(len(TLst)):
 
             
             # -- compute simulation results
-            # NOTE MK: use custom function
             # -- read real source
             with open('log.intSrcSphere', 'r') as fl:
                 lines = fl.readlines()
-            # reaction source
+            # -- simulation reaction source
             for lineInd in range(len(lines)-1,0,-1):
                 if lines[lineInd].find('reaction source') >= 0:
                     rS = float(lines[lineInd].split(' ')[-1].replace('\n',''))
@@ -205,7 +202,6 @@ for TInd in range(len(TLst)):
                 # -- analytical effectivness factor
                 etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1) 
                 print('Reaction source = %g, simulation effectivness factor is %g, relative error = %g'%(rS,etaSim,(etaAnal-etaSim)/etaAnal))
-
                 print('\nThiele modulus = %g\nAnalytical effectivness factor is %g'%(thiele,etaAnal))   
                 # -- load concetration profile to compare with analytical solution
                 timeLst = os.listdir('./')
@@ -241,12 +237,12 @@ for TInd in range(len(TLst)):
                 resNp[:,thieleInd] = np.array([thiele,etaSim])
             os.chdir('../../')
 
-# create &or name directory for res plot:
+# -- create &or name directory for res plot:
 dirName = 'ZZZ_res'
 if isothermal: dirName += '_isoT'
 if not os.path.exists(dirName): os.mkdir(dirName)
 
-# create plot:
+# -- create plot:
 if isothermal:
     plt.plot(cellSizeLst,resNp,label='eta diff (my)')
     # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')

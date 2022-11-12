@@ -104,6 +104,7 @@ for case in cases:
     
     if runSim:
         print('Preparing case %s'%caseName)
+        # -- check that caseDir is clean
         if os.path.isdir(caseDir): sh.rmtree(caseDir)   # ensure the caseDir is clear
         # -- copy files
         sh.copytree(meshDir,caseDir)

@@ -4,6 +4,12 @@
 #       -- "makeMesh"
 #       -- "runSim"
 #       -- "showPlots"
+# -- TODO: 
+#       (1) edit [if isothermal + else] in the loop
+#       (2) @nonisoT: edit plot making
+#       (3) add csv export
+#       (4) @nonisoT: incorporate theoretical solution
+
 
 # -- imports
 import numpy as np
@@ -13,6 +19,7 @@ import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
+# from shootChandra import *
 
 
 # -- set solver to be used
@@ -36,7 +43,7 @@ outFolder = 'ZZ_cases'
 if isothermal: outFolder += 'isoT'
 ZZZ_path = 'ZZZ_res'
 if isothermal: ZZZ_path += 'isoT'
-# ZZZ_file = 'res.csv'
+# ZZZ_file = 'mult_steadySt'
 # ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
 
 # -- set case parameters
@@ -57,8 +64,9 @@ TLst = [300]                    # temperature
 gammaLst = [20]                 # gamma - Arrhenius number
 betaLst = [0.6]                 # beta - Prater number
 cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined inside the sphere (5 5)
-# 12/11/2022
-cellSizeLst = [0.2*R]
+# == ARCHIVED SETTINGS: 
+# -- 12/11/2022 khyrm@multipede:
+# cellSizeLst = [0.3*R, 0.5*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -78,18 +86,128 @@ if makeMesh:
         os.system('./AllmeshIntraSphere')
         os.chdir('../../../')
 
-# # -- create cases for
-# cases = [(T,thiele,cellSize,gamma,beta) for T in TLst for thiele in thieleLst for cellSize in cellSizeLst for gamma in gammaLst for beta in betaLst]
-# for case in cases:
-#     # -- parameters
-#     T,thiele,cellSize = case
-#     EA = gamma*Runiv*T
-#     DEff = DFreeZ/tort*0.5
-#     k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
-#     sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
+# -- numpy array for results
+if isothermal:
+    resNp = np.zeros((len(cellSizeLst)))
+    resNp2 = np.zeros((len(cellSizeLst)))
+else:
+    resNp = np.zeros((2,len(thieleLst)+1))
 
-#     caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g'%(thiele,beta,cellSize)
-#     caseDir = '%s/%s/'%(outFolder,caseName)
+# -- create cases for
+cases = [(T,thiele,cellSize,gamma,beta) for T in TLst for thiele in thieleLst for cellSize in cellSizeLst for gamma in gammaLst for beta in betaLst]
+for case in cases:
+    # -- parameters
+    T,thiele,cellSize = case
+    EA = gamma*Runiv*T
+    DFree = DFreeZ
+    DEff = DFree/tort*0.5
+    sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
 
-#     if runSim:
-#         print('Preparing case')
+    caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g'%(thiele,beta,cellSize)
+    caseDir = '%s/%s/'%(outFolder,caseName)
+    meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
+
+    if runSim:
+        print('Preparing case %s'%caseName)
+        # -- check that caseDir is clean
+        if os.path.isdir(caseDir): sh.rmtree(caseDir)
+        # -- copy files
+        sh.copytree(meshDir,caseDir)
+        # -- change the case files
+        changeInCaseFolders('0.org/T',['isoT'],[str(T)])
+        changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
+        changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
+        changeInCaseFolders('system/controlDict',['customSolver'],[solver])
+        changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
+        changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
+        changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
+        # -- run simulation
+        os.chdir(caseDir)
+        os.system('chmod u=rwx AllrunIntraSphere')
+        os.system('./AllrunIntraSphere')
+    else:
+        os.chdir(caseDir)
+    
+
+    k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
+    k = k0*np.exp(-gamma)       # ???
+    k0Art = k0*np.exp(-gamma)   # ???
+    rSqIdeal = 4/3*np.pi*R**3*k0Art*yInf*p/Runiv/T     # ideal reaction source
+    rS = read_real_source()                            # simulation reaction source
+    print('thiele1 = %g'%thiele)
+    thiele = R*np.sqrt(k0Art/DEff)
+    print('thiele2 = %g'%thiele)
+
+    print('Case with thiele = %g'%thiele)
+    
+    if isothermal: 
+        # -- analytical effectivness factor
+        etaAnal = 3./(thiele**2)*(thiele*1./np.tanh(thiele)-1)
+        print('Reaction source = %g, simulation effectivness factor is %g, relative error = %g'%(rS,etaSim,(etaAnal-etaSim)/etaAnal))
+        print('\nThiele modulus = %g\nAnalytical effectivness factor is %g'%(thiele,etaAnal))   
+        # -- load concetration profile to compare with analytical solution
+        timeLst = os.listdir('./')
+        timeLst = sorted([time for time in timeLst if isFloat(time)])
+        print(timeLst)
+        for timeInd in range(len(timeLst)):
+            with open('postProcessing/graphCellFace(start=(000),end=(100),fields=(CO))/%s/line.xy'%timeLst[timeInd],'r') as fl:
+                lines = fl.readlines()
+            simData = np.zeros((len(lines)-1,2))
+            for lineInd in range(len(lines)-1):
+                simData[lineInd,:] = np.array([num for num in np.array(lines[lineInd+1].replace('\n','').split(' ')) if isFloat(num)]).astype(float)
+            plt.plot(simData[:,0],simData[:,1],label='sim, time = %s'%timeLst[timeInd])
+
+        # -- analytical solution
+        rAnal = simData[:,0]
+        yAnal = yInf * R/rAnal * np.sinh(rAnal*(k/DEff)**0.5)/np.sinh(thiele)
+        resNp[cellSizeInd] = abs(etaAnal-etaSim)
+        resNp2[cellSizeInd] = np.linalg.norm(yAnal-simData[:,1])
+        with open('anal.csv','w')as fl:
+            fl.writelines('r,yinf\n')
+            for i in range(len(rAnal)):
+                fl.writelines('%g,%g\n'%(rAnal[i],yAnal[i]))
+        plt.plot(rAnal,yAnal,label='analytical')
+        plt.legend()
+        plt.title('Concentration profile comparison for k0=%d'%k0)
+        plt.savefig('resHere.png')
+        plt.show()
+    else:
+        etaSim = rS/rSqIdeal  # simulation effectivness factor
+        print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
+        resNp[:,thieleInd] = np.array([thiele,etaSim])
+    os.chdir('../../')
+
+
+# -- create plots
+if isothermal:
+    # -- mesh dependence plot
+    plt.plot(cellSizeLst,resNp,label='eta diff (my)')
+    # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
+    plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
+    # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
+    plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
+    plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
+    title = 'Dependence of the error on the mesh.'
+    fileName = 'error_mesh.png'
+    plt.title(title)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.legend()
+    plt.show()
+else:
+    # -- eta-thiele diagram
+    with open('baseCase/analRes06.csv' ,'r') as fl:
+        lines = fl.readlines()
+    analRes = np.zeros((len(lines)-1,2))
+    for i in range(1,len(lines)):
+        analRes[i-1,:] = np.array(lines[i].split(',')) 
+    plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
+    plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+    title = 'Multiple steady states.'
+    fileName = 'mult_steadySt.png'
+    plt.title(title)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.legend()
+    # plt.savefig('%s/%s'%(ZZZ_path,fileName))
+    plt.show()
