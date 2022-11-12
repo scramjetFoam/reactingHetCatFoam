@@ -68,87 +68,137 @@ def pars_from_log(pars, solver):
     os.remove('tmplog.%s'%solver)
     return par_vals
 
+#======================================================================#
+#   NOTE: following functions are used in verOuterTransControl
 
-def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,etaSim,etaAnal,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY):
-    print('=============================')
+
+def frossling(Re, nu, DFree):
+    """Compute ShC for givern parameters"""
+    Sc = nu/DFree
+    ShC = 2 + .6*Re**(1/2)*Sc**(1/3)
+    return ShC
+
+
+def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,eta_sim,eta_corr,eta_anal,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY):
+    print('==========================================================')
     print('Case with thiele = %g'%thiele)
     print('DEff/DFree = %g'%(DEff/DFree))
     print('Re = %g'%Re)
     print('correlation: ShC = %g, Sc = %g'%(ShC,Sc))
     print('simulation:  Sh =  %g'%Sh)
-    print('etaSim =  %g\netaAnal = %g'%(etaSim,etaAnal))
+    print('eta_sim =  %g\neta_corr = %g\neta_anal = %g'%(eta_sim,eta_corr,eta_anal))
     print('gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g'%(gradCCO,cCO,j,km,Sh))
     print('gradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(gradYCO,yCO,jY,kmY,ShY))
+    print('==========================================================')
 
 
-def write_to_csv(tort,Re,Sh,ShC,etaSim,etaAnal):
-    """Write data for plotting to a csv file"""
-    filepath = '../../ZZZ_res_flow/'
-    filename = 'flow.csv'
-    if not os.path.exists(filepath): os.mkdir(filepath)
-    mode = ('r' if os.path.isfile(filepath+filename) else 'w')
-    with open(filepath+filename, mode) as f:
-        if mode != 'w': lines = f.readlines()
-    # only write for new tort-Re combinantion
-    wr = True
+# NOTE: NO LONGER IN USE
+# def Sh_plt(ZZZ_filepath, Re1, Re2, nu, DFree, tort):
+#     """Create Sh-Re plot for a given value of tort"""
+#     # -- Frossling correlation:
+#     Re_lst = np.linspace(Re1, Re2, 50)
+#     ShC_lst = frossling(Re_lst, nu, DFree)
+#     fig, ax = plt.subplots()
+#     ax.plot(Re_lst, ShC_lst, label='ShC')
+#     # -- Simulation results:
+#     with open(ZZZ_filepath) as f:
+#         # tort, Re, Sh, ShC, eta_sim, eta_anal
+#         lines = f.readlines()
+#     flowRes = np.zeros((len(lines),len(lines[0].split(','))))
+#     for lineInd in range(len(lines)):
+#         flowRes[lineInd] = lines[lineInd].split(',')
+#     # filter by tort:
+#     filtered = flowRes[flowRes[:,0]==tort]
+#     plt.plot(filtered[:,1],filtered[:,2], 'x', label='Sh')
+
+#     plt.title('Sherwood Number for tort = %g'%tort)
+#     plt.xlabel('Re')
+#     plt.ylabel('Sh')
+#     plt.legend()
+#     plt.show()
+ 
+
+def flow_csv(ZZZ_path,ZZZ_filepath,tort,Re,eta_sim,eta_corr,eta_anal):
+    """Write data from 'flowAroundSphere' for plotting  to a csv file"""
+    if not os.path.exists(ZZZ_path): os.mkdir(ZZZ_path)
+    # NOTE: if the redundancy test below doesn't work, just delete it
+    test_tortRe = [round(tort,3),round(Re,3)]
+    if os.path.isfile(ZZZ_filepath):
+        with open(ZZZ_filepath,'r') as f1:
+            lines = f1.readlines()
+        for line in lines:
+            line_tortRe = [round(float(line.split(',')[i]),3) for i in range(2)]
+            if test_tortRe == line_tortRe: 
+                return -1
+    
+    with open(ZZZ_filepath,'a') as f2: 
+        f2.writelines('%g,%g,%g,%g,%g\n'%(tort,Re,eta_sim,eta_corr,eta_anal))
+
+
+def generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst):
+    """Create a separate csv file for each pair of etas"""
+    ZZZ_path_csv = ZZZ_path+'/etacsv'
+    if not os.path.isdir(ZZZ_path_csv): os.mkdir(ZZZ_path_csv)
+    # read original csv:
+    with open(ZZZ_filepath) as f1:
+        lines = f1.readlines()
+    # covert to a numpy array:
+    flowRes = np.zeros((len(lines),len(lines[0].split(','))))
     for lineInd in range(len(lines)):
-        test = ['%g'%tort, '%g'%Re]
-        if test==lines[lineInd].split(',')[0:2]: 
-            wr=False
-            break
-    if wr: 
-        with open('../../ZZZ_res_flow/flow.csv','a') as f: 
-            f.writelines('%g,%g,%g,%g,%g,%g\n'%(tort,Re,Sh,ShC,etaSim,etaAnal))
+        flowRes[lineInd] = lines[lineInd].split(',')
+    # filter and write:
+    for tort in tortLst:
+        # filter
+        filtered = flowRes[flowRes[:,0]==tort]
+        Re_lst = filtered[:,1]
+        eta_sim_lst = filtered[:,2]
+        eta_corr_lst = filtered[:,3]
+        # write to the file
+        with open('%s/etaCorr_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f2:
+            f2.writelines(['x,y\n'])
+            f2.writelines(['%g, %g\n'%(Re_lst[i],eta_sim_lst[i]) for i in range(len(Re_lst))])
+        with open('%s/etaSim_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f3:
+            f3.writelines(['x,y\n'])
+            f3.writelines(['%g, %g\n'%(Re_lst[i],eta_corr_lst[i]) for i in range(len(Re_lst))])
+        with open('%s/etaErr_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f4:
+            f4.writelines(['x,y\n'])
+            f4.writelines(['%g, %g\n'%(Re_lst[i],abs(eta_sim_lst[i]-eta_corr_lst[i])/eta_corr_lst[i]) for i in range(len(Re_lst))])
 
 
-def frossling(Re, nu, DFree):
-    """Compute ShC for givern parameters"""
-
-    Sc = nu/DFree
-    ShC = 2 + .6*Re**(1/2)*Sc**(1/3)
-    return ShC
-
-def Sh_plt(filepath, Re1, Re2, nu, DFree, tort):
-    """Create Sh-Re plot for a given value of tort"""
-
-    # -- Frossling correlation:
-    Re_lst = np.linspace(Re1, Re2, 50)
-    ShC_lst = frossling(Re_lst, nu, DFree)
-    fig, ax = plt.subplots()
-    ax.plot(Re_lst, ShC_lst, label='ShC')
+def eta_plt(ZZZ_filepath, tort):
+    """Create Re-eta plots for a given value of tort"""
     # -- Simulation results:
-    with open(filepath) as f:
-        # tort, Re, Sh, ShC, etaSim, etaAnal
+    with open(ZZZ_filepath) as f:
+        # tort, Re, Sh, ShC, eta_sim, eta_anal
         lines = f.readlines()
     flowRes = np.zeros((len(lines),len(lines[0].split(','))))
     for lineInd in range(len(lines)):
         flowRes[lineInd] = lines[lineInd].split(',')
     # filter by tort:
     filtered = flowRes[flowRes[:,0]==tort]
-    plt.plot(filtered[:,1],filtered[:,2], 'x', label='Sh')
-
-    plt.title('Sherwood Number for tort = %g'%tort)
+    # tort,Re,eta_sim,eta_corr,eta_anal
+    plt.plot(filtered[:,1],filtered[:,2], 'x', label='eta_sim')
+    plt.plot(filtered[:,1],filtered[:,3], 'x', label='eta_corr')
+    plt.plot(filtered[:,1],filtered[:,4], 'x', label='eta_anal')
+    plt.title('Effectivness Comparison for tort = %g'%tort)
     plt.xlabel('Re')
-    plt.ylabel('Sh')
+    plt.ylabel('eta')
     plt.legend()
     plt.show()
 
- 
-def eta_plt(filepath, tort):
-    """Create eta-Re plot for a given value of tort"""
-    # -- Simulation results:
-    with open(filepath) as f:
-        # tort, Re, Sh, ShC, etaSim, etaAnal
+def eta_err_plt(ZZZ_filepath, tortLst, invLst):
+    """Create Re-err(eta) plots for a given value of tort"""
+    with open(ZZZ_filepath) as f:
         lines = f.readlines()
     flowRes = np.zeros((len(lines),len(lines[0].split(','))))
     for lineInd in range(len(lines)):
         flowRes[lineInd] = lines[lineInd].split(',')
-    # filter by tort:
-    filtered = flowRes[flowRes[:,0]==tort]
-    plt.plot(filtered[:,1],filtered[:,4], 'x', label='eta_sim')
-    plt.plot(filtered[:,1],filtered[:,5], 'x', label='eta_corr')
-    
-    plt.title('Effectivness Comparison for tort = %g'%tort)
+    filtered = [0 for i in tortLst] # filter by tort
+    for tort in tortLst:
+        i = tortLst.index(tort)
+        filtered[i] = flowRes[flowRes[:,0]==tort]
+        plt.plot(filtered[i][:,1],abs(filtered[i][:,2]-filtered[i][:,3])/filtered[i][:,3], 'x', label='eta_err for tort %g'%tort)
+    plt.title('Error comparrison for tort from %s'%str(tortLst))
     plt.xlabel('Re')
     plt.ylabel('eta')
     plt.legend()
