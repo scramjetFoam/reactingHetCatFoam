@@ -24,8 +24,6 @@ import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 
-print(sys.argv)
-
 # -- auxiliary function to determine if val is float
 def isFloat(val):
     try:
@@ -138,14 +136,12 @@ for TInd in range(len(TLst)):
             T = TLst[TInd]
             EA = gamma*Runiv*T
             # tort = tortLst[k0Ind]
-            
             DEff = DFreeZ/tort*0.5  
 
             # -- set parameters for kinetics to ensure thiele, gamma, beta
             k0 = (thieleLst[thieleInd]/R)**2*DEff/(np.exp(-EA/(Runiv*T)))
             sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
             
-
             # -- create caseFolder based on baseCase
             caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g'%(thieleLst[thieleInd],beta,cellSize)
             caseDir = '%s/%s/'%(outFolder,caseName)

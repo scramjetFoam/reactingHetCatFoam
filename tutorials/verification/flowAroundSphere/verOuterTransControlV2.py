@@ -1,8 +1,6 @@
 # verOuterTransControlV2.py
-# script for verification cases with flow past a spherical particle
-
 # -- Script for verification simulation of conjugated mass transport
-# NOTE: SCRIPT USES ARGUMENTS
+# -- NOTE: SCRIPT USES ARGUMENTS
 #       -- "makeMesh": prepare mesh for each cellSize 
 #           (this must be done manually if protoMesh doesn't exist yet)
 #       -- "runSim": run the simulation
@@ -18,7 +16,7 @@ import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
 
-# -- set used solver
+# -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO']
 solver = solverLst[0]
 
@@ -26,7 +24,7 @@ solver = solverLst[0]
 numOfTCorr = 0
 isothermal = (True if numOfTCorr==0 else False)  # isothermal logic
 
-# -- switch to run the simulation or just check results (script argument)
+# -- script arguments logic
 args = sys.argv
 runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
@@ -63,22 +61,22 @@ k0Lst = [1e9]                       # reaction pre-exponential factor
 cellSizeLst = [0.35*R]              # FV cell Size
 tortLst = [0.5,5]                   # tortuosity
 
-# ARCHIVED SETTINGS 12. 11. 2022 (12 cases)
-invLst = [0.0275,0.11,0.22,0.44]
-k0Lst = [1e9]
-cellSizeLst = [0.35*R]
-tortLst = [0.5,5,50]
+# == ARCHIVED SETTINGS: 
+# -- 12/11/2022 khyrm@multipede (12 cases):
+# invLst = [0.0275,0.11,0.22,0.44]
+# k0Lst = [1e9]
+# cellSizeLst = [0.35*R]
+# tortLst = [0.5,5,50]
 
-# -- prepare mesh for each cellSize
+# -- prepare prototype mesh for each cellSize
 if makeMesh:
     for cellSize in cellSizeLst:
-        # NOTE: create prototype mesh for every cellSize
+        # NOTE MK: This could be an auxiliary function.
         if not os.path.isdir('%s'%outFolder): os.mkdir('%s'%outFolder)
         # if not os.path.isdir('%s/protoMesh'%outFolder): os.mkdir('%s/protoMesh'%outFolder)
-
         meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
         print('Preparing mesh %s',meshDir)
-        # -- check meshDir is clean
+        # -- check that meshDir is clean
         if os.path.isdir(meshDir): sh.rmtree(meshDir)
         # -- copy files
         sh.copytree(baseCaseDir,meshDir)
@@ -86,11 +84,12 @@ if makeMesh:
         changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
         changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
         os.chdir(meshDir)
+        os.system('chmod u=rwx All*') # NOTE: Just to make sure.
         os.system('./Allmesh')
         os.chdir('../../../')
 
 
-# -- create case for:
+# -- create cases for:
 cases = [(inv,k0,cellSize,tort) for inv in invLst for k0 in k0Lst for cellSize in cellSizeLst for tort in tortLst]
 for case in cases:
     # parameters
