@@ -66,7 +66,11 @@ betaLst = [0.6]                 # beta - Prater number
 cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined inside the sphere (5 5)
 # == ARCHIVED SETTINGS: 
 # -- 12/11/2022 khyrm@multipede:
-# cellSizeLst = [0.3*R, 0.5*R]
+# thieleLst = [0.5,0.75,1.,2,4]
+# TLst = [300]
+# gammaLst = [20]
+# betaLst = [0.6]
+cellSizeLst = [0.35*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -94,14 +98,15 @@ else:
     resNp = np.zeros((2,len(thieleLst)+1))
 
 # -- create cases for
-cases = [(T,thiele,cellSize,gamma,beta) for T in TLst for thiele in thieleLst for cellSize in cellSizeLst for gamma in gammaLst for beta in betaLst]
+cases = [(T,thiele,cellSize,beta,gamma) for T in TLst for thiele in thieleLst for cellSize in cellSizeLst for beta in betaLst for gamma in gammaLst ]
 for case in cases:
     # -- parameters
-    T,thiele,cellSize = case
+    T,thiele,cellSize,beta,gamma = case
     EA = gamma*Runiv*T
     DFree = DFreeZ
     DEff = DFree/tort*0.5
     sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
+    k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
 
     caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g'%(thiele,beta,cellSize)
     caseDir = '%s/%s/'%(outFolder,caseName)
@@ -114,13 +119,12 @@ for case in cases:
         # -- copy files
         sh.copytree(meshDir,caseDir)
         # -- change the case files
-        changeInCaseFolders('0.org/T',['isoT'],[str(T)])
-        changeInCaseFolders('0.org/CO',['yCOSet'],[str(yInf)])
-        changeInCaseFolders('0.org/U', ['inv'],[str(inv)])
-        changeInCaseFolders('system/controlDict',['customSolver'],[solver])
-        changeInCaseFolders('system/fvSolution',['nTCorr'],[str(numOfTCorr)])
-        changeInCaseFolders('constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
-        changeInCaseFolders('constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
+        changeInCaseFolders(caseDir,'0.org/T',['isoT'],[str(T)])
+        changeInCaseFolders(caseDir,'0.org/CO',['yCOSet'],[str(yInf)])
+        changeInCaseFolders(caseDir,'system/controlDict',['customSolver'],[solver])
+        changeInCaseFolders(caseDir,'system/fvSolution',['nTCorr'],[str(numOfTCorr)])
+        changeInCaseFolders(caseDir,'constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
+        changeInCaseFolders(caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
         # -- run simulation
         os.chdir(caseDir)
         os.system('chmod u=rwx AllrunIntraSphere')
@@ -128,8 +132,6 @@ for case in cases:
     else:
         os.chdir(caseDir)
     
-
-    k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
     k = k0*np.exp(-gamma)       # ???
     k0Art = k0*np.exp(-gamma)   # ???
     rSqIdeal = 4/3*np.pi*R**3*k0Art*yInf*p/Runiv/T     # ideal reaction source
@@ -148,7 +150,6 @@ for case in cases:
         # -- load concetration profile to compare with analytical solution
         timeLst = os.listdir('./')
         timeLst = sorted([time for time in timeLst if isFloat(time)])
-        print(timeLst)
         for timeInd in range(len(timeLst)):
             with open('postProcessing/graphCellFace(start=(000),end=(100),fields=(CO))/%s/line.xy'%timeLst[timeInd],'r') as fl:
                 lines = fl.readlines()
@@ -162,52 +163,53 @@ for case in cases:
         yAnal = yInf * R/rAnal * np.sinh(rAnal*(k/DEff)**0.5)/np.sinh(thiele)
         resNp[cellSizeInd] = abs(etaAnal-etaSim)
         resNp2[cellSizeInd] = np.linalg.norm(yAnal-simData[:,1])
-        with open('anal.csv','w')as fl:
+        with open('anal.csv','w') as fl:
             fl.writelines('r,yinf\n')
-            for i in range(len(rAnal)):
-                fl.writelines('%g,%g\n'%(rAnal[i],yAnal[i]))
+            fl.writelines(['%g,%g\n'%(rAnal[i],yAnal[i]) for i in range(length(rAnal))])
         plt.plot(rAnal,yAnal,label='analytical')
         plt.legend()
         plt.title('Concentration profile comparison for k0=%d'%k0)
         plt.savefig('resHere.png')
-        plt.show()
+        if showPlots:
+            plt.show()
     else:
         etaSim = rS/rSqIdeal  # simulation effectivness factor
         print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
-        resNp[:,thieleInd] = np.array([thiele,etaSim])
+        resNp[:,thieleLst.index(thiele)] = np.array([thiele,etaSim])
     os.chdir('../../')
 
 
 # -- create plots
-if isothermal:
-    # -- mesh dependence plot
-    plt.plot(cellSizeLst,resNp,label='eta diff (my)')
-    # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
-    plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
-    # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
-    plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
-    plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
-    title = 'Dependence of the error on the mesh.'
-    fileName = 'error_mesh.png'
-    plt.title(title)
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.legend()
-    plt.show()
-else:
-    # -- eta-thiele diagram
-    with open('baseCase/analRes06.csv' ,'r') as fl:
-        lines = fl.readlines()
-    analRes = np.zeros((len(lines)-1,2))
-    for i in range(1,len(lines)):
-        analRes[i-1,:] = np.array(lines[i].split(',')) 
-    plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
-    plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
-    title = 'Multiple steady states.'
-    fileName = 'mult_steadySt.png'
-    plt.title(title)
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.legend()
-    # plt.savefig('%s/%s'%(ZZZ_path,fileName))
-    plt.show()
+if showPlots:
+    if isothermal:
+        # -- mesh dependence plot
+        plt.plot(cellSizeLst,resNp,label='eta diff (my)')
+        # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
+        plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
+        # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
+        plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
+        plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
+        title = 'Dependence of the error on the mesh.'
+        fileName = 'error_mesh.png'
+        plt.title(title)
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.legend()
+        plt.show()
+    else:
+        # -- eta-thiele diagram
+        with open('baseCase/analRes06.csv' ,'r') as fl:
+            lines = fl.readlines()
+        analRes = np.zeros((len(lines)-1,2))
+        for i in range(1,len(lines)):
+            analRes[i-1,:] = np.array(lines[i].split(',')) 
+        plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
+        plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+        title = 'Multiple steady states.'
+        fileName = 'mult_steadySt.png'
+        plt.title(title)
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.legend()
+        # plt.savefig('%s/%s'%(ZZZ_path,fileName))
+        plt.show()
