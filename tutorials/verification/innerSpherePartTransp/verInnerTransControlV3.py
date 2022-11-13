@@ -206,7 +206,6 @@ for TInd in range(len(TLst)):
                 # -- load concetration profile to compare with analytical solution
                 timeLst = os.listdir('./')
                 timeLst = sorted([time for time in timeLst if isFloat(time)])
-                print(timeLst)
                 for timeInd in range(len(timeLst)):
                     with open('postProcessing/graphCellFace(start=(000),end=(100),fields=(CO))/%s/line.xy'%timeLst[timeInd],'r') as fl:
                         lines = fl.readlines()
