@@ -46,7 +46,8 @@ sHr = -283e3        # standard reaction enthalpy (physical 283e3)
 T = 500             # temperature
 DFreeZ = 1e-5       # Diffusivity in fluid
 kappaEff = 1        # mass transfer coefficient
-nu = 5.58622522e-05 # kinematic viscosity !?
+eps = 0.5       # material porosity
+nu = 5.58622522e-05 # kinematic viscosity, NOTE: might be read from log, but is used for calculation
 EA = 90e3           # activation energy
 
 # -- geometry
@@ -62,11 +63,20 @@ cellSizeLst = [0.35*R]              # FV cell Size
 tortLst = [0.5,5]                   # tortuosity
 
 # == ARCHIVED SETTINGS: 
-# -- 12/11/2022 khyrm@multipede (12 cases):
+# -- 12/11/2022 khyrm@multipede, V2 (12 cases):
+# -- NOTE: refinementSurfaces, refinement set to (2 2)
 # invLst = [0.0275,0.11,0.22,0.44]
 # k0Lst = [1e9]
 # cellSizeLst = [0.35*R]
 # tortLst = [0.5,5,50]
+
+# -- 14/11/2022 khyrm@multipede, V2_1 (smaller cellSize, lower Thiele)
+# -- NOTE: refinementSurfaces, refinement set to (5, 5)
+# invLst = [round(Re*nu/2/R, 4) for Re in [10,40,80,160]]
+# cellSizeLst = [0.25*R]
+# tortLst = [0.5,5,10]
+# thiele = 2
+# k0Lst = [thiele**2/R**2 * eps/tort * DFreeZ/np.exp(-EA/Runiv/T) for tort in tortLst]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -87,7 +97,7 @@ if makeMesh:
         os.system('chmod u=rwx All*') # NOTE: Just to make sure.
         os.system('./Allmesh')
         os.chdir('../../../')
-
+    if not runSim: sys.exit()
 
 # -- create cases for:
 cases = [(inv,k0,cellSize,tort) for inv in invLst for k0 in k0Lst for cellSize in cellSizeLst for tort in tortLst]
@@ -96,7 +106,7 @@ for case in cases:
     inv,k0,cellSize,tort = case
     k = k0*np.exp(-EA/(Runiv*T))
     DFree = DFreeZ
-    DEff = DFree/tort*0.5
+    DEff = DFree*eps/tort
 
     caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
     caseDir = '%s/%s/'%(outFolder,caseName)
