@@ -56,27 +56,26 @@ length1 = 15*R      # inlet <-> sphere centre
 length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
-# -- list parameters
+# -- list parameters [ORIGINAL]
 invLst = [0.11,0.22]                # inlet velocity
 k0Lst = [1e9]                       # reaction pre-exponential factor
 cellSizeLst = [0.35*R]              # FV cell Size
 tortLst = [0.5,5]                   # tortuosity
 
 # == ARCHIVED SETTINGS: 
-# -- 12/11/2022 khyrm@multipede, V2 (12 cases):
+# -- 12/11/2022 khyrm@multipede, (12 cases):
 # -- NOTE: refinementSurfaces, refinement set to (2 2)
 # invLst = [0.0275,0.11,0.22,0.44]
 # k0Lst = [1e9]
 # cellSizeLst = [0.35*R]
 # tortLst = [0.5,5,50]
 
-# -- 14/11/2022 khyrm@multipede, V2_1 (smaller cellSize, lower Thiele)
+# -- 14/11/2022 khyrm@multipede, (12 cases with smaller cellSize & lower Thiele)
 # -- NOTE: refinementSurfaces, refinement set to (5, 5)
-# invLst = [round(Re*nu/2/R, 4) for Re in [10,40,80,160]]
-# cellSizeLst = [0.25*R]
-# tortLst = [0.5,5,10]
-# thiele = 2
-# k0Lst = [thiele**2/R**2 * eps/tort * DFreeZ/np.exp(-EA/Runiv/T) for tort in tortLst]
+invLst = [round(Re*nu/2/R,4) for Re in [10,40,80,160]] # ReLst = [10,40,80,160]
+k0Lst = [1e9]
+cellSizeLst = [0.25*R]
+tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [0.5,1,2]] # thieleLst = [0.5,1,2]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
