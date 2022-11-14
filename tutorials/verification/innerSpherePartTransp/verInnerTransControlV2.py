@@ -6,9 +6,9 @@
 #       -- "showPlots"
 # -- TODO: 
 #       (1) edit [if isothermal + else] in the loop
-#       (2) @nonisoT: edit plot making
+#       (2) for non-isoT: edit plot making
 #       (3) add csv export
-#       (4) @nonisoT: incorporate theoretical solution
+#       (4) for non-isoT: incorporate theoretical solution
 
 
 # -- imports
@@ -64,13 +64,25 @@ TLst = [300]                    # temperature
 gammaLst = [20]                 # gamma - Arrhenius number
 betaLst = [0.6]                 # beta - Prater number
 cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined inside the sphere (5 5)
+
 # == ARCHIVED SETTINGS: 
-# -- 12/11/2022 khyrm@multipede:
-# thieleLst = [0.5,0.75,1.,2,4]
-# TLst = [300]
-# gammaLst = [20]
-# betaLst = [0.6]
+# -- 12/11/2022 khyrm@multipede: [5 cases for multSteadySt with (5 5) refinement]
+thieleLst = [0.5,0.75,1.,2,4]
+TLst = [300]
+gammaLst = [20]
+betaLst = [0.6]
 cellSizeLst = [0.35*R]
+
+# -- 14/11/2022 khyrm@multipede: [2 cases for multSteadySt with (8 8) refinement]
+baseCaseDir += '_88'
+outFolder += '_88'
+# thieleLst = [0.2,4]
+thieleLst = [0.2]
+TLst = [300]
+gammaLst = [20]
+betaLst = [0.6]
+cellSizeLst = [0.35*R]
+
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -136,9 +148,6 @@ for case in cases:
     k0Art = k0*np.exp(-gamma)   # ???
     rSqIdeal = 4/3*np.pi*R**3*k0Art*yInf*p/Runiv/T     # ideal reaction source
     rS = read_real_source()                            # simulation reaction source
-    print('thiele1 = %g'%thiele)
-    thiele = R*np.sqrt(k0Art/DEff)
-    print('thiele2 = %g'%thiele)
 
     print('Case with thiele = %g'%thiele)
     
