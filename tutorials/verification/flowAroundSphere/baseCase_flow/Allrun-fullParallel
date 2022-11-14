@@ -17,21 +17,21 @@ paraFoam -touch
 runApplication decomposePar
 
 # add reactive cell zone 
-# runParallel snappyHexMesh -overwrite
-# runApplication snappyHexMesh -overwrite
 runParallel snappyHexMesh -overwrite
+# runApplication snappyHexMesh -overwrite
+# runParallel snappyHexMesh -overwrite
 
 # rm -rf processor*/*/cellLevel
 # rm -rf processor*/*/pointLevel
-rm -rf */cellLevel
-rm -rf */pointLevel
+# rm -rf */cellLevel
+# rm -rf */pointLevel
 
 # mv log.decomposePar log.decomposePar1
 # decompose
 # runApplication decomposePar -fields
 # runApplication decomposePar 
 
-runParallel renumberMesh -overwrite
+# runParallel renumberMesh -overwrite
 # add reactive cell zone 
 # runApplication topoSet
 

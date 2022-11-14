@@ -36,6 +36,7 @@ runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
+parallel = (True if 'parallel' in args else False)
 
 # -- directory naming
 baseCaseDir = 'baseCase'
@@ -59,29 +60,38 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters
-thieleLst = [0.5,0.75,1.,2,4]   # Thiele modulus
+thieleLst = [0.5,0.75,1,2,4]   # Thiele modulus
 TLst = [300]                    # temperature
 gammaLst = [20]                 # gamma - Arrhenius number
 betaLst = [0.6]                 # beta - Prater number
-cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined inside the sphere (5 5)
+cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined inside the sphere, e. g. (5 5)
 
 # == ARCHIVED SETTINGS: 
-# -- 12/11/2022 khyrm@multipede: [5 cases for multSteadySt with (5 5) refinement]
-thieleLst = [0.5,0.75,1.,2,4]
+# -- 14/11/2022 khyrm@multipede: [6 cases for multSteadySt with (5 5) or (8 8) refinement]
+thieleLst = [0.2,0.5,0.75,1,2,4]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
 cellSizeLst = [0.35*R]
 
-# -- 14/11/2022 khyrm@multipede: [2 cases for multSteadySt with (8 8) refinement]
-baseCaseDir += '_88'
-outFolder += '_88'
-# thieleLst = [0.2,4]
-thieleLst = [0.2]
-TLst = [300]
+# -- 14/11/2022 khyrm@multipede: [0.35/(8 8) mesh]
+# baseCaseDir += '_88'
+# outFolder += '_88'
+# cellSizeLst = [0.35*R]
+
+# -- 14/11/2022 khyrm@multipede: [thiele=0.4,0.5 with high T, 0.5/(5 5) mesh]
+thieleLst = [0.5]
+TLst = [1200]
 gammaLst = [20]
 betaLst = [0.6]
 cellSizeLst = [0.35*R]
+
+# -- 14/11/2022 khyrm@multipede: [, 0.35/(8 8)]
+# thieleLst = [0.2,0.75,4]
+# TLst = [300]
+# gammaLst = [20]
+# betaLst = [0.6]
+# cellSizeLst = [0.35*R]
 
 
 # -- prepare prototype mesh for each cellSize
@@ -120,7 +130,7 @@ for case in cases:
     sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
     k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
 
-    caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g'%(thiele,beta,cellSize)
+    caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g_T_%g'%(thiele,beta,cellSize,T)
     caseDir = '%s/%s/'%(outFolder,caseName)
     meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
 
@@ -139,8 +149,12 @@ for case in cases:
         changeInCaseFolders(caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
         # -- run simulation
         os.chdir(caseDir)
-        os.system('chmod u=rwx AllrunIntraSphere')
-        os.system('./AllrunIntraSphere')
+        os.system('chmod u=rwx All*')
+        if parallel: 
+            os.system('./AllrunIntraSphere-parallel') # NOTE: Only for newly created protoMeshes, change them to setup.
+        else:
+            os.system('./AllrunIntraSphere')
+        
     else:
         os.chdir(caseDir)
     
