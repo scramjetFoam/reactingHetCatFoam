@@ -56,20 +56,20 @@ volVectorField UD
     mesh
 );
 
-// -- T field for porousMedia from mesh
-Info<< "Reading field TSolid\n" << endl;
-volScalarField TSolid
-(
-    IOobject
-    (
-        "TSolid",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+// // -- T field for porousMedia from mesh
+// Info<< "Reading field TSolid\n" << endl;
+// volScalarField TSolid
+// (
+//     IOobject
+//     (
+//         "TSolid",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
 
 // -- T field from mesh
 // Info<< "Reading field T\n" << endl;

@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
             for (label concT=0; concT < nItTemp; concT++)
             {   
                 Info << "\nSolving enthalpy balance for solid media and gas, iteration "<< concT+1 << "/" << nItTemp << endl;
-                #include "EEqnSolid.H"
+                // #include "EEqnSolid.H"
                 #include "EEqnGas.H"
             }
             
