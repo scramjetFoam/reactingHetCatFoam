@@ -1,8 +1,7 @@
-# verOuterTransControlV2.py
+# verOuterTransControlV3.py
 # -- Script for verification simulation of conjugated mass transport
+# -- V2_1 uses parallel snappyHexMesh inside each individual loop. 
 # -- NOTE: SCRIPT USES ARGUMENTS
-#       -- "makeMesh": prepare mesh for each cellSize 
-#           (this must be done manually if protoMesh doesn't exist yet)
 #       -- "runSim": run the simulation
 #       -- "showPlots": shows Plots
 #       -- "getCsv": generate csv files for TeX plots 
@@ -56,47 +55,20 @@ length1 = 15*R      # inlet <-> sphere centre
 length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
-# -- list parameters [ORIGINAL]
+# -- list parameters
 invLst = [0.11,0.22]                # inlet velocity
 k0Lst = [1e9]                       # reaction pre-exponential factor
 cellSizeLst = [0.35*R]              # FV cell Size
 tortLst = [0.5,5]                   # tortuosity
 
 # == ARCHIVED SETTINGS: 
-# -- 12/11/2022 khyrm@multipede, (12 cases):
-# -- NOTE: refinementSurfaces, refinement set to (2 2)
-# invLst = [0.0275,0.11,0.22,0.44]
-# k0Lst = [1e9]
-# cellSizeLst = [0.35*R]
-# tortLst = [0.5,5,50]
-
-# -- 14/11/2022 khyrm@multipede, (12 cases with smaller cellSize & lower Thiele)
+# -- 14/11/2022 khyrm@multipede, V2_1 (smaller cellSize, lower Thiele)
 # -- NOTE: refinementSurfaces, refinement set to (5, 5)
-invLst = [round(Re*nu/2/R,4) for Re in [10,40,80,160]] # ReLst = [10,40,80,160]
-k0Lst = [1e9]
+invLst = [round(Re*nu/2/R, 4) for Re in [10,40,80,160]]
 cellSizeLst = [0.25*R]
-tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [0.5,1,2]] # thieleLst = [0.5,1,2]
-
-# -- prepare prototype mesh for each cellSize
-if makeMesh:
-    for cellSize in cellSizeLst:
-        # NOTE MK: This could be an auxiliary function.
-        if not os.path.isdir('%s'%outFolder): os.mkdir('%s'%outFolder)
-        # if not os.path.isdir('%s/protoMesh'%outFolder): os.mkdir('%s/protoMesh'%outFolder)
-        meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
-        print('Preparing mesh %s',meshDir)
-        # -- check that meshDir is clean
-        if os.path.isdir(meshDir): sh.rmtree(meshDir)
-        # -- copy files
-        sh.copytree(baseCaseDir,meshDir)
-        changeInCaseFolders(meshDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
-        changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-        changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
-        os.chdir(meshDir)
-        os.system('chmod u=rwx All*') # NOTE: Just to make sure.
-        os.system('./Allmesh')
-        os.chdir('../../../')
-    if not runSim: sys.exit()
+tortLst = [0.5,5,10]
+thiele = 2
+k0Lst = [thiele**2/R**2 * eps/tort * DFreeZ/np.exp(-EA/Runiv/T) for tort in tortLst]
 
 # -- create cases for:
 cases = [(inv,k0,cellSize,tort) for inv in invLst for k0 in k0Lst for cellSize in cellSizeLst for tort in tortLst]
@@ -116,8 +88,11 @@ for case in cases:
         # -- check that caseDir is clean
         if os.path.isdir(caseDir): sh.rmtree(caseDir)   # ensure the caseDir is clear
         # -- copy files
-        sh.copytree(meshDir,caseDir)
+        sh.copytree(baseCaseDir,caseDir)
         # -- write parameters
+        changeInCaseFolders(caseDir,'system/snappyHexMeshDict',['spR'],[str(R)])
+        # changeInCaseFolders(caseDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
+        changeInCaseFolders(caseDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
         changeInCaseFolders(caseDir,'0.org/T',['isoT'],[str(T)])
         changeInCaseFolders(caseDir,'0.org/CO',['yCOSet'],[str(yInf)])
         changeInCaseFolders(caseDir,'0.org/U', ['inv'],[str(inv)])
@@ -127,8 +102,8 @@ for case in cases:
         changeInCaseFolders(caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
         # -- run simulation
         os.chdir(caseDir)
-        os.system('chmod u=rwx Allrun-parallel')
-        os.system('./Allrun-parallel')
+        os.system('chmod u=rwx Allrun-fullParallel')
+        os.system('./Allrun-fullParallel')
     else: 
         os.chdir(caseDir)
 

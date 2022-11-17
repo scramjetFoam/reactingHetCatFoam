@@ -1,4 +1,4 @@
-#NOTE: this is old version of the script -- we dont use it anymore
+# -- NOTE: this is old version of the script -- we dont use it anymore
 
 # -- Script to do verification simulation of isothermal reaction inside sphere
 
