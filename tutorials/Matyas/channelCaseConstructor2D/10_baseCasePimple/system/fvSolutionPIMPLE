@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    "(p|pFinal|Phi|rho|rhoFinal)"
+    "(p|Phi|rho)"
     {
         solver          PCG;
         preconditioner
@@ -38,6 +38,28 @@ solvers
         }
         tolerance       1e-07;
         relTol          0.01;
+    }
+    "(p|pFinal|Phi|rho|rhoFinal)"
+    {
+        solver          PCG;
+        preconditioner
+        {
+            preconditioner  GAMG;
+            tolerance       1e-07;
+            // relTol          0.01;
+            smoother        symGaussSeidel;
+            nPreSweeps      0;
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 400;
+            agglomerator    faceAreaPair;
+            processorAgglomerator   procFaces;
+            nAgglomeratingCells     10;
+            mergeLevels             1;
+        }
+        tolerance       1e-07;
+        // relTol          0.01;
     }
 
     "(U)"
@@ -91,10 +113,10 @@ solvers
 PIMPLE
 {
     nUCorrectors 0;                 // 0 --> explicit presure
-    nConcCorrectors 1;              // n of concentration calculations for each specie
+    nConcCorrectors 0;              // n of concentration calculations for each specie
     nTempCorrectors 0;	            // n of temperature corrections 
-    nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
-    nOuterCorrectors 20;             // n of outerCorrectors for pimple (1 --> PISO)
+    nNonOrthogonalCorrectors 0;     // n of presure corrections (not necessary on this mesh)
+    nOuterCorrectors 100;             // n of outerCorrectors for pimple (1 --> PISO)
     consistent no;
     
     outerCorrectorResidualControl
@@ -144,20 +166,20 @@ SIMPLE
     }
 }
 
-relaxationFactors
-{
-//     fields
+// relaxationFactors
+// {
+//     // fields
+//     // {
+//     //     p           0.1;
+//     //     U           0.2;
+//     //     // T           0.5;
+//     //     // "(CO|O2|CO2)" 	 0.0001;
+//     // }
+//     equations
 //     {
-//         p           0.1;
-//         U           0.2;
-//         // T           0.5;
-//         // "(CO|O2|CO2)" 	 0.0001;
+//         "(p|U)" 0.95;
+//         // "(T)" 0.98;
+//         // "(CO|O2|CO2)" 	 0.98;
 //     }
-    equations
-    {
-        "(p|U)" 0.95;
-        "(T)" 0.98;
-        "(CO|O2|CO2)" 	 0.98;
-    }
-}
+// }
 // ************************************************************************* //

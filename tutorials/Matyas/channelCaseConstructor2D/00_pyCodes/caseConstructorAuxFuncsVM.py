@@ -261,7 +261,7 @@ def funBlockPars(blockCount, lcLst, dmLst, nCLst, grLst, cZone, i, j, k, WLst, W
             [xC + wC + parLst[6][0],yC + hC + parLst[6][1],zC+lC],
             [xC +      parLst[7][0],yC + hC + parLst[7][1],zC+lC],
         ],
-        [nCXLst[k%nBlocksX],nCYLst[j%nBlocksX],nCZLst[i]],
+        [nCXLst[k%nBlocksX],nCYLst[j%nBlocksY],nCZLst[i]],
         [grX,grY,grZ],
         cZone,
         edgesLs,                                                        # edges (polyLine, spline, arcs) list [[numPtFrom,numPtTo,[list with interpolation points]],...]                                           

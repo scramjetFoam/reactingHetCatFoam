@@ -130,7 +130,7 @@ PIMPLE
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors 4;              // n of concentration calculations for each specie
+    nConcCorrectors 0;              // n of concentration calculations for each specie
     nTempCorrectors 0;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
 
@@ -138,8 +138,8 @@ SIMPLE
     
     residualControl
     {
-        p           1e-7;
-        U           1e-5;
+        p           5e-3;
+        U           1e-3;
         "(CO|NO|O2|N2O|CO2)"    1e-8;
     }
 }

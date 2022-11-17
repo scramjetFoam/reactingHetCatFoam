@@ -39,7 +39,7 @@ mediaInfoDict = {
     # 'CF3':          {'name':['wall','coat'],
     #                  'perm':[0.623756e-12,4.76617e-12]},
     'uncurved1layer': {'name':['wall','coat'],
-                     'perm':[5.0e-13,2.7600003091200346e-15],
+                     'perm':[5.0e-13,2.7600003091200346e-13],
                      'inPt':['SpaciPt1'],
                      'notUse': [[[0,0],[4,4]],[[0,4],[4,0]]],
                      'zone':[[[2,0],[2,1],[0,2],[1,2],[2,2],[3,2],[4,2],[2,3],[3,2],[4,2],[2,4]],
@@ -69,7 +69,7 @@ baseCase = '../10_baseCasePimple/'
 outFolder= '../testTomas/'
 
 # -- name of the simulation folder
-name = 'pimple_test_%s_2D'%mediaName
+name = 'pimple_test_%s_2D_V5'%mediaName
 
 #-----------------------------------------------------------------------
 # CASE/RUN SETTINGS
@@ -77,7 +77,7 @@ name = 'pimple_test_%s_2D'%mediaName
 nCores      = 6                                                         # number of cores to run the case on
 startTime   = 0                                                         # simulation startTime
 endTime     = 2000                                                      # simulation endTime
-wrInt       = 50                                                        # simulation write interval
+wrInt       = 0.01                                                        # simulation write interval
 
 #-----------------------------------------------------------------------
 # GEOMETRY DATA
@@ -85,13 +85,13 @@ wrInt       = 50                                                        # simula
 # -- width dimensions
 WWl = 137e-6                                                            # wall thickness
 WCh = 1.13e-3*0.5                                                       # channel width (square)                                                            
-nCh = 2                                                                 # number of channels
+nCh = 4                                                                 # number of channels
 
 # --length dimensions
-LBf1 = 1.0e-3   # 7.0e-3                                                # length of buffer in front of channels
-LBf2 = 20.0e-3   #                                                       # length of buffer behind channels
+LBf1 = 5.0e-3   # 7.0e-3                                                # length of buffer in front of channels
+LBf2 = 40.0e-3   #                                                       # length of buffer behind channels
 LPl = 1.0e-3   # 1.0e-3                                                # plug length
-LCh = 10.0e-3  # 76.2e-3, 30.2e-3                                      # channel length (total, including the plugs, but WITHOUT the buffers)
+LCh = 20.0e-3  # 76.2e-3, 30.2e-3                                      # channel length (total, including the plugs, but WITHOUT the buffers)
 
 LCh = LCh - 2*LPl
 print('Geometry info: WWl = %g, WCh = %g, LBf1 = %g, LBf2 = %g, LPl = %g, LCh = %g'%(WWl, WCh, LBf1, LBf2, LPl, LCh))
@@ -102,16 +102,16 @@ LLst = [LBf1, LPl, LCh, LPl, LBf2]
 #-----------------------------------------------------------------------
 # MESH DATA
 #-----------------------------------------------------------------------
-dX, dY, dZ   = 20e-6, 20e-6, 20e-6
+dX, dY, dZ   = 30e-6, 30e-6, 30e-6
 
 # -- multiplication factors for number of cells in coating and wall
-nTimesCoat = 1
-nTimesWall = 1
+nTimesCoat = 2  
+nTimesWall = 2
 
 #-----------------------------------------------------------------------
 # CASE PARAMETERS
 #-----------------------------------------------------------------------
-spVel    = 4000                                                         # space velocity
+spVel    = 1000000                                                         # space velocity
 
 print('Mesh discretization: %s'%(str([dX, dY, dZ])))
 
@@ -365,11 +365,11 @@ for i in totBlocksL:
             if blockUse[i][j][k]:
                 # if k > 0 and not blockUse[i][j][k-1]:
                 #     wallBoundary.append(blockLst[i][j][k].retFYZ0())
-                # if k < nBlocksX*nChX-1 and not blockUse[i][j][k+1]:
+                # if k < nBlocksX*nCh-1 and not blockUse[i][j][k+1]:
                 #     wallBoundary.append(blockLst[i][j][k].retFYZE())
                 if j > 0 and not blockUse[i][j-1][k]:
                     wallBoundary.append(blockLst[i][j][k].retFXZ0())
-                if j < nBlocksX*nCh-1 and not blockUse[i][j+1][k]:
+                if j < nBlocksY*nCh-1 and not blockUse[i][j+1][k]:
                     wallBoundary.append(blockLst[i][j][k].retFXZE())
                 if i > 0 and not blockUse[i-1][j][k]:
                     wallBoundary.append(blockLst[i][j][k].retFXY0())

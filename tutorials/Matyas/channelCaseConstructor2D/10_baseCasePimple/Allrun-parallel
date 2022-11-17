@@ -45,11 +45,20 @@ cp -rf 0.org/* 0
 
 # rm -rf processor*
 # mv log.decomposePar log.decomposePar1
-# runApplication decomposePar
+runApplication decomposePar
 
 ## runApplication renumberMesh -overwrite -frontWidth
 
 application=`getApplication`
-runApplication $application
+cp system/fvSolutionSIMPLE system/fvSolution
+runParallel reactingHetCatSimpleFoamFC
+mv log.reactingHetCatSimpleFoamFC log.reactingHetCatSimpleFoamFC.1
+runParallel reactingHetCatSimpleFoamFC
+
+cp system/fvSolutionPIMPLE system/fvSolution
+runParallel $application
+mv log.$application log.$application.2
+runParallel $application
+
 
 #postProcess -func 'patchAverage(name=inlet,p)' -latestTime > log.postProcess
