@@ -80,15 +80,8 @@ cellSizeLst = [0.35*R]
 # cellSizeLst = [0.35*R]
 
 # -- 14/11/2022 khyrm@multipede: [thiele=0.4,0.5 with high T, 0.5/(5 5) mesh]
-thieleLst = [0.5]
-TLst = [1200]
-gammaLst = [20]
-betaLst = [0.6]
-cellSizeLst = [0.35*R]
-
-# -- 14/11/2022 khyrm@multipede: [, 0.35/(8 8)]
-# thieleLst = [0.2,0.75,4]
-# TLst = [300]
+# thieleLst = [0.5]
+# TLst = [1200]
 # gammaLst = [20]
 # betaLst = [0.6]
 # cellSizeLst = [0.35*R]
@@ -195,10 +188,29 @@ for case in cases:
         plt.savefig('resHere.png')
         if showPlots:
             plt.show()
+
     else:
         etaSim = rS/rSqIdeal  # simulation effectivness factor
         print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
         resNp[:,thieleLst.index(thiele)] = np.array([thiele,etaSim])
+
+        # -- writing to a .csv
+        if getCsv:
+            # -- beta, thiele, etaSim
+            csv_path = '../../%s/etaCsv'%ZZZ_path
+            csv_file = '%s/simRes%g.csv'%(csv_path,beta)
+            # -- ensure that the folder and the file (with a header) exist before writing
+            if not os.path.exists(csv_path): 
+                os.mkdir(csv_path)
+            if not os.path.isfile(csv_file): 
+                with open(csv_file, 'w') as f2: 
+                    f2.writelines(['x,y\n'])
+            # -- write
+            # -- TODO: Only write new values:
+            with open
+            with open(csv_file, 'a') as f3: f3.writelines(['%s,%s\n'%(str(thiele),str(etaSim))])
+
+
     os.chdir('../../')
 
 
