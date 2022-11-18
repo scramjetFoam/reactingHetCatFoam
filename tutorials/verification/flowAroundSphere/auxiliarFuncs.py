@@ -148,29 +148,29 @@ def generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst):
         flowRes[lineInd] = lines[lineInd].split(',')
     # filter and write:
     for tort in tortLst:
-        # filter
+        # -- filter
         filtered = flowRes[flowRes[:,0]==tort]
         Re_lst = filtered[:,1]
         eta_sim_lst = filtered[:,2]
         eta_corr_lst = filtered[:,3]
-        # write to the file
-        with open('%s/etaCorr_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f2:
-            f2.writelines(['x,y\n'])
-            f2.writelines(['%g, %g\n'%(Re_lst[i],eta_sim_lst[i]) for i in range(len(Re_lst))])
+        # -- write to the file
+        # with open('%s/etaCorr_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f2:
+        #     f2.writelines(['x, y\n'])
+        #     f2.writelines(['%g, %g\n'%(Re_lst[i],eta_sim_lst[i]) for i in range(len(Re_lst))])
         with open('%s/etaSim_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f3:
-            f3.writelines(['x,y\n'])
+            f3.writelines(['x, y\n'])
             f3.writelines(['%g, %g\n'%(Re_lst[i],eta_corr_lst[i]) for i in range(len(Re_lst))])
         with open('%s/etaErr_tort%g.csv'%(ZZZ_path_csv,tort), 'w') as f4:
-            f4.writelines(['x,y\n'])
+            f4.writelines(['x, y\n'])
             f4.writelines(['%g, %g\n'%(Re_lst[i],abs(eta_sim_lst[i]-eta_corr_lst[i])/eta_corr_lst[i]) for i in range(len(Re_lst))])
 
 
 def eta_plt(ZZZ_filepath, tort):
     """Create Re-eta plots for a given value of tort"""
     # -- Simulation results:
-    with open(ZZZ_filepath) as f:
+    with open(ZZZ_filepath) as f1:
         # tort, Re, Sh, ShC, eta_sim, eta_anal
-        lines = f.readlines()
+        lines = f1.readlines()
     flowRes = np.zeros((len(lines),len(lines[0].split(','))))
     for lineInd in range(len(lines)):
         flowRes[lineInd] = lines[lineInd].split(',')
@@ -178,8 +178,15 @@ def eta_plt(ZZZ_filepath, tort):
     filtered = flowRes[flowRes[:,0]==tort]
     # tort,Re,eta_sim,eta_corr,eta_anal
     plt.plot(filtered[:,1],filtered[:,2], 'x', label='eta_sim')
-    plt.plot(filtered[:,1],filtered[:,3], 'x', label='eta_corr')
-    plt.plot(filtered[:,1],filtered[:,4], 'x', label='eta_anal')
+    # plt.plot(filtered[:,1],filtered[:,3], 'x', label='eta_corr')
+    # plt.plot(filtered[:,1],filtered[:,4], 'x', label='eta_anal')
+    ###
+    with open('ZZZ_res/etacsv/etaCorr_tort%g.csv'%tort, 'r') as f2:    
+        lines = f2.readlines()
+    corrRes = [corr.replace('\n','').split(',') for corr in lines[1:]]
+    Re_corrLst = [float(corr[0]) for corr in corrRes]
+    eta_corrLst = [float(corr[1]) for corr in corrRes]
+    plt.plot(Re_corrLst,eta_corrLst, '--', label='eta_corr')
     plt.title('Effectivness Comparison for tort = %g'%tort)
     plt.xlabel('Re')
     plt.ylabel('eta')
