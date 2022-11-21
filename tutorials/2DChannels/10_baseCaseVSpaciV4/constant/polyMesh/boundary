@@ -1,0 +1,104 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+13
+(
+    symmetryLeft
+    {
+        type            symmetryPlane;
+        inGroups        List<word> 1(symmetryPlane);
+        nFaces          15464;
+        startFace       879692;
+    }
+    symmetryRight
+    {
+        type            symmetryPlane;
+        inGroups        List<word> 1(symmetryPlane);
+        nFaces          15464;
+        startFace       895156;
+    }
+    symmetryTop
+    {
+        type            symmetryPlane;
+        inGroups        List<word> 1(symmetryPlane);
+        nFaces          15464;
+        startFace       910620;
+    }
+    symmetryBottom
+    {
+        type            symmetryPlane;
+        inGroups        List<word> 1(symmetryPlane);
+        nFaces          15464;
+        startFace       926084;
+    }
+    walls
+    {
+        type            wall;
+        inGroups        List<word> 1(wall);
+        nFaces          4480;
+        startFace       941548;
+    }
+    inlet
+    {
+        type            patch;
+        nFaces          484;
+        startFace       946028;
+    }
+    outlet
+    {
+        type            patch;
+        nFaces          484;
+        startFace       946512;
+    }
+    masterPerp
+    {
+        type            patch;
+        nFaces          1424;
+        startFace       946996;
+    }
+    slavePerp
+    {
+        type            patch;
+        nFaces          1424;
+        startFace       948420;
+    }
+    masterHor
+    {
+        type            patch;
+        nFaces          61856;
+        startFace       949844;
+    }
+    slaveHor
+    {
+        type            patch;
+        nFaces          61856;
+        startFace       1011700;
+    }
+    masterVer
+    {
+        type            patch;
+        nFaces          61856;
+        startFace       1073556;
+    }
+    slaveVer
+    {
+        type            patch;
+        nFaces          61856;
+        startFace       1135412;
+    }
+)
+
+// ************************************************************************* //
