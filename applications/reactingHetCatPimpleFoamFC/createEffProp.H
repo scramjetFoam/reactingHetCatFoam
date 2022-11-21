@@ -97,31 +97,31 @@ volScalarField kappaEff
 // -- porous media density 
 volScalarField rhoS
 (
-IOobject
-(
-    "rhoS",
-    runTime.timeName(),
+    IOobject
+    (
+        "rhoS",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
     mesh,
-    IOobject::NO_READ,
-    IOobject::NO_WRITE
-),
-mesh,
-dimensionedScalar("rhoS",dimMass/dimVolume,0.0)
+    dimensionedScalar("rhoS",dimMass/dimVolume,0.0)
 );
 
 // -- heat transfer coefficient
 volScalarField kHEff
 (
-IOobject
-(
-    "kHEff",
-    runTime.timeName(),
+    IOobject
+    (
+        "kHEff",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
     mesh,
-    IOobject::NO_READ,
-    IOobject::NO_WRITE
-),
-mesh,
-dimensionedScalar("kHEff",(dimEnergy/dimTime/dimLength/dimLength/dimTemperature),0.0)
+    dimensionedScalar("kHEff",(dimEnergy/dimTime/dimLength/dimLength/dimTemperature),0.0)
 );
 
 // -- porous media heat capacity 
@@ -139,12 +139,6 @@ volScalarField CpS
     dimensionedScalar("CpS",dimEnergy/dimMass/dimTemperature,0.0)
 );
 
-forAll(zoneLst,countI)
-{
-    sumZones += zoneLst[countI];
-    epsEff += zoneLst[countI]*(eps[countI]);
-    permEff += zoneLst[countI]*perm[countI];
-}
 
 // -- efective kappa values, gas kappa in free channel, media kappa in zones
 // kappaEff += freeChannel*kappa;         
