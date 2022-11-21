@@ -46,13 +46,13 @@ settings.json
 
 
 # test cases
-tutorials/Matyas/caseConstructor/ZZ_cases/test/**
-tutorials/Matyas/channelCaseConstructor/testMatyas/**
-tutorials/Matyas/channelCaseConstructor2D/testMatyas/**
-tutorials/Matyas/channelCaseConstructor2D/testTomas/**
+tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
+tutorials/Matyas_old/channelCaseConstructor/testMatyas/**
+tutorials/Matyas_old/channelCaseConstructor2D/testMatyas/**
+tutorials/Matyas_old/channelCaseConstructor2D/testTomas/**
 
 
-tutorials/Matyas/caseConstructor/ZZ_cases/test/**
+tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
 # tutorials/2DChannels/testMatyas/**
 # tutorials/2DChannels/testMatyas/**
 tutorials/2DChannels/testTomas/**
