@@ -34,8 +34,8 @@
 # Solver compilation files
 *linux64GccDPInt32Opt
 *linux64GccDPInt32-spack
-rhoPimpleFoam
-rhoSimpleFoam
+*rhoPimpleFoam
+*rhoSimpleFoam
 dynamicCode
 log.*
 *.OpenFOAM
