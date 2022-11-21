@@ -63,13 +63,13 @@ mediaInfoDict = {
 mediaName = 'uncurved1layer'
 
 # -- base openfoam folder for simulations
-baseCase = '../10_baseCasePimple/'
+baseCase = '../10_baseCasePimpleV2/'
 
 # -- out openfoam folder
 outFolder= '../testTomas/'
 
 # -- name of the simulation folder
-name = 'pimple_test_%s_2D_V8'%mediaName
+name = 'pimple_test_%s_2D'%mediaName
 
 #-----------------------------------------------------------------------
 # CASE/RUN SETTINGS
