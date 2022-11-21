@@ -17,14 +17,14 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField	uniform	(0 0 UIN_intF);
+internalField	uniform	(0 0 0.0);
 
 boundaryField
 {
     inlet
     {//good for Re(inlet) specification, inlet height + UX -> Re
         type            fixedValue;
-			value	uniform (0 0 UIN_w);
+			value	uniform (0 0 0.0);
     }
     inletCyl
     {//good for Re(inlet) specification, inlet height + UX -> Re
