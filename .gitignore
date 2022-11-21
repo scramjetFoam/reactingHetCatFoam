@@ -44,23 +44,16 @@ ZZZ_res*
 myStf
 settings.json
 
-<<<<<<< HEAD
-untestedTutorials/reactingRect*
-untestedTutorials/test*
-untestedTutorials/ver*
-untestedTutorials/pimpleCyl2D
-untestedTutorials/pimpleFlasks*
-untestedTutorials/pipe
-untestedTutorials/porPimpleCyl2D
-=======
-# tutorials/untested/reactingRect*
+tutorials/untested/reactingRect*
 tutorials/untested/test*
-# tutorials/untested/ver*
+tutorials/untested/ver*
 tutorials/untested/pimpleCyl2D
+tutorials/untested/reactingCyl*
 tutorials/untested/pimpleFlasks*
 tutorials/untested/pipe
+tutorials/untested/warmingPipe
 tutorials/untested/porPimpleCyl2D
->>>>>>> 64e73e71 (Update gitignore.)
+
 
 
 # test cases
@@ -69,14 +62,12 @@ tutorials/Matyas/channelCaseConstructor/testMatyas/**
 tutorials/Matyas/channelCaseConstructor2D/testMatyas/**
 tutorials/Matyas/channelCaseConstructor2D/testTomas/**
 
-<<<<<<< HEAD
-=======
+
 tutorials/Matyas/caseConstructor/ZZ_cases/test/**
 # tutorials/2DChannels/testMatyas/**
 # tutorials/2DChannels/testMatyas/**
 tutorials/2DChannels/testTomas/**
 
->>>>>>> 64e73e71 (Update gitignore.)
 diff**
 flow1D*
 
