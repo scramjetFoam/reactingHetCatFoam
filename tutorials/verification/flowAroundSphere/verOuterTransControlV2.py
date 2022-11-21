@@ -75,7 +75,8 @@ tortLst = [0.5,5]                   # tortuosity
 invLst = [round(Re*nu/2/R,4) for Re in [10,40,80,160]] # ReLst = [10,40,80,160]
 k0Lst = [1e9]
 cellSizeLst = [0.25*R]
-tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [0.5,1,2]] # thieleLst = [0.5,1,2]
+tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [0.5,1,2,4]] # thieleLst = [0.5,1,2]
+# tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [4]]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -179,10 +180,30 @@ for case in cases:
 
     
 
+
+
+if getCsv:
+    # -- create eta 
+    generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst)
+    # -- create eta csv
+    for tort in tortLst:
+        # generate arrays
+        ReLst = [inv*(R*2)/nu for inv in invLst]
+        n = 60
+        ReNp = np.array([ReLst[0]+i*(ReLst[-1]-ReLst[0])/n for i in range(n+1)])
+        DFree,DEff = DFreeZ,DFree*eps/tort
+        Sc = nu/DFree
+        Sh_corrNp = 2+.6*Sc**(1/3)*ReNp**(1/2)
+        BiM_corrNp = Sh_corrNp/2 * DFree/DEff
+        k0Art = k0Lst[0]*np.exp(-EA/(Runiv*T))
+        thiele = R*np.sqrt(k0Art/DEff)
+        eta_corrNp = np.array(3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM_corrNp))
+        # write to CSVs
+        with open(ZZZ_path+'/etacsv/etaCorr_tort%g.csv'%tort, 'w') as f1:
+            f1.writelines(['x, y\n'])
+            f1.writelines(['%g, %g\n'%(ReNp[i], eta_corrNp[i]) for i in range(len(ReNp))])
+
 if showPlots:
     for tort in tortLst:
         eta_plt(ZZZ_filepath, tort)
     eta_err_plt(ZZZ_filepath, tortLst, invLst)
-
-if getCsv:
-    generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst)

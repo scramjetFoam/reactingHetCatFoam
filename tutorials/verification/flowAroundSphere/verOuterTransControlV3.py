@@ -1,10 +1,17 @@
-# verOuterTransControlV3.py
+# verOuterTransControlV2.py
 # -- Script for verification simulation of conjugated mass transport
-# -- V2_1 uses parallel snappyHexMesh inside each individual loop. 
-# -- NOTE: SCRIPT USES ARGUMENTS
+# -- NOTE SCRIPT ARGUMENTS:
+#       -- "makeMesh": prepare mesh for each cellSize 
+#           (this must be done manually if protoMesh doesn't exist yet)
 #       -- "runSim": run the simulation
 #       -- "showPlots": shows Plots
 #       -- "getCsv": generate csv files for TeX plots 
+# -- NOTE V3 changelog: 
+#       -- thieleLst + tortLst --> k0
+#       -- ReLst + R --> invLst
+#       -- flow.csv stores Thiele modulus
+#       -- removed eta_anal
+#       -- uses auxiliarFuncsV3
 
 # -- imports
 import numpy as np
@@ -13,7 +20,7 @@ import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys
-from auxiliarFuncs import *
+from auxiliarFuncsV3 import *
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO']
@@ -46,7 +53,7 @@ T = 500             # temperature
 DFreeZ = 1e-5       # Diffusivity in fluid
 kappaEff = 1        # mass transfer coefficient
 eps = 0.5       # material porosity
-nu = 5.58622522e-05 # kinematic viscosity, NOTE: might be read from log, but is used for calculation
+nu = 5.58622522e-05 # kinematic viscosity, NOTE MK: might be read from log, but is used for calculation
 EA = 90e3           # activation energy
 
 # -- geometry
@@ -55,31 +62,56 @@ length1 = 15*R      # inlet <-> sphere centre
 length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
-# -- list parameters
-invLst = [0.11,0.22]                # inlet velocity
-k0Lst = [1e9]                       # reaction pre-exponential factor
-cellSizeLst = [0.35*R]              # FV cell Size
-tortLst = [0.5,5]                   # tortuosity
+# -- list parameters [ORIGINAL]
+ReLst = [10,40,80,160]                          # Reynolds number
+invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
+thieleLst = [2,6]                               # Thiele modulus
+cellSizeLst = [0.4*R]                           # FV cell Size
+tortLst = [0.1,0.2,0.5,1]                       # tortuosity
+
+# TEST, debugging:
+ReLst = [10,40]
+invLst = [round(Re*nu/2/R,4) for Re in ReLst]
+thieleLst = [2,6]
+cellSizeLst = [0.9*R]
+tortLst = [0.1,0.2]
 
 # == ARCHIVED SETTINGS: 
-# -- 14/11/2022 khyrm@multipede, V2_1 (smaller cellSize, lower Thiele)
-# -- NOTE: refinementSurfaces, refinement set to (5, 5)
-invLst = [round(Re*nu/2/R, 4) for Re in [10,40,80,160]]
-cellSizeLst = [0.25*R]
-tortLst = [0.5,5,10]
-thiele = 2
-k0Lst = [thiele**2/R**2 * eps/tort * DFreeZ/np.exp(-EA/Runiv/T) for tort in tortLst]
+# -- 17/11/2022 khyrm@multipede, (16 cases 0.4/(10 10)): ORIGINAL
+
+# -- prepare prototype mesh for each cellSize
+if makeMesh:
+    for cellSize in cellSizeLst:
+        # NOTE MK: This could be an auxiliary function.
+        if not os.path.isdir('%s'%outFolder): os.mkdir('%s'%outFolder)
+        # if not os.path.isdir('%s/protoMesh'%outFolder): os.mkdir('%s/protoMesh'%outFolder)
+        meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
+        print('Preparing mesh %s',meshDir)
+        # -- check that meshDir is clean
+        if os.path.isdir(meshDir): sh.rmtree(meshDir)
+        # -- copy files
+        sh.copytree(baseCaseDir,meshDir)
+        changeInCaseFolders(meshDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
+        changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
+        changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
+        os.chdir(meshDir)
+        os.system('chmod u=rwx All*') # NOTE MK: Just to make sure.
+        os.system('./Allmesh')
+        os.chdir('../../../')
+    if not runSim: sys.exit()
 
 # -- create cases for:
-cases = [(inv,k0,cellSize,tort) for inv in invLst for k0 in k0Lst for cellSize in cellSizeLst for tort in tortLst]
+cases = [(inv,cellSize,tort,thiele) for inv in invLst for cellSize in cellSizeLst for tort in tortLst for thiele in thieleLst]
 for case in cases:
-    # parameters
-    inv,k0,cellSize,tort = case
-    k = k0*np.exp(-EA/(Runiv*T))
+    # -- parameters
+    inv,cellSize,tort,thiele = case
+    Re = ReLst[invLst.index(inv)]
     DFree = DFreeZ
     DEff = DFree*eps/tort
-
-    caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
+    k0Art = DEff*(thiele/R)**2 
+    k0 = k0Art*np.exp(EA/(Runiv*T))
+    # thiele tort re cS
+    caseName = 'flow_phi_%g_tort_%g_Re_%g_cS_%g'%(thiele,tort,Re,cellSize)
     caseDir = '%s/%s/'%(outFolder,caseName)
     meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
     
@@ -88,11 +120,8 @@ for case in cases:
         # -- check that caseDir is clean
         if os.path.isdir(caseDir): sh.rmtree(caseDir)   # ensure the caseDir is clear
         # -- copy files
-        sh.copytree(baseCaseDir,caseDir)
+        sh.copytree(meshDir,caseDir)
         # -- write parameters
-        changeInCaseFolders(caseDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-        # changeInCaseFolders(caseDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
-        changeInCaseFolders(caseDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
         changeInCaseFolders(caseDir,'0.org/T',['isoT'],[str(T)])
         changeInCaseFolders(caseDir,'0.org/CO',['yCOSet'],[str(yInf)])
         changeInCaseFolders(caseDir,'0.org/U', ['inv'],[str(inv)])
@@ -102,13 +131,11 @@ for case in cases:
         changeInCaseFolders(caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
         # -- run simulation
         os.chdir(caseDir)
-        os.system('chmod u=rwx Allrun-fullParallel')
-        os.system('./Allrun-fullParallel')
+        os.system('chmod u=rwx Allrun-parallel')
+        os.system('./Allrun-parallel')
     else: 
         os.chdir(caseDir)
 
-    k0Art = k0*np.exp(-EA/(Runiv*T))                            # definition in 2020 Chandra Direct numerical simulation of a noniso...
-    thiele = R*np.sqrt(k0Art/DEff)
     rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T             # ideal reaction source
     rS = read_real_source()                                     # simulation real source
     eta_sim = rS/rSqIdeal
@@ -143,21 +170,32 @@ for case in cases:
     # eta_sim 
     eta_sim = rS/rSqIdeal
 
-    # eta_anal [old]
-    BiM = km*R/DEff
-    eta_anal = 3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM)
-
-
-    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,eta_anal,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
+    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
     os.chdir('../../')
-    flow_csv(ZZZ_path,ZZZ_filepath,tort,Re,eta_sim,eta_corr,eta_anal)
+    flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr)
 
-    
+
+if getCsv:
+    # -- create eta 
+    generate_eta_csvs(ZZZ_path,ZZZ_filepath,thieleLst,tortLst)
+    # -- create eta csv
+    for thiele in thieleLst:
+        for tort in tortLst:
+            # generate arrays
+            n = 60
+            ReNp = np.array([ReLst[0]+i*(ReLst[-1]-ReLst[0])/n for i in range(n+1)])
+            DFree,DEff = DFreeZ,DFree*eps/tort
+            Sc = nu/DFree
+            Sh_corrNp = 2+.6*Sc**(1/3)*ReNp**(1/2)
+            BiM_corrNp = Sh_corrNp/2 * DFree/DEff
+            k0Art = DEff*(thiele/R)**2
+            eta_corrNp = np.array(3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM_corrNp))
+            # write to CSVs
+            with open(ZZZ_path+'/etacsv/etaCorr_phi_%g_tort%2.1f.csv'%(thiele,tort), 'w') as f1:
+                f1.writelines(['x, y\n'])
+                f1.writelines(['%g, %g\n'%(ReNp[i], eta_corrNp[i]) for i in range(len(ReNp))])
 
 if showPlots:
     for tort in tortLst:
-        eta_plt(ZZZ_filepath, tort)
+        eta_plt(ZZZ_filepath, thiele, tort)
     eta_err_plt(ZZZ_filepath, tortLst, invLst)
-
-if getCsv:
-    generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst)
