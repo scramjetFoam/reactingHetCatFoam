@@ -1,0 +1,36 @@
+#!/bin/sh
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm -rf 0
+
+mkdir 0
+
+cp -rf 0.org/* 0
+
+
+# create geometry
+runApplication blockMesh
+
+runApplication snappyHexMesh -dict system/snappyHexMeshDictIntraTrans -overwrite
+
+# add reactive cell zone 
+runApplication topoSet
+
+# add change BC for pressure
+#runApplication createPatch -overwrite
+
+rm -rf 0
+
+mkdir 0
+
+cp -rf 0.org/* 0
+
+# set initial fields
+runApplication setFields
+runApplication decomposePar
+
+paraFoam -touch
+
+application=`getApplication`
+runApplication $application
+runParallel $application

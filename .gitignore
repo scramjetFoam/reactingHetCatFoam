@@ -44,16 +44,6 @@ ZZZ_res*
 myStf
 settings.json
 
-tutorials/untested/reactingRect*
-tutorials/untested/test*
-tutorials/untested/ver*
-tutorials/untested/pimpleCyl2D
-tutorials/untested/pimpleFlasks*
-tutorials/untested/pipe
-tutorials/untested/warmingPipe
-tutorials/untested/porPimpleCyl2D
-
-
 
 # test cases
 tutorials/Matyas/caseConstructor/ZZ_cases/test/**
