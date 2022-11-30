@@ -1,0 +1,164 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "(p|pFinal|Phi|rho|rhoFinal)"
+    {
+        solver          PCG;
+        preconditioner
+        {
+            preconditioner  GAMG;
+            tolerance       1e-07;
+            relTol          0.01;
+            smoother        symGaussSeidel;
+            nPreSweeps      0;
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 400;
+            agglomerator    faceAreaPair;
+            processorAgglomerator   procFaces;
+            nAgglomeratingCells     10;
+            mergeLevels             1;
+        }
+        tolerance       1e-07;
+        relTol          0.01;
+    }
+
+    "(U)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0.01;
+    }
+    "(UFinal)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+
+    }
+
+
+         "(T)"
+     {
+         solver          PBiCGStab;
+         preconditioner  none;
+         tolerance       1e-07;
+         relTol          0.01;
+     }
+    // "(TSolid|TSolidFinal)"
+    // {   
+    //     solver          PBiCGStab;
+    //     preconditioner  none;
+    //     tolerance       1e-09;
+    //     relTol          0.01;
+    // }
+    
+    "(methanol|acetone|N2|CO|O2|CO2)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-07;
+        relTol          0.01;
+    }  
+    "(methanolFinal|acetoneFinal|N2Final|COFinal|O2Final|CO2Final)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-07;
+        // relTol          0.01;
+    }  
+
+}
+
+PIMPLE
+{
+    nUCorrectors 0;                 // 0 --> explicit presure
+    nConcCorrectors 1;              // n of concentration calculations for each specie
+    nTempCorrectors 0;	            // n of temperature corrections 
+    nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
+    nOuterCorrectors 20;             // n of outerCorrectors for pimple (1 --> PISO)
+    consistent no;
+    
+    outerCorrectorResidualControl
+    {
+        // p           1e-4;
+        // U           1e-4;
+        // T           1e-4;
+        // "(CO|NO|O2|N2O|CO2)"    1e-4;
+        U
+        {
+                tolerance  1e-5;
+                relTol      0;
+        }
+        p
+        {
+                tolerance  5e-4;
+                relTol      0;
+        }
+        CO
+        {
+                tolerance  1e-5;
+                relTol      0;
+        }
+
+        // T 
+        // {
+        //         tolerance  1e-8;
+        //         relTol      0;
+        // }
+    }
+}
+
+SIMPLE
+{
+    nUCorrectors 0;            
+    nConcCorrectors 3;              // n of concentration calculations for each specie
+    nTempCorrectors 10;	            // n of temperature corrections 
+    nNonOrthogonalCorrectors 1;     // n of presure corrections (not necessary on this mesh)
+
+    consistent yes;
+    
+    residualControl
+    {
+        p           1e-4;
+        U           1e-3;
+	T	    1e-5;
+        "(CO|NO|O2|N2O|CO2)"    1e-8;
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p           0.1;
+        U           0.2;
+        // T           0.5;
+        // "(CO|O2|CO2)" 	 0.0001;
+    }
+    equations
+    {
+        "(p|U)" 0.9;
+        "(T)" 0.98;
+        "(CO|O2|CO2)" 	 0.98;
+    }
+}
+// ************************************************************************* //

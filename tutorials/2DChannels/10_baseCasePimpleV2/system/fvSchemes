@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+ddtSchemes
+{
+    // default                             steadyState;
+    default                             Euler;
+}
+
+gradSchemes
+{
+    default                             Gauss linear;
+    // grad(U)                             cellLimited Gauss linear 0.5;
+}
+
+divSchemes
+{
+    // default                             Gauss upwind phi;
+    default                             Gauss SFCD;
+    // default                             Gauss upwind phi;
+    div(phi,U)                          Gauss SFCD;
+    div(phi,UD)                          Gauss SFCD;
+    div(phiD,U)                          Gauss SFCD;
+    div(phiD,UD)                          Gauss SFCD;
+    // div(phi,UD)                          Gauss linearUpwind grad(UD);
+ //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
+ //   div(phi,K)                          bounded Gauss linearUpwind grad(U);
+ //   div(phi,k)                          bounded Gauss linearUpwind grad(U);
+ //   div(phi,omega)                      bounded Gauss linearUpwind grad(U);
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    div(((rho*nuEff)*dev2(T(grad(UD))))) Gauss linear;
+   div(phiRho,(0.5*magSqr(U)))         Gauss linear;
+}
+
+laplacianSchemes
+{
+    // default                             Gauss linear limited corrected 0.2;
+     default                             Gauss linear uncorrected;       //orthogonal mesh
+}
+
+interpolationSchemes
+{
+    default                             linear;
+    flux((rho*HbyA))                    linear;
+    flux(HbyA)                          linear;
+    interpolate(rho)                    linear;
+}
+
+snGradSchemes
+{
+    // default                             limited corrected 0.2;
+    default                             uncorrected;                            // orthogonal mesh
+}
+
+fluxRequired
+{
+    default         no;
+    p;
+}
+
+wallDist
+{
+    method          meshWave;
+    correctWalls    true;
+}
+
+// ************************************************************************* //

@@ -84,6 +84,12 @@ gammaLst = [20]
 betaLst = [0.6]
 cellSizeLst = [0.5*R]
 
+# -- demo purposes:
+# thieleLst = [0.2]
+# TLst = [300]
+# gammaLst = [20]
+# betaLst = [0.6]
+# cellSizeLst = [0.5*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:

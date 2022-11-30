@@ -53,14 +53,14 @@ forAll(specieNames,lstI)
             Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
             Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
         }
-        if (debug <= 2 && debug != 0)
-        {
-            Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
-        }
+        // if (debug <= 2 && debug != 0)
+        // {
+        //     Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
+        // }
 
         fvScalarMatrix concEq
         (
-            fvm::ddt(rho/Mg,currSp) +
+            epsEff*(fvm::ddt(rho,currSp)/Mg + fvc::ddt(currSp,rho)/Mg) +
             // -- convection
             fvm::div((linearInterpolate(rho*(U)/Mg) & mesh.Sf()), currSp)
             ==
@@ -74,7 +74,7 @@ forAll(specieNames,lstI)
         {
             concEq = fvScalarMatrix
                 (
-                    fvm::ddt(rho/Mg,currSp) +
+                    epsEff*(fvm::ddt(rho,currSp)/Mg + fvc::ddt(currSp,rho)/Mg) +
                     fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
                     ==
                     fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              

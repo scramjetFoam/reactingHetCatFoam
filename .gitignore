@@ -34,8 +34,8 @@
 # Solver compilation files
 *linux64GccDPInt32Opt
 *linux64GccDPInt32-spack
-rhoPimpleFoam
-rhoSimpleFoam
+*rhoPimpleFoam
+*rhoSimpleFoam
 dynamicCode
 log.*
 *.OpenFOAM
@@ -44,20 +44,18 @@ ZZZ_res*
 myStf
 settings.json
 
-untestedTutorials/reactingRect*
-untestedTutorials/test*
-untestedTutorials/ver*
-untestedTutorials/pimpleCyl2D
-untestedTutorials/pimpleFlasks*
-untestedTutorials/pipe
-untestedTutorials/porPimpleCyl2D
-
 
 # test cases
-tutorials/Matyas/caseConstructor/ZZ_cases/test/**
-tutorials/Matyas/channelCaseConstructor/testMatyas/**
-tutorials/Matyas/channelCaseConstructor2D/testMatyas/**
-tutorials/Matyas/channelCaseConstructor2D/testTomas/**
+tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
+tutorials/Matyas_old/channelCaseConstructor/testMatyas/**
+tutorials/Matyas_old/channelCaseConstructor2D/testMatyas/**
+tutorials/Matyas_old/channelCaseConstructor2D/testTomas/**
+
+
+tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
+# tutorials/2DChannels/testMatyas/**
+# tutorials/2DChannels/testMatyas/**
+tutorials/2DChannels/testTomas/**
 
 diff**
 flow1D*
