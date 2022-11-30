@@ -86,6 +86,12 @@ cellSizeLst = [0.35*R]
 # betaLst = [0.6]
 # cellSizeLst = [0.35*R]
 
+# -- demo purposes:
+# thieleLst = [0.2]
+# TLst = [300]
+# gammaLst = [20]
+# betaLst = [0.6]
+# cellSizeLst = [0.5*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -104,6 +110,8 @@ if makeMesh:
         os.system('chmod u=rwx All*') # Just to make sure.
         os.system('./AllmeshIntraSphere')
         os.chdir('../../../')
+    if not runSim:
+        sys.exit()
 
 # -- numpy array for results
 if isothermal:
@@ -207,7 +215,6 @@ for case in cases:
                     f2.writelines(['x,y\n'])
             # -- write
             # -- TODO: Only write new values:
-            with open
             with open(csv_file, 'a') as f3: f3.writelines(['%s,%s\n'%(str(thiele),str(etaSim))])
 
 

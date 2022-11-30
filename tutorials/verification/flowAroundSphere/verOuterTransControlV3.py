@@ -67,14 +67,7 @@ ReLst = [10,40,80,160]                          # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2,6]                               # Thiele modulus
 cellSizeLst = [0.4*R]                           # FV cell Size
-tortLst = [0.1,0.2,0.5,1]                       # tortuosity
-
-# TEST, debugging:
-ReLst = [10,40]
-invLst = [round(Re*nu/2/R,4) for Re in ReLst]
-thieleLst = [2,6]
-cellSizeLst = [0.9*R]
-tortLst = [0.1,0.2]
+tortLst = [0.5,1,2.5,5]                       # tortuosity
 
 # == ARCHIVED SETTINGS: 
 # -- 17/11/2022 khyrm@multipede, (16 cases 0.4/(10 10)): ORIGINAL
@@ -198,4 +191,4 @@ if getCsv:
 if showPlots:
     for tort in tortLst:
         eta_plt(ZZZ_filepath, thiele, tort)
-    eta_err_plt(ZZZ_filepath, tortLst, invLst)
+        # eta_err_plt(ZZZ_filepath, tortLst, invLst)
