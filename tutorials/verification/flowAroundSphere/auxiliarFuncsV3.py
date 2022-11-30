@@ -109,8 +109,8 @@ def flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr):
             lines = f1.readlines()
         for line in lines:
             line_vars = [round(float(line.split(',')[i]),3) for i in range(3)]
-            print('test', test_vars)
-            print('line', line_vars)
+            # print('test', test_vars)
+            # print('line', line_vars)
             if test_vars == line_vars: 
                 return -1
     

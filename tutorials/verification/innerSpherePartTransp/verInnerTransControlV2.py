@@ -1,9 +1,10 @@
-# verInnerTransControlV2.py
+# -- verInnerTransControlV2.py
 # -- Script for verification cases with heat & mass transfer in a spherical particle
 # -- NOTE: SCRIPT USES ARGUMENTS:
 #       -- "makeMesh"
 #       -- "runSim"
 #       -- "showPlots"
+#       -- "notParallel" (parallel by default)
 # -- TODO: 
 #       (1) edit [if isothermal + else] in the loop
 #       (2) for non-isoT: edit plot making
@@ -36,7 +37,8 @@ runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
-parallel = (True if 'parallel' in args else False)
+# -- not sure why
+parallel = (False if 'notParallel' in args else True)
 
 # -- directory naming
 baseCaseDir = 'baseCase'
@@ -68,23 +70,19 @@ cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined insid
 
 # == ARCHIVED SETTINGS: 
 # -- 14/11/2022 khyrm@multipede: [6 cases for multSteadySt with (5 5) or (8 8) refinement]
-thieleLst = [0.2,0.5,0.75,1,2,4]
+# thieleLst = [0.2,0.5,0.75,1,2,4]
+thieleLst = [0.2]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
 cellSizeLst = [0.35*R]
 
-# -- 14/11/2022 khyrm@multipede: [0.35/(8 8) mesh]
-# baseCaseDir += '_88'
-# outFolder += '_88'
-# cellSizeLst = [0.35*R]
-
-# -- 14/11/2022 khyrm@multipede: [thiele=0.4,0.5 with high T, 0.5/(5 5) mesh]
-# thieleLst = [0.5]
-# TLst = [1200]
-# gammaLst = [20]
-# betaLst = [0.6]
-# cellSizeLst = [0.35*R]
+# -- 19/11/2022 khyrm@multipede:
+thieleLst = [0.2,0.5,4] # T0=800 for phi=0.5
+TLst = [300]
+gammaLst = [20]
+betaLst = [0.6]
+cellSizeLst = [0.5*R]
 
 
 # -- prepare prototype mesh for each cellSize
@@ -104,6 +102,8 @@ if makeMesh:
         os.system('chmod u=rwx All*') # Just to make sure.
         os.system('./AllmeshIntraSphere')
         os.chdir('../../../')
+    if not runSim:
+        sys.exit()
 
 # -- numpy array for results
 if isothermal:
@@ -207,7 +207,6 @@ for case in cases:
                     f2.writelines(['x,y\n'])
             # -- write
             # -- TODO: Only write new values:
-            with open
             with open(csv_file, 'a') as f3: f3.writelines(['%s,%s\n'%(str(thiele),str(etaSim))])
 
 
