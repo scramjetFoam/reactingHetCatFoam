@@ -27,7 +27,7 @@ boundaryField
         type            fixedValue;
         //~ value           $internalField; // 34.6 degC
         //~value           uniform 873.0;
-        value           uniform 553;
+        value           uniform 493;
     }
     
     

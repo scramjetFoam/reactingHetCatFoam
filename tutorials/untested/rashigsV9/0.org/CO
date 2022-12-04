@@ -45,7 +45,7 @@ boundaryField
                     
             const volScalarField& CO = this->db().lookupObject<volScalarField>("CO");
 
-            const volScalarField& rho = this->db().lookupObject<volScalarField>("rho");
+            const volScalarField& rho = this->db().lookupObject<volScalarField>("thermo:rho");
             surfaceScalarField sngradCTot = fvc::snGrad(rho);
 
 

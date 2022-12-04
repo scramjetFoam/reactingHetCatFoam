@@ -43,20 +43,18 @@ forAll(nuLst,rnI)
 
         int kinSetupSwitch(readScalar(reactiveProperties.subDict("reactProps").subDict(rName).lookup("kinSetupSwitch")));
 
-        // -- load the kinetics info about reaction
-        dimensionedScalar k0  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k0");
-        dimensionedScalar EA  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("EA");
-        if (kinSetupSwitch == 1)
-        {
-            // -- inhibition parameters
+        if (kinSetupSwitch == 1){
+            // -- load the kinetics info about reaction
+            dimensionedScalar k0  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k0");
+            dimensionedScalar EA  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("EA");
             dimensionedScalar kin  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("kin");
             dimensionedScalar Ein  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("Ein");
             
             Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = "<< EA.value()<<", kin = "<<kin.value()<<" and Ein = "<< Ein.value()<<")." << endl;
                 
             // -- Arhenius law
-            volScalarField k(k0*Foam::exp(-EA/(univR*T)));
-            volScalarField Kin(kin*Foam::exp(Ein/(T)));
+            volScalarField k(k0*Foam::exp(-EA/(univR*max(TSolid,T))));
+            volScalarField Kin(kin*Foam::exp(Ein/(max(TSolid,T))));
 
             // -- load molar fraction fields
             const volScalarField& CO = mesh().lookupObject<volScalarField>("CO"); 
@@ -77,66 +75,6 @@ forAll(nuLst,rnI)
             {
                 gradR += 0.0*nuLst[rnI]*(k*(CO)*(O2));
             }
-        }
-        else if(kinSetupSwitch == 2)
-        {
-            Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = " << EA.value() << endl;
-            
-            // -- Arhenius law
-            volScalarField k(k0*Foam::exp(-EA/(univR*T)));
-
-            Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = " << EA.value() << ", min(k) = " << min(k).value() << ", max(k) = " << max(k).value() << ")." << endl;
-                    
-            //counting exponent for total concetration
-            //NOTE: I start with -1.0 because of units of kinetic constants 
-            //      in transport properties (maybe there can be problem with
-            //      non-integer alpha)
-            float cTotExp = 0.0;
-            forAll(specieNames,countI){
-                //this can be probably done nicer, but I used the code above  
-                List<scalar> alphaLstCurSp(transportProperties.subDict(specieNames[countI]).lookup("alphaVec"));    
-                cTotExp += alphaLstCurSp[rnI];
-            }
-            
-            // calculating real kinetic constant of reaction with arrhenius kinetics and scaling with concentration for right dimension
-            //~ dimensionedScalar kReact = k0*Foam::exp(-EA/(univR*cTemp))*Foam::pow(cTot,cTotExp);
-            volScalarField kReact = k*Foam::pow(cTot,cTotExp);
-            
-            volScalarField auxR(0.0*R);
-            volScalarField auxGradR(0.0*gradR);
-        
-            auxR        += nuLst[rnI]*kReact;
-            auxGradR    += min(0.0,nuLst[rnI])*kReact;
-                    
-            Info << "reactants in reaction " << rnI << ": ";
-            forAll(specieNames,countI)                                      //forAll other species
-            {
-                word testedSpName = specieNames[countI];
-                List<scalar> nuLstTested(transportProperties.subDict(testedSpName).lookup("nuVec"));
-                
-                if (nuLstTested[rnI] < -SMALL)                              // if testedSpecie is reactant
-                {
-                    Info << testedSpName << " ";
-                    
-                    List<scalar> alphaLst(transportProperties.subDict(testedSpName).lookup("alphaVec"));
-                    const volScalarField& testedSp = mesh().lookupObject<volScalarField>(testedSpName); 
-                
-                    auxR *= Foam::pow(testedSp,alphaLst[rnI]);
-                    
-                    if (testedSpName != currSpName)
-                    {
-                        auxGradR *= Foam::pow(testedSp,alphaLst[rnI]);
-                    }
-                    else
-                    {
-                        auxGradR *= alphaLst[rnI]*Foam::pow(testedSp,alphaLst[rnI]-1.0);
-                    }
-                }
-            }
-            Info << endl;
-
-            R     += auxR;
-            gradR += auxGradR;
         }
     }
     else
