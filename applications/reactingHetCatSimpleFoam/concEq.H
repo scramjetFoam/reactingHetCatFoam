@@ -73,14 +73,18 @@ forAll(specieNames,lstI)
 
     // --  calculation of total concentration
     volScalarField cTot(thermo.rho()/molMList[molMList.size()-1]);
-    // volScalarField cTot(rho/molMList[molMList.size()-1]);
+    //volScalarField cTot(rho/molMList[molMList.size()-1]);
 
     // -- inform about calculated properties
+    Info << "molM " << molMList[molMList.size()-1] << endl;
     Info << "Min cTot: " << min(cTot).value() << ", max cTot: " << max(cTot).value() << endl;
     Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
     Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
     Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
+    
+    // e_feld =(-fvc::snGrad(cTot)*linearInterpolate(currSp)/linearInterpolate(cTot));
 
+  //  gradRho = fvc::snGrad(rho);
 
     // -- calculate convective molar flux at the face 
     // surfaceScalarField phiUCTot
@@ -101,7 +105,8 @@ forAll(specieNames,lstI)
     fvScalarMatrix concEq
     (
         // fvm::ddt(cTot,currSp)                                               
-        fvm::div(phi/molMList[molMList.size()-1], currSp)
+        //fvm::div(phi/molMList[molMList.size()-1], currSp)
+        fvm::div(linearInterpolate(U*cTot) & mesh.Sf(), currSp)
         ==
         fvm::laplacian(DEff*cTot, currSp)                              
         + fvc::laplacian(DEff*currSp, cTot)       
@@ -123,11 +128,13 @@ forAll(specieNames,lstI)
 
     fvConstraints.constrain(currSp);
 
-    currSp.correctBoundaryConditions();
+ //   currSp.correctBoundaryConditions();
     
-    forAll(currSp,cellI)
-    { 
-    //	 currSp[cellI] = min(max(currSp[cellI],0),1);                    //clip unreal molar fractions
-        currSp[cellI] = max(currSp[cellI],0); 
-    }
+ //   forAll(currSp,cellI)
+ //   { 
+ //   //	 currSp[cellI] = min(max(currSp[cellI],0),1);                    //clip unreal molar fractions
+ //       currSp[cellI] = max(currSp[cellI],0); 
+ //   }
+
+    currSp.correctBoundaryConditions();
 }

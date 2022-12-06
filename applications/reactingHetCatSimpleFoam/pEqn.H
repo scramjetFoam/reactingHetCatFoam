@@ -93,7 +93,7 @@
             /fvc::domainIntegrate(psi);
         p.correctBoundaryConditions();
     }
-
+    thermo.correct();
     rho = thermo.rho();
     // rho = p/univR/T*molMList[molMList.size()-1];
     rho.relax();
