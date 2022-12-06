@@ -6,10 +6,7 @@
 #       -- "showPlots"
 #       -- "notParallel" (parallel by default)
 # -- TODO: 
-#       (1) edit [if isothermal + else] in the loop
-#       (2) for non-isoT: edit plot making
-#       (3) add csv export
-#       (4) for non-isoT: incorporate theoretical solution
+#       -- check order of the method
 
 
 # -- imports
@@ -28,7 +25,7 @@ solverLst = ['reactingHetCatSimpleFoam']
 solver = solverLst[0]
 
 # -- set number of the enthalpy corrections
-numOfTCorr = 1
+numOfTCorr = 0
 isothermal = (True if numOfTCorr == 0 else False)  # isothermal logic
 
 # -- script arguments logic
@@ -62,34 +59,11 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters
-thieleLst = [0.5,0.75,1,2,4]   # Thiele modulus
-TLst = [300]                    # temperature
-gammaLst = [20]                 # gamma - Arrhenius number
-betaLst = [0.6]                 # beta - Prater number
-cellSizeLst = [0.5*R]           # NOTE: The mesh will be much more refined inside the sphere, e. g. (5 5)
-
-# == ARCHIVED SETTINGS: 
-# -- 14/11/2022 khyrm@multipede: [6 cases for multSteadySt with (5 5) or (8 8) refinement]
-# thieleLst = [0.2,0.5,0.75,1,2,4]
-thieleLst = [0.2]
+thieleLst = [2.0]   # Thiele modulus
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-cellSizeLst = [0.35*R]
-
-# -- 19/11/2022 khyrm@multipede:
-thieleLst = [0.2,0.5,4] # T0=800 for phi=0.5
-TLst = [300]
-gammaLst = [20]
-betaLst = [0.6]
-cellSizeLst = [0.5*R]
-
-# -- demo purposes:
-# thieleLst = [0.2]
-# TLst = [300]
-# gammaLst = [20]
-# betaLst = [0.6]
-# cellSizeLst = [0.5*R]
+cellSizeLst = [0.3*R, 0.5*R, 0.7*R] # NOTE: The mesh will be much more refined inside the sphere, e. g. (5 5)
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -153,7 +127,7 @@ for case in cases:
             os.system('./AllrunIntraSphere-parallel') # NOTE: Only for newly created protoMeshes, change them to setup.
         else:
             os.system('./AllrunIntraSphere')
-        
+
     else:
         os.chdir(caseDir)
     
@@ -222,7 +196,7 @@ for case in cases:
 # -- create plots
 if showPlots:
     if isothermal:
-        # -- mesh dependence plot
+        # -- error mesh dependence plot
         plt.plot(cellSizeLst,resNp,label='eta diff (my)')
         # plt.plot(cellSizeLst,resNp[1],label='eta diff (STF)')
         plt.plot(cellSizeLst,resNp2,label='whole sol diff (my)')
@@ -235,6 +209,7 @@ if showPlots:
         plt.yscale('log')
         plt.xscale('log')
         plt.legend()
+        # plt.savefig('%s/%s'%(ZZZ_path,fileName))
         plt.show()
     else:
         # -- eta-thiele diagram
