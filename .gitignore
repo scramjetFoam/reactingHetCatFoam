@@ -56,6 +56,7 @@ tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
 # tutorials/2DChannels/testMatyas/**
 # tutorials/2DChannels/testMatyas/**
 tutorials/2DChannels/testTomas/**
+tutorials/untested/rash*
 
 diff**
 flow1D*
