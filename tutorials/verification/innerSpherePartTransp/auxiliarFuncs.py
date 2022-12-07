@@ -8,7 +8,6 @@ import sys
 
 def isFloat(val):
     """Determine if val is a float"""
-    
     try:
         float(val)
         return True
@@ -18,7 +17,6 @@ def isFloat(val):
 
 def changeInCaseFolders(caseDir,file,whatLst,forWhatLst):
     """Write given parameters to files copied from baseCase."""
-
     print('Changing file %s, %s --> %s'%(file,str(whatLst),str(forWhatLst)))
     with open(caseDir + '/%s'%file, 'r') as fl:
         data = fl.readlines()
@@ -186,6 +184,7 @@ def eta_plt(ZZZ_filepath, tort):
     plt.legend()
     plt.show()
 
+
 def eta_err_plt(ZZZ_filepath, tortLst, invLst):
     """Create Re-err(eta) plots for a given value of tort"""
     with open(ZZZ_filepath) as f:
@@ -203,3 +202,22 @@ def eta_err_plt(ZZZ_filepath, tortLst, invLst):
     plt.ylabel('eta')
     plt.legend()
     plt.show()
+
+def mesh_err_csv(ZZZ_path, id_parameters, cell_size, err):
+    # -- for given parameters, write meshSize x error --> must be in the main loop
+    # -- make sure dir exists
+    ZZZ_path = "../../" + ZZZ_path
+    ZZZ_filepath = ZZZ_path + "/meshErr" + ".csv"
+    if not os.path.isdir(ZZZ_path):
+        print("creating directory") 
+        os.mkdir(ZZZ_path)
+    # -- make sure file with header exists
+    if not os.path.isfile(ZZZ_filepath):
+        print("creating file")
+        with open(ZZZ_filepath, 'w') as f1: 
+            f1.writelines(['cellSize, err\n'])
+    # -- write data
+    print("writing to file")
+    with open(ZZZ_filepath, 'a') as f2:
+        f2.writelines(['%g,%g\n'%(cell_size, err)])
+
