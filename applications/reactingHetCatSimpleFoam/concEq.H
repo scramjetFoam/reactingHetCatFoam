@@ -105,8 +105,8 @@ forAll(specieNames,lstI)
     fvScalarMatrix concEq
     (
         // fvm::ddt(cTot,currSp)                                               
-        //fvm::div(phi/molMList[molMList.size()-1], currSp)
-        fvm::div(linearInterpolate(U*cTot) & mesh.Sf(), currSp)
+        fvm::div(phi/molMList[molMList.size()-1], currSp)
+        // fvm::div(linearInterpolate(U*cTot) & mesh.Sf(), currSp)
         ==
         fvm::laplacian(DEff*cTot, currSp)                              
         + fvc::laplacian(DEff*currSp, cTot)       
