@@ -62,8 +62,8 @@ thieleLst = [2.0]   # Thiele modulus
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-# cellSizeLst = [0.3*R, 0.5*R, 0.7*R] # NOTE: The mesh will be much more refined inside the sphere, e. g. (5 5)
-cellSizeLst = [0.3*R, 0.5*R, 0.7*R]
+# cellSizeLst = [0.4*R] # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+cellSizeLst = [0.2*R, 0.3*R, 0.4*R, 0.5*R, 0.6*R, 0.7*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -192,7 +192,7 @@ for case in cases:
                 with open(csv_file, 'w') as f2: 
                     f2.writelines(['x,y\n'])
             # -- write
-            # -- TODO: Only write new values:
+            # -- TODO: Only write new values
             with open(csv_file, 'a') as f3: f3.writelines(['%s,%s\n'%(str(thiele),str(etaSim))])
 
 
