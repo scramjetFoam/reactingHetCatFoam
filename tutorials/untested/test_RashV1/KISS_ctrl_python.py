@@ -52,7 +52,7 @@ def p(kde,value):
 
 
 N = 33
-Nzacatek = 26
+Nzacatek = 0
 simDir = 'rashigsV10'
 simDir = 'rashigsV12'
 simDir = 'rashigsV13'
@@ -70,11 +70,11 @@ simDir = 'rashigsV22'
 # simDir = 'vagWheelV1'
 # simDir = 'vagWheelV2'
 # simDir = 'testMappedBC'
-# simDir = './'
+simDir = './'
 # simDir = '../testMappedBC'
-scalarfields = ['T','ethylene']
+scalarfields = ['T','ethylene','prod','N2']
 vectorfields = ['U']
-fields = "'(T ethylene U p)'"
+fields = "'(T ethylene U p prod N2)'"
 # nIt = 850
 nIt = 850
 
@@ -101,7 +101,7 @@ for sim in range(Nzacatek,N):
     for j in range(len(whenChange)):
         if whenChange[j] == sim:
             changeK0(values[j])
-    os.system('foamJob -parallel -screen reactingHetCatSimpleFoam > log.rash%d'%sim)
+    os.system('foamJob -parallel -screen reactingHetCatSimpleFoamFC > log.rash%d'%sim)
     os.system('reconstructPar -latestTime -fields %s > log.reconstruct%d'%(fields,sim))
     os.system("postProcess -func 'sample' > log.sample%d"%sim)
     lT = latestTime()

@@ -21,14 +21,14 @@ surfaceFormat foam;
 //     }
 // );
 
-fields          ( U T ethylene );
+fields          ( U T ethylene prod N2);
 
 surfaces
 (
     outlet_field
     {
         type patch;
-        patches (outlet );
+        patches (outlet);
         interpolate true;
         // Optional: whether to leave as faces (=default) or triangulate
         triangulate false;
