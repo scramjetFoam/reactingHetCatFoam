@@ -27,7 +27,7 @@
     volScalarField kappaPM = kappaEff + kappa*epsEff;
 
 
-    if (debug == 1){
+    if (debug > 0){
         // -- minimal and maximal values of calculated fields
         Info << "Min (kappaEff): " << min(kappaEff).value() << ", max (kappaEff): " << max(kappaEff).value() << "." << endl;
         Info << "Min (kappaPokus): " << min(kappaPM).value() << ", max (kappaPokus): " << max(kappaPM).value() << "." << endl;

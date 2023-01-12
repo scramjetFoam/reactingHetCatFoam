@@ -30,8 +30,10 @@ boundaryField
     outlet
     {
         type            inletOutlet;
+        // type            zeroGradient;
         value           $internalField;
         inletValue      uniform (0 0 0);
+        phi             phi;
     }
     
    cylinder 

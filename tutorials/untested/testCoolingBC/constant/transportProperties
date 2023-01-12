@@ -18,7 +18,7 @@ FoamFile
 transportModel  Newtonian;
 
 // -- list of chemical species that are assumed
-species (ethylene);
+species (ethylene prod N2);
 
 // -- list of porous Zones
 zones ();
@@ -53,11 +53,41 @@ ethylene
     molM        28.0e-3;
     
     // -- diffusion coef.
-    // D  D  [0 2 -1 0 0 0 0] DSet;
+    // D  D  [0 2 -1 0 0 0 0] 1e-6;
     // -- stoichiometric coefficients in reactions
     // minForGrad  1e-36;                                                   //min for gradien
     nuVec       (0.0 -1.0);                                                     //row of the stoechiometric matrix                                                   
     alphaVec       (0.0 1.0);                                                     //row of the stoechiometric matrix                                                   
+}
+
+prod
+{
+    sigmaV      41.0;                                                      
+
+    // -- molar mass in kgmol-1
+    molM        0.05026929982046678;
+    
+    // -- diffusion coef.
+    // D  D  [0 2 -1 0 0 0 0] 1e-6;
+    // -- stoichiometric coefficients in reactions
+    // minForGrad  1e-36;                                                   //min for gradien
+    nuVec       (0.0 0.57);                                                     //row of the stoechiometric matrix                                                   
+    alphaVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
+}
+
+N2
+{
+    sigmaV      18.0;                                                      
+
+    // -- molar mass in kgmol-1
+    molM        28.0e-3;
+    
+    // -- diffusion coef.
+    // D  D  [0 2 -1 0 0 0 0] DSet;
+    // -- stoichiometric coefficients in reactions
+    // minForGrad  1e-36;                                                   //min for gradien
+    nuVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
+    alphaVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
 }
 
 CO

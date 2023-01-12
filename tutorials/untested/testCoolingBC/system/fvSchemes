@@ -99,8 +99,8 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default                             limited corrected 0.7;
-    // default                             uncorrected;                            // orthogonal mesh
+    // default                             limited corrected 0.7;
+    default                             uncorrected;                            // orthogonal mesh
 }
 
 fluxRequired

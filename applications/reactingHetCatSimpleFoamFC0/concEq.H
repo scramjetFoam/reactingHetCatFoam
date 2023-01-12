@@ -47,7 +47,7 @@ forAll(specieNames,lstI)
         }
 
         // -- inform about calculated properties
-        if (debug == 1){
+        if (debug > 0){
             Info << "Min rho: " << min(rho).value() << ", max rho: " << max(rho).value() << endl;
             Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
             Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
@@ -61,11 +61,11 @@ forAll(specieNames,lstI)
         fvScalarMatrix concEq
         (
             // -- convection
-            fvm::div((linearInterpolate(rho*(U)/Mg) & mesh.Sf()), currSp)
+            fvm::div((linearInterpolate(cTot*(U)) & mesh.Sf()), currSp)
             ==
             // -- diffusion
-            fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              
-            + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())       
+            fvm::laplacian(DEff*cTot, currSp)                              
+            + fvc::laplacian(DEff*currSp, cTot)       
             // -- source
             + fvModels.source(dummyConcEqn, currSp)
         );

@@ -10,11 +10,11 @@ Info << "Debug level: " << debug <<endl;
 
 IOobject::writeOption writeOption1 = IOobject::NO_WRITE;
 IOobject::writeOption writeOption2 = IOobject::NO_WRITE;
-if (debug == 1)
+if (debug > 0)
 {
     writeOption1 = IOobject::AUTO_WRITE;
 }
-if (debug <= 2 && debug != 0)
+if (debug == 2)
 {
     writeOption2 = IOobject::AUTO_WRITE;
 }
@@ -83,6 +83,20 @@ volScalarField rho
     ),
     // thermo.rho()
     p/univR/thermo.T()*Mg
+);
+
+volScalarField cTot
+(
+    IOobject
+    (
+        "cTot",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption1
+    ),
+    // thermo.rho()
+    p/univR/thermo.T()
 );
 
 
