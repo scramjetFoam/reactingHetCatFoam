@@ -35,8 +35,9 @@ boundaryField
     }
     "(walls|cylinder)"
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+     //   type            fixedValue;
+        type            noSlip;
+     //   value           uniform (0 0 0);
     }
     
     "(symmetry).*"

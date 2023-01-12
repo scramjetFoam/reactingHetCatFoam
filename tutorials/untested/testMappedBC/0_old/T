@@ -18,7 +18,7 @@ FoamFile
 dimensions      [0 0 0 1 0 0 0];
 
 //~internalField   uniform 873;
-internalField   uniform 493;
+internalField   uniform 473;
 
 boundaryField
 {
@@ -27,12 +27,13 @@ boundaryField
         type            fixedValue;
         //~ value           $internalField; // 34.6 degC
         //~value           uniform 873.0;
-       value           uniform 553;
-       // value           uniform 493;
+       // value           uniform 553;
+        // value           uniform 473;
+        value           $internalField;
     }
     
     
-    "(outlet|walls)"
+    "(outlet|walls|inletCyl)"
     //~ {
         //~ type            fixedValue;
         //~ value           $internalField; // 115 degC
@@ -40,15 +41,14 @@ boundaryField
     {
         type            zeroGradient;
     }
-   cylinder
-   
+    cylinder
     {
-//	    type zeroGradient;
+	    type zeroGradient;
         type            codedMixed;
-        refValue        uniform 493;
+        refValue        uniform 450;
         refGradient     uniform 0;
         valueFraction   uniform 0;
-        value           uniform 493;
+        value           uniform 450;
         name            robinFront;
         code            #{
             const fvPatch& boundaryPatch = patch();
@@ -65,10 +65,10 @@ boundaryField
             //~ scalar alpha_L = 150.0;
             //~ //scalar alpha_L = 10;
             //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
-            this->refValue() = 493.0;
+            this->refValue() = 450.0;
             this->refGrad() = 0.;
             //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
-            this->valueFraction() = 1.0/(1.0+(kappa+kappaG*epsEff)/(1500.0/delta));
+            this->valueFraction() = 1.0/(1.0+(kappa+kappaG*epsEff)/(300.0/delta));
             //~ this->valueFraction() = 1e-5;
         #};
     }

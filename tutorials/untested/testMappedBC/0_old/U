@@ -29,15 +29,15 @@ boundaryField
     
     outlet
     {
-        type            inletOutlet;
-        value           $internalField;
-        inletValue      uniform (0 0 0);
+        // type            inletOutlet;
+        type            zeroGradient;
+        // value           $internalField;
+        // inletValue      uniform (0 0 0);
     }
-    
-   cylinder 
+    cylinder
     {
-        type    noSlip;
-    }
+	type noSlip
+    }	
     sides
     {
         type    slip;

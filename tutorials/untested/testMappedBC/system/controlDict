@@ -24,13 +24,13 @@ startTime 	    0;
 
 stopAt          endTime;
 
-endTime	       8;  //endlineLine
+endTime	       750;  //endlineLine
 
 deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval	       8;
+writeInterval	       750;
 writeFormat     ascii;
 
 writePrecision  10;

@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  4.1                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+//~internalField   uniform 873;
+internalField   uniform 473;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        //~ value           $internalField; // 34.6 degC
+        //~value           uniform 873.0;
+       // value           uniform 553;
+        // value           uniform 473;
+        value           $internalField;
+    }
+    
+    
+    "(outlet|walls|inletCyl)"
+    //~ {
+        //~ type            fixedValue;
+        //~ value           $internalField; // 115 degC
+    //~ }
+    {
+        type            zeroGradient;
+    }
+    cylinder
+    {
+	    type zeroGradient;
+        type            codedMixed;
+        refValue        uniform 450;
+        refGradient     uniform 0;
+        valueFraction   uniform 0;
+        value           uniform 450;
+        name            robinFront;
+        code            #{
+            const fvPatch& boundaryPatch = patch();
+            const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
+            const fvMesh& mesh = boundaryMesh.mesh();
+            const scalarField& delta = patch().deltaCoeffs();
+            const volScalarField& kappa((mesh.lookupObject<volScalarField>("kappaEff")));
+            const volScalarField& epsEff((mesh.lookupObject<volScalarField>("epsEff")));
+            const volScalarField& kappaG((mesh.lookupObject<volScalarField>("thermo:kappa")));
+            //~ //const volScalarField& lambda((mesh.lookupObject<volScalarField>("lambda")));
+            //~ scalar lambda = 90.0;
+            // const scalarField& lambdaTu = patch().lambda();
+            // scalar lambdaNikl = 90;
+            //~ scalar alpha_L = 150.0;
+            //~ //scalar alpha_L = 10;
+            //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
+            this->refValue() = 450.0;
+            this->refGrad() = 0.;
+            //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
+            this->valueFraction() = 1.0/(1.0+(kappa+kappaG*epsEff)/(300.0/delta));
+            //~ this->valueFraction() = 1e-5;
+        #};
+    }
+
+    
+    defaultFaces
+    {
+        type            empty;
+    }
+}
