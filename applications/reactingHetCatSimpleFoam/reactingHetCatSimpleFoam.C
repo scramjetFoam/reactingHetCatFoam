@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
             
             Info << "\nCorrection of pressure"<<endl;
             #include "pEqn.H"   
+            rhoU = U*rho;
         }              
                 
         turbulence->correct();

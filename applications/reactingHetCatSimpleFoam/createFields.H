@@ -256,6 +256,21 @@ volScalarField rho
     // p/univR/T*molMList[molMList.size()-1]
 );
 
+// -- rhoU
+Info<< "Reading field rhoU\n" << endl;
+volVectorField rhoU
+(
+    IOobject
+    (
+        "rhoU",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    rho*U
+);
+
 
 #include "compressibleCreatePhi.H"
 
