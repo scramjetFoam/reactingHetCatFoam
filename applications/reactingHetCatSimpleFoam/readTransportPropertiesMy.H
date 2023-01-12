@@ -110,7 +110,7 @@ molMList.set
 );
 
 Info<< "sigma V(reference) = "<< sigmaVR << endl;
-Info<< "molar mass(reference) = "<< molMR << endl;
+Info<< "molar mass(reference) = "<< molMR*1e-3 << endl;
 
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//R constant
 
