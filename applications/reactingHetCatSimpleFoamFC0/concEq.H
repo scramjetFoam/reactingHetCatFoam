@@ -74,7 +74,8 @@ forAll(specieNames,lstI)
         {
             concEq = fvScalarMatrix
                 (
-                    fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
+                    // fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
+                    fvm::div((linearInterpolate(rho*(U)/Mg) & mesh.Sf()), currSp)
                     ==
                     fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              
                     + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())     
@@ -112,17 +113,17 @@ forAll(specieNames,lstI)
 if (diffusion == "FickConv")
 {
     // -- update molar mass of the gas and velocity from diffusion
-    UD = -sumJDif/MFrList[MFrList.size()-1]*Mg/rho;
+    // UD = -sumJDif/MFrList[MFrList.size()-1]*Mg/rho;
 
-    if (debug != 0)
-    {
-            Info << "Min UD: " << min(UD).value() << ", max UD: " << max(UD).value() << endl;
-    }
+    // if (debug != 0)
+    // {
+    //         Info << "Min UD: " << min(UD).value() << ", max UD: " << max(UD).value() << endl;
+    // }
 
     // -- update phi
     // phi = linearInterpolate(rho*U) & mesh.Sf();
-    phiD = linearInterpolate(rho*UD) & mesh.Sf();
+    // phiD = linearInterpolate(rho*UD) & mesh.Sf();
 
-    UD.correctBoundaryConditions();
+    // UD.correctBoundaryConditions();
 }
 

@@ -42,34 +42,34 @@ volVectorField U
 );
 
 // -- T field for porousMedia from mesh
-Info<< "Reading field TSolid\n" << endl;
-volScalarField TSolid
-(
-    IOobject
-    (
-        "TSolid",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+// Info<< "Reading field TSolid\n" << endl;
+// volScalarField TSolid
+// (
+//     IOobject
+//     (
+//         "TSolid",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
 
 // -- reading field UD -- velocity enforced by diffusion
-Info<< "Reading field UD\n" << endl;
-volVectorField UD
-(
-    IOobject
-    (
-        "UD",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+// Info<< "Reading field UD\n" << endl;
+// volVectorField UD
+// (
+//     IOobject
+//     (
+//         "UD",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
 
 
 

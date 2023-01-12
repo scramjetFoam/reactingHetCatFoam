@@ -142,6 +142,10 @@
     rho = thermo.p()/univR/thermo.T()*Mg;
     thermo.rho() = rho;
 
+    // -- update cTot
+    cTot = p/univR/thermo.T();
+    cTot.correctBoundaryConditions();
+
     // Info <<max(rho)<<endl;
     
     rho.relax();

@@ -43,11 +43,13 @@ volScalarField DEff
     ),
     mesh,
     dimensionedScalar("DEff",dimLength*dimLength/dimTime,0.0),
-    "zeroGradient"
+    "fixedValue"
+    // "zeroGradient"
     // (1.0-max(isOnWallCoat,isInWallCoat))*DifMix +
     // isOnWallCoat*(porEpsC/(tortC*(1.0/DifMix+1.0/DKn)))+
     // isInWallCoat*(porEpsS/(tortS*(1.0/DifMix+1.0/DKn))) 
 );
+DEff.correctBoundaryConditions();
 
 // -- free channels --> free channels = 1 - sum all zones 
 volScalarField sumZones

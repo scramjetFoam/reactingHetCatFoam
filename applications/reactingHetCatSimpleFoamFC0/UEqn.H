@@ -2,14 +2,14 @@
     
     MRF.correctBoundaryVelocity(U);
 
-    volVectorField explRHS(-fvc::div(phi,UD));
-    // // explRHS -= fvc::div(phiD,U);
-    explRHS -= fvc::div(phiD,UD);
-    explRHS += fvc::div((rho*turbulence->nuEff())*dev2(T(fvc::grad(UD))));
-    explRHS += fvc::laplacian(turbulence->nuEff()*rho,UD);
+    // volVectorField explRHS(-fvc::div(phi,UD));
+    // // // explRHS -= fvc::div(phiD,U);
+    // explRHS -= fvc::div(phiD,UD);
+    // explRHS += fvc::div((rho*turbulence->nuEff())*dev2(T(fvc::grad(UD))));
+    // explRHS += fvc::laplacian(turbulence->nuEff()*rho,UD);
 
-    // // NOTETH: check this
-    explRHS -= rho * turbulence->nuEff() * cmptMultiply(permEff,UD);
+    // // // NOTETH: check this
+    // explRHS -= rho * turbulence->nuEff() * cmptMultiply(permEff,UD);
 
 
     // explRHS -= rho * turbulence->nuEff() * cmptMultiply(permEff,U);
@@ -28,7 +28,7 @@
         fvm::div(phi, U)
       + MRF.DDt(rho, U)
       + turbulence->divDevTau(U)
-      + fvm::div(phiD,U)
+    //   + fvm::div(phiD,U)
      ==
         // diffusion velocity
         // - fvc::div(phi,UD)
@@ -43,7 +43,7 @@
 
         //
         //  explRHS*mesh.V()/dimensionedScalar("jedna",dimVolume,1) +
-         explRHS +
+        //  explRHS +
          fvModels.source(rho, U)
     );
     fvVectorMatrix& UEqn = tUEqn.ref();

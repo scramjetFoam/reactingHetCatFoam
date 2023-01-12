@@ -104,18 +104,18 @@ volScalarField cTot
 
 Info<< "Reading/calculating face flux field from diffusion flux phiD\n" << endl;
  
-surfaceScalarField phiD
-(
-    IOobject
-    (
-        "phiD",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        writeOption2
-    ),
-    linearInterpolate(rho*UD) & mesh.Sf()
-);
+// surfaceScalarField phiD
+// (
+//     IOobject
+//     (
+//         "phiD",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         writeOption2
+//     ),
+//     linearInterpolate(rho*UD) & mesh.Sf()
+// );
 
 pressureReference pressureReference
 (
