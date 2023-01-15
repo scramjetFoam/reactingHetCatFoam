@@ -65,7 +65,7 @@ forAll(specieNames,lstI)
             ==
             // -- diffusion
             fvm::laplacian(DEff*cTot, currSp)                              
-            + fvc::laplacian(DEff*currSp, cTot)       
+            // + fvc::laplacian(DEff*currSp, cTot)       
             // -- source
             + fvModels.source(dummyConcEqn, currSp)
         );

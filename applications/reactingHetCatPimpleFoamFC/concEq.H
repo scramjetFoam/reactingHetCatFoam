@@ -78,7 +78,7 @@ forAll(specieNames,lstI)
                     fvm::div((linearInterpolate(rho*(U+UD)/Mg) & mesh.Sf()), currSp)
                     ==
                     fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              
-                    + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())     
+                    // + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())     
                     + fvModels.source(dummyConcEqn, currSp)
                 );
         }
