@@ -60,6 +60,8 @@ tutorials/untested/rash*
 # tutorials/2DChannels/testMatyas/**
 tutorials/2DChannels/testTomas/**
 
+*polyMesh*
+
 diff**
 flow1D*
 
