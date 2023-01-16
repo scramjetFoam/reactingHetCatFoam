@@ -37,7 +37,7 @@
 *rhoPimpleFoam
 *rhoSimpleFoam
 dynamicCode
-log.*
+log*
 *.OpenFOAM
 ZZ_cases*
 ZZZ_res*
@@ -61,6 +61,9 @@ tutorials/untested/rash*
 tutorials/2DChannels/testTomas/**
 
 *polyMesh*
+*boundaryData*
+*postProcessing*
+
 
 diff**
 flow1D*

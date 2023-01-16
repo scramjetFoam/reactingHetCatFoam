@@ -34,8 +34,11 @@ boundaryField
     
     "(outlet|walls|inletCyl)"
     //~ {
-        //~ type            fixedValue;
-        //~ value           $internalField; // 115 degC
+			
+type	timeVaryingMappedFixedValue;			
+offset 0;			
+setAverage off;			
+mapMethod nearest;
     //~ }
     {
         type            zeroGradient;

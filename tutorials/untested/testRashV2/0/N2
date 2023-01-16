@@ -29,7 +29,11 @@ boundaryField
 
     "(outlet|walls|inletCyl)"
     {
-        type        zeroGradient;
+			
+type	timeVaryingMappedFixedValue;			
+offset 0;			
+setAverage off;			
+mapMethod nearest;
     }
     cylinder
 //   sides 

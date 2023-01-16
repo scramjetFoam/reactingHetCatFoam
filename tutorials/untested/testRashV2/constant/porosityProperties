@@ -23,8 +23,8 @@ coatZone
 
 	DarcyForchheimerCoeffs
 	{
-		d	(1 1 1);
-		dPerm dPerm [0 -2 0 0 0 0 0]	(1 1 1);
+		d	(1e12 1e12 1e12);
+		dPerm dPerm [0 -2 0 0 0 0 0]	(1e12 1e12 1e12);
 		f	(0.000000e+00 0.000000e+00 0.000000e+00);
 
 		coordinateSystem

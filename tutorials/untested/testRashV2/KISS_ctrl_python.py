@@ -1,5 +1,7 @@
 # control for reactor sim
 
+# expects decomposed case prepared for simulation
+
 import os
 
 def isInt(value):
@@ -51,7 +53,7 @@ def p(kde,value):
 
 
 
-N = 5
+N = 32
 Nzacatek = 0
 simDir = 'rashigsV10'
 simDir = 'rashigsV12'

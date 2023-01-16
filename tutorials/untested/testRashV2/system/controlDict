@@ -25,13 +25,13 @@ startTime 	    0;
 stopAt          endTime;
 // stopAt          writeNow;
 
-endTime	       5100;  //endlineLine
+endTime	       850;  //endlineLine
 
 deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval	       5100;
+writeInterval	       850;
 
 writeFormat     ascii;
 
