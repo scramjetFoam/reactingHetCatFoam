@@ -27,7 +27,7 @@ boundaryField
         value           uniform 0.00;
     }
 
-    "(outlet|walls|inletCyl)"
+    "(outlet|walls)"
     {
         type        zeroGradient;
     }

@@ -18,7 +18,7 @@ FoamFile
 dimensions      [0 0 0 1 0 0 0];
 
 //~internalField   uniform 873;
-internalField   uniform 493;
+internalField   uniform 473;
 
 boundaryField
 {
@@ -28,11 +28,11 @@ boundaryField
         //~ value           $internalField; // 34.6 degC
         //~value           uniform 873.0;
     //    value           uniform 553;
-       value           uniform 493;
+       value           uniform 473;
     }
     
     
-    "(outlet|walls|inletCyl)"
+    "(outlet|walls)"
     //~ {
         //~ type            fixedValue;
         //~ value           $internalField; // 115 degC
@@ -43,34 +43,34 @@ boundaryField
    cylinder
    
     {
-	    type zeroGradient;
-        // type            codedMixed;
-        // refValue        uniform 550;
-        // refGradient     uniform 0;
-        // valueFraction   uniform 0;
-        // value           uniform 550;
-        // name            robinFront;
-        // code            #{
-        //     const fvPatch& boundaryPatch = patch();
-        //     const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
-        //     const fvMesh& mesh = boundaryMesh.mesh();
-        //     const scalarField& delta = patch().deltaCoeffs();
-        //     const volScalarField& kappa((mesh.lookupObject<volScalarField>("kappaEff")));
-        //     const volScalarField& epsEff((mesh.lookupObject<volScalarField>("epsEff")));
-        //     const volScalarField& kappaG((mesh.lookupObject<volScalarField>("thermo:kappa")));
-        //     //~ //const volScalarField& lambda((mesh.lookupObject<volScalarField>("lambda")));
-        //     //~ scalar lambda = 90.0;
-        //     // const scalarField& lambdaTu = patch().lambda();
-        //     // scalar lambdaNikl = 90;
-        //     //~ scalar alpha_L = 150.0;
-        //     //~ //scalar alpha_L = 10;
-        //     //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
-        //     this->refValue() = 550.0;
-        //     this->refGrad() = 0.;
-        //     //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
-        //     this->valueFraction() = 1.0/(1.0+(kappa+kappaG*epsEff)/(1500.0/delta));
-        //     //~ this->valueFraction() = 1e-5;
-        // #};
+	    // type zeroGradient;
+        type            codedMixed;
+        refValue        uniform 493;
+        refGradient     uniform 0;
+        valueFraction   uniform 0;
+        value           uniform 493;
+        name            robinFront;
+        code            #{
+            const fvPatch& boundaryPatch = patch();
+            const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
+            const fvMesh& mesh = boundaryMesh.mesh();
+            const scalarField& delta = patch().deltaCoeffs();
+            const volScalarField& kappa((mesh.lookupObject<volScalarField>("kappaEff")));
+            const volScalarField& epsEff((mesh.lookupObject<volScalarField>("epsEff")));
+            const volScalarField& kappaG((mesh.lookupObject<volScalarField>("thermo:kappa")));
+            //~ //const volScalarField& lambda((mesh.lookupObject<volScalarField>("lambda")));
+            //~ scalar lambda = 90.0;
+            // const scalarField& lambdaTu = patch().lambda();
+            // scalar lambdaNikl = 90;
+            //~ scalar alpha_L = 150.0;
+            //~ //scalar alpha_L = 10;
+            //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
+            this->refValue() = 493.0;
+            this->refGrad() = 0.;
+            //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
+            this->valueFraction() = 1.0/(1.0+(kappa+kappaG*epsEff)/(100.0/delta));
+            //~ this->valueFraction() = 1e-5;
+        #};
     }
 
     
