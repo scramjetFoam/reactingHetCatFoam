@@ -70,7 +70,7 @@ for i in range(len(y10Lst)):
 plt.plot(thiele_eta[0],thiele_eta[1], label='direct computation')
 
 sort = np.argsort(thiele_eta[0])
-thiele_eta = thiele_eta[:,sort]
+thiele_eta_sorted = thiele_eta[:,sort]
 
 end_time1 = time.perf_counter()
 print('\tfinished in %g s'%(end_time1-start_time1))
@@ -80,10 +80,10 @@ print('\tfinished in %g s'%(end_time1-start_time1))
 eta_ext = []
 phi_ext = []
 
-eta1 = thiele_eta[1,-2]
-eta2 = thiele_eta[1,-1]
-phi1 = thiele_eta[0,-2]
-phi2 = thiele_eta[0,-1]
+eta1 = thiele_eta_sorted[1,-2]
+eta2 = thiele_eta_sorted[1,-1]
+phi1 = thiele_eta_sorted[0,-2]
+phi2 = thiele_eta_sorted[0,-1]
 del_phi = 1e-3
 phi = np.sqrt(phi1*phi2)
 
@@ -98,7 +98,7 @@ while phi < 1.5e2 and iter < 1e6:
     phi_new = phi+del_phi
 
     dlnetadlnphi = np.log(eta1/eta2)/np.log(phi1/phi2)
-    dyprime_1dphi = eta*phi*(dlnetadlnphi + 2)/3
+    dyprime_1dphi = eta*phi*(dlnetadlnphi+2)/3
     yprime_1 = phi**2*eta/3
     eta_new = 3/(phi_new)**2*(yprime_1 + dyprime_1dphi * del_phi)
     
@@ -130,5 +130,8 @@ plt.show()
 filename = 'etaAnal_beta_%g_gamma_%g.csv'%(beta, gamma)
 with open(filename, 'w') as f1:
     f1.writelines('phi,\t\teta\n')
-    for i in range(len(thiele_eta[0])):
+    for i in range(np.shape(thiele_eta)[1]):
         f1.writelines(['%8.6f,\t%8.6f\n'%(thiele_eta[0,i],thiele_eta[1,i])])
+    for i in range(len(phi_ext)):
+        f1.writelines(['%8.6f,\t%8.6f\n'%(phi_ext[i],eta_ext[i])])
+    
