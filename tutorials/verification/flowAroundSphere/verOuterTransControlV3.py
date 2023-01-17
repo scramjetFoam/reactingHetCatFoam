@@ -1,4 +1,4 @@
-# verOuterTransControlV2.py
+# verOuterTransControlV3.py
 # -- Script for verification simulation of conjugated mass transport
 # -- NOTE SCRIPT ARGUMENTS:
 #       -- "makeMesh": prepare mesh for each cellSize 
@@ -6,17 +6,20 @@
 #       -- "runSim": run the simulation
 #       -- "showPlots": shows Plots
 #       -- "getCsv": generate csv files for TeX plots 
+#       -- "errMesh": evaluate error mesh dependency 
+#           (for otherwise identical parameters) 
 # -- NOTE V3 changelog: 
 #       -- thieleLst + tortLst --> k0
 #       -- ReLst + R --> invLst
 #       -- flow.csv stores Thiele modulus
 #       -- removed eta_anal
 #       -- uses auxiliarFuncsV3
+#       -- added error mesh dependency tests
 
 # -- imports
 import numpy as np
 import os
-import re
+# import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys

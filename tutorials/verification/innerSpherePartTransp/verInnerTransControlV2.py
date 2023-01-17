@@ -20,7 +20,7 @@ from auxiliarFuncs import *
 
 # -- obtained from shootChandraVM.py
 nonisoT_etaAnal = 42.094    # phi = 0.5
-nonisoT_etaAnal =  7.516    # phi = 4.0
+# nonisoT_etaAnal =  7.516    # phi = 4.0
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -70,8 +70,9 @@ betaLst = [0.6]
 # cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
 
 # -- mesh tests
-thieleLst = [4.0]
-cellSizeLst = [0.8*R, 0.4*R, 0.2*R]
+thieleLst = [0.5]
+# thieleLst = [4.0]
+cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
