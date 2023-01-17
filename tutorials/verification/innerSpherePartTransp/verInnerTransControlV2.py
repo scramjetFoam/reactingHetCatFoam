@@ -5,6 +5,7 @@
 #       -- "runSim"
 #       -- "showPlots"
 #       -- "notParallel" (parallel by default)
+#       -- "errMesh"
 # -- TODO: 
 #       -- check order of the method
 
@@ -65,7 +66,7 @@ gammaLst = [20]
 betaLst = [0.6]
 # cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
 # cellSizeLst = [0.2*R, 0.4*R, 0.8*R]
-cellSizeLst = [0.4*R]
+cellSizeLst = [0.2*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
