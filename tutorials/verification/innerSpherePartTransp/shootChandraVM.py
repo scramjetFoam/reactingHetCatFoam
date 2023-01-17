@@ -44,6 +44,10 @@ y10Lst = np.concatenate((
     y10Lst6,
     ))
 
+# -- NOTE MK:   The list below is for solution at phi=0.5 rather than the full curve, 
+# --            comment out extrapolation to do that.
+# y10Lst = np.linspace(4.88e-7, 4.89e-7, 100)  
+
 start_time1 = time.perf_counter()
 print('starting computation', end='')
 thiele_eta = np.zeros((2, len(y10Lst)))
@@ -71,6 +75,7 @@ thiele_eta = thiele_eta[:,sort]
 end_time1 = time.perf_counter()
 print('\tfinished in %g s'%(end_time1-start_time1))
 
+# -- extrapolation 
 
 eta_ext = []
 phi_ext = []
@@ -106,6 +111,10 @@ end_time2 = time.perf_counter()
 print('\tfinished in %g s'%(end_time2-start_time2))
 
 plt.plot(phi_ext, eta_ext, label='extrapolation')
+
+
+# -- plotting
+
 plt.yscale('log')
 plt.xscale('log')
 plt.xlim((1e-1,1e1))
@@ -116,3 +125,10 @@ plt.title('Solution to ODE from 1961_Weisz for β=%g, γ=%g'%(beta, gamma))
 plt.legend()
 plt.show()
 
+# -- writing to .csv file
+
+filename = 'etaAnal_beta_%g_gamma_%g.csv'%(beta, gamma)
+with open(filename, 'w') as f1:
+    f1.writelines('phi,\t\teta\n')
+    for i in range(len(thiele_eta[0])):
+        f1.writelines(['%8.6f,\t%8.6f\n'%(thiele_eta[0,i],thiele_eta[1,i])])
