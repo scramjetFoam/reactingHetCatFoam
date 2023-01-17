@@ -7,48 +7,44 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
+    version     1.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      controlDict;
+    class       volVectorField;
+    location    "0";
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-//application     reactingHetCatSimpleFoam;
-application     customSolver;
+dimensions      [0 1 -1 0 0 0 0];
 
-startFrom       latestTime;
+internalField	uniform	(0.65 0 0.0);
 
-startTime 	    0;
-
-stopAt          endTime;
-// stopAt          writeNow;
-
-endTime	       8000;  //endlineLine
-
-deltaT          1;
-
-writeControl    timeStep;
-
-writeInterval	       500;
-
-writeFormat     ascii;
-
-writePrecision  10;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   8;
-
-runTimeModifiable true;
+boundaryField
+{
+    inlet
+    {
+        type    fixedValue;
+	    value	uniform (0.65 0 0.0);
+    }
+    
+    outlet
+    {
+        type            inletOutlet;
+        // type            zeroGradient;
+        value           $internalField;
+        inletValue      uniform (0 0 0);
+        phi             phi;
+    }
+    
+   cylinder 
+    {
+        type    noSlip;
+    }
+    sides
+    {
+        type    slip;
+    }
+}
 
 
 // ************************************************************************* //
-
-functions
-{
-      #include "residuals"
-}
