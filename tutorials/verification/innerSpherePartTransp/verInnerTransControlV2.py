@@ -256,10 +256,10 @@ if showPlots:
         plt.show()
         # -- error mesh dependence plot
         print(emdNp)
-        plt.plot(cellSizeLst, emdNp[1], marker='x', label='eta_err')
+        plt.plot(cellSizeLst, emdNp[1], marker='x', label='absolute η error')
         plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
         plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
-        title = 'Dependence of error on the mesh.'
+        title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
         plt.title(title)
         plt.yscale('log')
         plt.xscale('log')

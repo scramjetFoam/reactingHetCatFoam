@@ -36,6 +36,7 @@ runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
+errMesh = (True if 'errMesh' in args else False)
 
 # -- directory naming
 baseCaseDir = 'baseCase_flow'
@@ -52,8 +53,8 @@ sHr = -283e3        # standard reaction enthalpy (physical 283e3)
 T = 500             # temperature
 DFreeZ = 1e-5       # Diffusivity in fluid
 kappaEff = 1        # mass transfer coefficient
-eps = 0.5       # material porosity
-nu = 5.58622522e-05 # kinematic viscosity, NOTE MK: might be read from log, but is used for calculation
+eps = 0.5           # material porosity
+nu = 5.58622522e-05 # kinematic viscosity
 EA = 90e3           # activation energy
 
 # -- geometry
@@ -67,10 +68,19 @@ ReLst = [10,40,80,160]                          # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2,6]                               # Thiele modulus
 cellSizeLst = [0.4*R]                           # FV cell Size
-tortLst = [0.5,1,2.5,5]                       # tortuosity
+tortLst = [0.5,1,2.5,5]                         # tortuosity
 
 # == ARCHIVED SETTINGS: 
-# -- 17/11/2022 khyrm@multipede, (16 cases 0.4/(10 10)): ORIGINAL
+# 17. 1. 2023
+# -- case #1
+thieleLst = [2]
+# -- case #2
+thieleLst = [6]
+# -- both cases:
+ReLst = [80]
+invLst = [round(Re*nu/2/R,4) for Re in ReLst]
+cellSizeLst = [0.2*R, 0.4*R, 0.8*R]
+tortLst = [1]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -92,6 +102,10 @@ if makeMesh:
         os.system('./Allmesh')
         os.chdir('../../../')
     if not runSim: sys.exit()
+
+# -- numpy array for results:
+if errMesh:
+    emdNp = np.zeros((2,len(cellSizeLst)))
 
 # -- create cases for:
 cases = [(inv,cellSize,tort,thiele) for inv in invLst for cellSize in cellSizeLst for tort in tortLst for thiele in thieleLst]
@@ -163,6 +177,10 @@ for case in cases:
     # eta_sim 
     eta_sim = rS/rSqIdeal
 
+    if errMesh:
+        etaErr = abs(eta_sim-eta_corr)
+        emdNp[:,cellSizeLst.index(cellSize)] = np.array([cellSize, etaErr])
+
     log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
     os.chdir('../../')
     flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr)
@@ -192,3 +210,14 @@ if showPlots:
     for tort in tortLst:
         eta_plt(ZZZ_filepath, thiele, tort)
         # eta_err_plt(ZZZ_filepath, tortLst, invLst)
+    if errMesh:
+        print(emdNp)
+        plt.plot(cellSizeLst, emdNp[1], marker='x', label='absolute η error')
+        plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
+        plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
+        title = 'Dependence of error on the mesh for φ = %g.'%thiele
+        plt.title(title)
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.legend()
+        plt.show()
