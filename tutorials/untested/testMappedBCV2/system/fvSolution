@@ -98,6 +98,7 @@ SIMPLE
         p           1e-4;
         // U           5e-5;
         T           1e-5;
+        prod           1.5e-4;
         ethylene           1.5e-4;
         // "(CO|NO|O2|N2O|CO2)"    5e-4;
     }
@@ -109,14 +110,15 @@ relaxationFactors
     {
         p           0.05;
         U           0.1;
-        T           0.1;
-        //  "(ethylene|CO|O2|CO2)" 	 0.1;
+        T           0.5;
+        //  "(ethylene|prod|CO|O2|CO2)" 	 0.1;
     }
     equations
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(ethylene|CO|O2|CO2)" 	 0.98;
+        "(ethylene|CO|O2|CO2)" 	 0.9;
+        "(prod)" 	 0.9;
     }
 }
 // ************************************************************************* //

@@ -75,13 +75,13 @@ prod
     sigmaV      41.0;                                                      
 
     // -- molar mass in kgmol-1
-    molM        0.05026929982046678;
+    molM        0.049;
     
     // -- diffusion coef.
     // D  D  [0 2 -1 0 0 0 0] 1e-6;
     // -- stoichiometric coefficients in reactions
     // minForGrad  1e-36;                                                   //min for gradien
-    nuVec       (0.0 0.57);                                                     //row of the stoechiometric matrix                                                   
+    nuVec       (0.0 0.5714285714285714);                                                     //row of the stoechiometric matrix                                                   
     alphaVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
 }
 
