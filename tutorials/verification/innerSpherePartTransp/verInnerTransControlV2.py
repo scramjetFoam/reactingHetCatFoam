@@ -11,20 +11,20 @@
 # -- imports
 import numpy as np
 import os
-import re
+# import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
 # from shootChandra import *
-
+nonisoT_etaAnal = 42.094 # -- from shootChandraVM.py
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
 solver = solverLst[0]
 
 # -- set number of the enthalpy corrections
-numOfTCorr = 0
+numOfTCorr = 1
 isothermal = (True if numOfTCorr == 0 else False)  # isothermal logic
 
 # -- script arguments logic
@@ -33,6 +33,7 @@ runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
+errMesh = (True if 'errMesh' in args else False)
 # -- not sure why
 parallel = (False if 'notParallel' in args else True)
 
@@ -58,12 +59,13 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters
-thieleLst = [2.0]   # Thiele modulus
-TLst = [300]
+thieleLst = [0.5]   # Thiele modulus
+TLst = [800]
 gammaLst = [20]
 betaLst = [0.6]
-# cellSizeLst = [0.4*R] # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-cellSizeLst = [0.2*R, 0.3*R, 0.4*R, 0.5*R, 0.6*R, 0.7*R]
+# cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+# cellSizeLst = [0.2*R, 0.4*R, 0.8*R]
+cellSizeLst = [0.2*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -91,6 +93,8 @@ if isothermal:
     resNp2 = np.zeros((len(cellSizeLst)))
 else:
     resNp = np.zeros((2,len(thieleLst)+1))
+    if errMesh:
+        emdNp = np.zeros(2,len(cellSizeLst))
 
 # -- create cases for
 cases = [(T,thiele,cellSize,beta,gamma) for T in TLst for thiele in thieleLst for cellSize in cellSizeLst for beta in betaLst for gamma in gammaLst ]
@@ -124,7 +128,7 @@ for case in cases:
         os.chdir(caseDir)
         os.system('chmod u=rwx All*')
         if parallel: 
-            os.system('./AllrunIntraSphere-parallel') # NOTE: Only for newly created protoMeshes, change them to setup.
+            os.system('./AllrunIntraSphere-parallel')
         else:
             os.system('./AllrunIntraSphere')
 
@@ -176,9 +180,12 @@ for case in cases:
             id_parameters = (T,thiele)
             mesh_err_csv(ZZZ_path, id_parameters, cellSize, etaErrRel)
 
-    else:
+    else: # nonisothermal
         print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
         resNp[:,thieleLst.index(thiele)] = np.array([thiele,etaSim])
+        if errMesh:
+            etaErr = abs(etaSim-nonisoT_etaAnal)
+            emdNp[:,cellSizeLst.index(cellSize)] = np.array([cellSize, etaErr])
 
         # -- writing to a .csv
         if runSim or getCsv:
@@ -236,3 +243,6 @@ if showPlots:
         plt.legend()
         # plt.savefig('%s/%s'%(ZZZ_path,fileName))
         plt.show()
+        # -- error mesh dependence plot
+        plt.plot(emdNp[0], emdNp[1])
+ 
