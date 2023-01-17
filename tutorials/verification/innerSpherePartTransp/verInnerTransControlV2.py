@@ -17,7 +17,10 @@ import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
-nonisoT_etaAnal = 42.094 # -- obtained from shootChandraVM.py
+
+# -- obtained from shootChandraVM.py
+nonisoT_etaAnal = 42.094    # phi = 0.5
+nonisoT_etaAnal =  7.516    # phi = 4.0
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -51,7 +54,7 @@ yInf = 0.02      # molar fraction farfar from sphere
 p = 101325      # presure	
 Runiv = 8.314   # universal gas constant
 R = 0.1           # sphere radius
-T0 = 800     # used for multiple steady state, comment out or set to False if not used
+T0 = False     # used for multiple steady state (800), comment out or set to False if not used
 
 # -- set geometry
 domainSize = 1.1*R
@@ -59,14 +62,16 @@ tort = 2                # tortuosity
 kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
-# -- list parameters
-thieleLst = [0.5]   # Thiele modulus
+# -- list parameters [ORIGINAL]
+thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
 # cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-# cellSizeLst = [0.2*R, 0.4*R, 0.8*R]
-cellSizeLst = [0.2*R]
+
+# -- mesh tests
+thieleLst = [4.0]
+cellSizeLst = [0.8*R, 0.4*R, 0.2*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
