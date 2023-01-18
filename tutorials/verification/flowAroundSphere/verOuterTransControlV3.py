@@ -216,10 +216,11 @@ if errMesh:
     if not os.path.exists(ZZZ_path+'/errMeshcsv'):
         os.makedirs(ZZZ_path+'/errMeshcsv')
     with open(ZZZ_path+'/errMeshcsv/errMesh_phi_%g_Re_%g'%(thiele,round(Re)), 'w') as f1:
-        f1.writelines(['cellSize, \terr\n'])
+        f1.writelines(['cS, \terr\n'])
         for i in range(len(emdNp[0])):
             f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
     if showPlots:
+        title = 'Dependence of error on the mesh for φ = %g.'%thiele
         # -- centred slopes
         at = 1  # crosspoint at
         plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
@@ -233,8 +234,6 @@ if errMesh:
         
         plt.yscale('log')
         plt.xscale('log')
-        
-        title = 'Dependence of error on the mesh for φ = %g.'%thiele
         plt.title(title)
         plt.legend()
         plt.show()
