@@ -71,7 +71,7 @@ betaLst = [0.6]
 
 # -- mesh tests
 thieleLst = [0.5]
-# thieleLst = [4.0]
+thieleLst = [4.0]
 cellSizeLst = [0.8*R, 0.4*R, 0.2*R]
 
 # -- prepare prototype mesh for each cellSize
@@ -255,22 +255,30 @@ if showPlots:
         plt.legend()
         # plt.savefig('%s/%s'%(ZZZ_path,fileName))
         plt.show()
-        # -- error mesh dependence plot
-        print(emdNp)
-
-        # -- centered slopes:
-        # plt.plot(np.log(np.array(cellSizeLst)), np.log(np.array(cellSizeLst))-np.log(cellSizeLst[1]), label='slope = 1')
-        # plt.plot(np.log(np.array(cellSizeLst)), np.log(np.array(cellSizeLst)**2)-np.log(cellSizeLst[1]**2), label='slope = 2')
-        # plt.plot(np.log(np.array(cellSizeLst)), np.log(emdNp[1])-np.log(emdNp[1,1]), marker='x', linestyle='--', label='absolute η error', color='black')
-
-        # -- uncentered slopes:
-        plt.plot(cellSizeLst, emdNp[1], marker='x', label='absolute η error')
-        plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
-        plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
+if errMesh:
+    # -- error mesh dependence plot
+    print(emdNp)
+    if not os.path.exists(ZZZ_path+'/errMeshcsv'):
+        os.makedirs(ZZZ_path+'/errMeshcsv')
+    with open(ZZZ_path+'/errMeshcsv/errMesh_phi_%3.2f_beta_%g_gamma_%g'%(thiele,beta,gamma), 'w') as f1:
+        f1.writelines(['cS, \terr\n'])
+        for i in range(len(emdNp[0])):
+            f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
+    if showPlots:
+        title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
+        # -- centred slopes
+        at = 1  # crosspoint at
+        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
+        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
+        plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        
+        # -- uncentered slopes
+        # plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
+        # plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
+        # plt.plot(cellSizeLst, emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        
         plt.yscale('log')
         plt.xscale('log')
-
-        title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
         plt.title(title)
         plt.legend()
         plt.show()
