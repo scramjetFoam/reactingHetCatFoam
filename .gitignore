@@ -37,7 +37,7 @@
 *rhoPimpleFoam
 *rhoSimpleFoam
 dynamicCode
-log.*
+log*
 *.OpenFOAM
 ZZ_cases*
 ZZZ_res*
@@ -50,13 +50,20 @@ tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
 tutorials/Matyas_old/channelCaseConstructor/testMatyas/**
 tutorials/Matyas_old/channelCaseConstructor2D/testMatyas/**
 tutorials/Matyas_old/channelCaseConstructor2D/testTomas/**
+*processor*
+*residuals*
 
 
 tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
+tutorials/untested/rash*
 # tutorials/2DChannels/testMatyas/**
 # tutorials/2DChannels/testMatyas/**
 tutorials/2DChannels/testTomas/**
-tutorials/untested/rash*
+
+*polyMesh*
+*boundaryData*
+*postProcessing*
+
 
 diff**
 flow1D*

@@ -1,0 +1,66 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 10-2c6a80318abb
+Exec   : postProcess -func patchAverage(rhoU,name=outlet,patch=outlet) -parallel
+Date   : Dec 24 2022
+Time   : 02:28:00
+Host   : "centipede"
+PID    : 266559
+I/O    : uncollated
+Case   : /centipede1/hlavatyo/OpenFOAM/reactingHetCatFoam/tutorials/untested/testMappedBC
+nProcs : 12
+Slaves : 
+11
+(
+"centipede.266560"
+"centipede.266562"
+"centipede.266566"
+"centipede.266571"
+"centipede.266579"
+"centipede.266586"
+"centipede.266599"
+"centipede.266617"
+"centipede.266626"
+"centipede.266653"
+"centipede.266680"
+)
+
+Pstream initialised with:
+    floatTransfer      : 0
+    nProcsSimpleSum    : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+surfaceFieldValue patchAverage(rhoU,name=outlet,patch=outlet):
+    total faces  = 2025
+    total area   = 0.001024
+
+
+Time = 0s
+
+Reading fields:
+
+Executing functionObjects
+surfaceFieldValue patchAverage(rhoU,name=outlet,patch=outlet) write:
+--> FOAM Warning : 
+    From function virtual bool Foam::functionObjects::fieldValues::surfaceFieldValue::write()
+    in file fieldValues/surfaceFieldValue/surfaceFieldValue.C at line 813
+    Requested field rhoU not found in database and not processed
+
+
+End
+
+Finalising parallel run

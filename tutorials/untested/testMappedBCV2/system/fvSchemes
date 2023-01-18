@@ -1,0 +1,137 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+ddtSchemes
+{
+    default                             steadyState;
+}
+
+gradSchemes
+{
+    default                             Gauss linear;
+    // grad(U)                             cellLimited Gauss linear 0.5;
+}
+
+divSchemes
+{
+        //  default                             bounded Gauss upwind;
+    default                             none;
+    div(phi,U)                          bounded Gauss Minmod;
+    //    div(phi,U)                          bounded Gauss upwind;
+    //    div(phi,U)                          bounded Gauss linearUpwind grad(U);
+    //    div(phi,U)                          bounded Gauss QUICK;
+    //    div(phi,U)                          bounded Gauss UMIST;
+    //    div(phi,U)                          bounded Gauss vanLeer;
+    //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
+    //    div((phi|molM),ethylene)            bounded Gauss SFCD;
+    //    div((phi|molM),ethylene)            bounded Gauss upwind;
+    // div((interpolate((cTot*U))&Sf),prod)            bounded Gauss linearUpwind grad(prod);
+    div((interpolate((cTot*U))&Sf),prod)            bounded Gauss vanLeer01;
+    // div((interpolate((cTot*U))&Sf),ethylene)            bounded Gauss linearUpwind grad(ethylene);
+    div((interpolate((cTot*U))&Sf),ethylene)            bounded Gauss vanLeer01;
+    //    div((phi|molM),ethylene)            bounded Gauss upwind;
+     //  div((phi|molM),ethylene)            bounded Gauss linearUpwind grad(U);
+    div(phi,K)                          bounded Gauss Minmod;
+    //    div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
+    div((phi*interpolate(Cp)),T)        bounded Gauss Minmod;
+    //    div((phi*interpolate(Cp)),T)        bounded Gauss linearUpwind grad(U);
+    //   div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    div(((rho*nuEff)*dev2(T(grad(UD))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    // default                             Gauss linear limited corrected;
+    //  default                             Gauss linear uncorrected;       //orthogonal mesh
+//    // default                             Gauss upwind banana;       //orthogonal mesh
+//    default                             Gauss linear corrected;       //orthogonal mesh
+//    default                             none;       //orthogonal mesh
+
+//    default                             Gauss linear corrected;       //orthogonal mesh
+//    laplacian((rho*nuEff),U)		Gauss linear corrected;
+//    laplacian((DEff*CO),(thermo:rho|molM))		Gauss upwind MGradT uncorrected;
+//    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss upwind MGradT uncorrected;
+//    laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected; //MK
+//    laplacian((rho*rAU),p)		Gauss linear corrected;
+
+   default                             Gauss linear corrected 0.5;      //orthogonal mesh
+//    default                             Gauss linear corrected 0.7;       //orthogonal mesh
+//    laplacian((rho*nuEff),U)		Gauss linear corrected 0.5;
+//    laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 0.7;
+//    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss downwind MGradT corrected 0.7;
+//    laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 0.5;
+//    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss downwind MGradT corrected 0.5;
+//    laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT corrected 1; //MK
+//    laplacian((rho*rAU),p)		Gauss linear corrected;
+
+   // laplacian((DEff*CO2),(thermo:rho|molM))		Gauss upwind phi uncorrected;
+   // laplacian((DEff*O2),(thermo:rho|molM))		Gauss upwind phi uncorrected;
+   // laplacian((DEff*(thermo:rho|molM)),CO)		Gauss upwind phi uncorrected;
+   // laplacian((DEff*(thermo:rho|molM)),CO2)		Gauss upwind phi uncorrected;
+   // laplacian((DEff*(thermo:rho|molM)),O2)		Gauss upwind phi uncorrected;
+//    laplacian((DEff*CO),(thermo:rho|molM))		Gauss linear corrected;
+//    laplacian((DEff*CO2),(thermo:rho|molM))		Gauss linear corrected;
+//    laplacian((DEff*O2),(thermo:rho|molM))		Gauss linear corrected;
+//    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss linear corrected;
+//    laplacian((DEff*(thermo:rho|molM)),CO2)		Gauss linear corrected;
+//    laplacian((DEff*(thermo:rho|molM)),O2)		Gauss linear corrected;
+   // laplacian(kappaEff,T)		Gauss upwind phi uncorrected;
+    // laplacian(kappaEff,T)		Gauss upwind MGradT uncorrected;
+    // laplacian(kappa*epsEff,T)		Gauss upwind MGradT corrected;
+    //:MK laplacian(((kappaEff*(1-epsEff))+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected;
+    // laplacian(kappaPokus,T)		Gauss upwind MGradT uncorrected;
+    //default                             Gauss upwind banana;       //orthogonal mesh
+}
+
+interpolationSchemes
+{
+    default                             linear;
+    // default                             none;
+    flux((rho*HbyA))                    linear;
+    flux(HbyA)                          linear;
+    interpolate(rho)                    linear;
+    // interpolate(((((jedna*CO)*p)|T)|univR)) downwind MGradT;
+    // interpolate((jedna*CO)) downwind MGradT;
+    // interpolate(((((DEff*CO)*p)|T)|univR)) downwind MGradT;
+    // interpolate((DEff*CO)) downwind MGradT;
+    // interpolate(((((jedna*CO)*p)|T)|univR)) vanLeer;
+    // interpolate((jedna*CO)) vanLeer;
+    // interpolate(((((DEff*CO)*p)|T)|univR)) vanLeer;
+    // interpolate((DEff*CO)) vanLeer;
+}
+
+snGradSchemes
+{
+    default                             limited corrected 0.7;
+    // default                             uncorrected;                            // orthogonal mesh
+}
+
+fluxRequired
+{
+    default         no;
+    p;
+}
+
+wallDist
+{
+    method          meshWave;
+    correctWalls    true;
+}
+
+// ************************************************************************* //

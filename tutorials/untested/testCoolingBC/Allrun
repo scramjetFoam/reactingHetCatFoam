@@ -19,5 +19,7 @@ paraFoam -touch
 
 application=`getApplication`
 runApplication $application
+mv log.reactingHetCatSimpleFoamFC log.reactingHetCatSimpleFoamFC2
+runApplication $application
 
 runApplication intSrcSphere

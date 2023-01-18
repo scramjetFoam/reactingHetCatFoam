@@ -113,7 +113,7 @@ forAll(specieNames,lstI)
         fvm::div(phi/molMList[molMList.size()-1], currSp)
         ==
         fvm::laplacian(DEff*cTot, currSp)                              
-        + fvc::laplacian(DEff*currSp, cTot)       
+        // + fvc::laplacian(DEff*currSp, cTot)       
         // + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvOptions, linearized -- part implicit, part explicit
         + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvModels, linearized -- part implicit, part explicit
     );

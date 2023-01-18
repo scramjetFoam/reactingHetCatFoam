@@ -90,6 +90,7 @@ SIMPLE
     nTempCorrectors 1;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 3;     // n of presure corrections (not necessary on this mesh)
 
+    debug 2;
     consistent yes;
     
     residualControl

@@ -65,7 +65,7 @@ forAll(specieNames,lstI)
             ==
             // -- diffusion
             fvm::laplacian(DEff*thermo.p()/univR/thermo.T(), currSp)                              
-            + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())       
+            // + fvc::laplacian(DEff*currSp, thermo.p()/univR/thermo.T())       
             // -- source
             + fvModels.source(dummyConcEqn, currSp)
         );
