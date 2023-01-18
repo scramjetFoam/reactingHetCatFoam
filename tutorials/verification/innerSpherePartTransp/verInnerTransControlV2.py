@@ -72,7 +72,7 @@ betaLst = [0.6]
 # -- mesh tests
 thieleLst = [0.5]
 # thieleLst = [4.0]
-cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
+cellSizeLst = [0.8*R, 0.4*R, 0.2*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -257,14 +257,23 @@ if showPlots:
         plt.show()
         # -- error mesh dependence plot
         print(emdNp)
+
+        # -- centered slopes:
+        # plt.plot(np.log(np.array(cellSizeLst)), np.log(np.array(cellSizeLst))-np.log(cellSizeLst[1]), label='slope = 1')
+        # plt.plot(np.log(np.array(cellSizeLst)), np.log(np.array(cellSizeLst)**2)-np.log(cellSizeLst[1]**2), label='slope = 2')
+        # plt.plot(np.log(np.array(cellSizeLst)), np.log(emdNp[1])-np.log(emdNp[1,1]), marker='x', linestyle='--', label='absolute η error', color='black')
+
+        # -- uncentered slopes:
         plt.plot(cellSizeLst, emdNp[1], marker='x', label='absolute η error')
         plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
         plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
-        title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
-        plt.title(title)
         plt.yscale('log')
         plt.xscale('log')
+
+        title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
+        plt.title(title)
         plt.legend()
         plt.show()
+        
  
  

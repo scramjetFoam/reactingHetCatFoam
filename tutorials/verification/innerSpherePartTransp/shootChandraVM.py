@@ -112,6 +112,15 @@ print('\tfinished in %g s'%(end_time2-start_time2))
 
 plt.plot(phi_ext, eta_ext, label='extrapolation')
 
+# -- writing to .csv file
+
+filename = 'etaAnal_beta_%g_gamma_%g.csv'%(beta, gamma)
+with open(filename, 'w') as f1:
+    f1.writelines('phi,\t\teta\n')
+    for i in range(np.shape(thiele_eta)[1]):
+        f1.writelines(['%8.6f,\t%8.6f\n'%(thiele_eta[0,i],thiele_eta[1,i])])
+    for i in range(len(phi_ext)):
+        f1.writelines(['%8.6f,\t%8.6f\n'%(phi_ext[i],eta_ext[i])])
 
 # -- plotting
 
@@ -124,14 +133,3 @@ plt.ylabel('η')
 plt.title('Solution to ODE from 1961_Weisz for β=%g, γ=%g'%(beta, gamma))
 plt.legend()
 plt.show()
-
-# -- writing to .csv file
-
-filename = 'etaAnal_beta_%g_gamma_%g.csv'%(beta, gamma)
-with open(filename, 'w') as f1:
-    f1.writelines('phi,\t\teta\n')
-    for i in range(np.shape(thiele_eta)[1]):
-        f1.writelines(['%8.6f,\t%8.6f\n'%(thiele_eta[0,i],thiele_eta[1,i])])
-    for i in range(len(phi_ext)):
-        f1.writelines(['%8.6f,\t%8.6f\n'%(phi_ext[i],eta_ext[i])])
-    
