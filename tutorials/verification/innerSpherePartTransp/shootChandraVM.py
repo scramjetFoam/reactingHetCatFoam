@@ -73,7 +73,7 @@ sort = np.argsort(thiele_eta[0])
 thiele_eta_sorted = thiele_eta[:,sort]
 
 end_time1 = time.perf_counter()
-print('\tfinished in %g s'%(end_time1-start_time1))
+print('\tfinished in %6.5f s'%(end_time1-start_time1))
 
 # -- extrapolation 
 
@@ -108,7 +108,7 @@ while phi < 1.5e2 and iter < 1e6:
     phi1, phi2 = phi2, phi_new
 
 end_time2 = time.perf_counter()
-print('\tfinished in %g s'%(end_time2-start_time2))
+print('\tfinished in %6.5f s'%(end_time2-start_time2))
 
 plt.plot(phi_ext, eta_ext, label='extrapolation')
 
@@ -121,6 +121,8 @@ with open(filename, 'w') as f1:
         f1.writelines(['%8.6f,\t%8.6f\n'%(thiele_eta[0,i],thiele_eta[1,i])])
     for i in range(len(phi_ext)):
         f1.writelines(['%8.6f,\t%8.6f\n'%(phi_ext[i],eta_ext[i])])
+
+print('data written to\t\t%s'%filename)
 
 # -- plotting
 
