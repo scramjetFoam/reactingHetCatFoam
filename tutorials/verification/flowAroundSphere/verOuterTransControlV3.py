@@ -210,11 +210,18 @@ if showPlots:
     for tort in tortLst:
         eta_plt(ZZZ_filepath, thiele, tort)
         # eta_err_plt(ZZZ_filepath, tortLst, invLst)
-    if errMesh:
-        print(emdNp)
-
+if errMesh:
+    print(emdNp)
+    # NOTE MK: This is not controled by getCsv.
+    if not os.path.exists(ZZZ_path+'/errMeshcsv'):
+        os.makedirs(ZZZ_path+'/errMeshcsv')
+    with open(ZZZ_path+'/errMeshcsv/errMesh_phi_%g_Re_%g'%(thiele,round(Re)), 'w') as f1:
+        f1.writelines(['cellSize, \terr\n'])
+        for i in range(len(emdNp[0])):
+            f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
+    if showPlots:
         # -- centred slopes
-        at = 1  # crosspoint at which point
+        at = 1  # crosspoint at
         plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
         plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
         plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
