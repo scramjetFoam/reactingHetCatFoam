@@ -67,11 +67,11 @@ length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
-ReLst = [10,40,80,160]                          # Reynolds number
+ReLst = [10, 40, 80, 160]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
-thieleLst = [2,6]                               # Thiele modulus
+thieleLst = [2, 6]                              # Thiele modulus
 cellSizeLst = [0.4*R]                           # FV cell Size
-tortLst = [0.5,1,2.5,5]                         # tortuosity
+tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # == ARCHIVED SETTINGS: 
 # -- 17. 1. 2023: mesh independence tests
@@ -205,7 +205,7 @@ if getCsv:
             k0Art = DEff*(thiele/R)**2
             eta_corrNp = np.array(3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM_corrNp))
             # write to CSVs
-            with open(ZZZ_path+'/etacsv/etaCorr_phi_%g_tort%2.1f.csv'%(thiele,tort), 'w') as f1:
+            with open(ZZZ_path+'/etacsv/etaCorr_phi_%g_tort_%2.1f.csv'%(thiele,tort), 'w') as f1:
                 f1.writelines(['x, y\n'])
                 f1.writelines(['%g, %g\n'%(ReNp[i], eta_corrNp[i]) for i in range(len(ReNp))])
 
