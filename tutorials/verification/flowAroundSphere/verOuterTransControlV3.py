@@ -79,7 +79,10 @@ thieleLst = [2]
 thieleLst = [6]
 ReLst = [80]
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]
-cellSizeLst = [0.8*R, 0.4*R, 0.2*R]
+cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
+# cellSizeLst = [0.6*R, 0.5*R]
+# cellSizeLst = [0.7*R, 0.3*R]
+cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
 tortLst = [1]
 
 # -- prepare prototype mesh for each cellSize
