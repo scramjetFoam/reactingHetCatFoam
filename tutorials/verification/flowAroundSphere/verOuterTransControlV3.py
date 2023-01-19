@@ -1,4 +1,4 @@
-# verOuterTransControlV2.py
+# verOuterTransControlV3.py
 # -- Script for verification simulation of conjugated mass transport
 # -- NOTE SCRIPT ARGUMENTS:
 #       -- "makeMesh": prepare mesh for each cellSize 
@@ -6,17 +6,20 @@
 #       -- "runSim": run the simulation
 #       -- "showPlots": shows Plots
 #       -- "getCsv": generate csv files for TeX plots 
+#       -- "errMesh": evaluate error mesh dependency 
+#           (for otherwise identical parameters) 
 # -- NOTE V3 changelog: 
 #       -- thieleLst + tortLst --> k0
 #       -- ReLst + R --> invLst
 #       -- flow.csv stores Thiele modulus
 #       -- removed eta_anal
 #       -- uses auxiliarFuncsV3
+#       -- added error mesh dependency tests
 
 # -- imports
 import numpy as np
 import os
-import re
+# import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys
@@ -36,6 +39,7 @@ runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
+errMesh = (True if 'errMesh' in args else False)
 
 # -- directory naming
 baseCaseDir = 'baseCase_flow'
@@ -52,8 +56,8 @@ sHr = -283e3        # standard reaction enthalpy (physical 283e3)
 T = 500             # temperature
 DFreeZ = 1e-5       # Diffusivity in fluid
 kappaEff = 1        # mass transfer coefficient
-eps = 0.5       # material porosity
-nu = 5.58622522e-05 # kinematic viscosity, NOTE MK: might be read from log, but is used for calculation
+eps = 0.5           # material porosity
+nu = 5.58622522e-05 # kinematic viscosity
 EA = 90e3           # activation energy
 
 # -- geometry
@@ -63,14 +67,21 @@ length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
-ReLst = [10,40,80,160]                          # Reynolds number
+ReLst = [10, 40, 80, 160]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
-thieleLst = [2,6]                               # Thiele modulus
+thieleLst = [2, 6]                              # Thiele modulus
 cellSizeLst = [0.4*R]                           # FV cell Size
-tortLst = [0.5,1,2.5,5]                       # tortuosity
+tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # == ARCHIVED SETTINGS: 
-# -- 17/11/2022 khyrm@multipede, (16 cases 0.4/(10 10)): ORIGINAL
+# -- 17. 1. 2023: mesh independence tests
+thieleLst = [2]
+thieleLst = [6]
+ReLst = [80]
+invLst = [round(Re*nu/2/R,4) for Re in ReLst]
+# cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
+cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
+tortLst = [1]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -92,6 +103,10 @@ if makeMesh:
         os.system('./Allmesh')
         os.chdir('../../../')
     if not runSim: sys.exit()
+
+# -- numpy array for results:
+if errMesh:
+    emdNp = np.zeros((2,len(cellSizeLst)))
 
 # -- create cases for:
 cases = [(inv,cellSize,tort,thiele) for inv in invLst for cellSize in cellSizeLst for tort in tortLst for thiele in thieleLst]
@@ -163,6 +178,10 @@ for case in cases:
     # eta_sim 
     eta_sim = rS/rSqIdeal
 
+    if errMesh:
+        etaErr = abs(eta_sim-eta_corr)
+        emdNp[:,cellSizeLst.index(cellSize)] = np.array([cellSize, etaErr])
+
     log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
     os.chdir('../../')
     flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr)
@@ -184,7 +203,7 @@ if getCsv:
             k0Art = DEff*(thiele/R)**2
             eta_corrNp = np.array(3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM_corrNp))
             # write to CSVs
-            with open(ZZZ_path+'/etacsv/etaCorr_phi_%g_tort%2.1f.csv'%(thiele,tort), 'w') as f1:
+            with open(ZZZ_path+'/etacsv/etaCorr_phi_%g_tort_%2.1f.csv'%(thiele,tort), 'w') as f1:
                 f1.writelines(['x, y\n'])
                 f1.writelines(['%g, %g\n'%(ReNp[i], eta_corrNp[i]) for i in range(len(ReNp))])
 
@@ -192,3 +211,30 @@ if showPlots:
     for tort in tortLst:
         eta_plt(ZZZ_filepath, thiele, tort)
         # eta_err_plt(ZZZ_filepath, tortLst, invLst)
+if errMesh:
+    print(emdNp)
+    # NOTE MK: This is not controled by getCsv.
+    if not os.path.exists(ZZZ_path+'/errMeshcsv'):
+        os.makedirs(ZZZ_path+'/errMeshcsv')
+    with open(ZZZ_path+'/errMeshcsv/errMesh_phi_%g_Re_%g'%(thiele,round(Re)), 'w') as f1:
+        f1.writelines(['cS, \terr\n'])
+        for i in range(len(emdNp[0])):
+            f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
+    if showPlots:
+        title = 'Dependence of error on the mesh for φ = %g.'%thiele
+        # -- centred slopes
+        at = -1  # crosspoint at
+        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
+        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
+        plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        
+        # -- uncentered slopes
+        # plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
+        # plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
+        # plt.plot(cellSizeLst, emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.title(title)
+        plt.legend()
+        plt.show()

@@ -5,26 +5,29 @@
 #       -- "runSim"
 #       -- "showPlots"
 #       -- "notParallel" (parallel by default)
+#       -- "errMesh"
 # -- TODO: 
 #       -- check order of the method
 
 # -- imports
 import numpy as np
 import os
-import re
+# import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
-# from shootChandra import *
 
+# -- obtained from shootChandraVM.py
+nonisoT_etaAnal = 42.094    # phi = 0.5
+nonisoT_etaAnal =  7.516    # phi = 4.0
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
 solver = solverLst[0]
 
 # -- set number of the enthalpy corrections
-numOfTCorr = 0
+numOfTCorr = 1
 isothermal = (True if numOfTCorr == 0 else False)  # isothermal logic
 
 # -- script arguments logic
@@ -33,6 +36,7 @@ runSim = (True if 'runSim' in args else False)
 showPlots = (True if 'showPlots' in args else False)
 makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
+errMesh = (True if 'errMesh' in args else False)
 # -- not sure why
 parallel = (False if 'notParallel' in args else True)
 
@@ -44,12 +48,15 @@ ZZZ_path = 'ZZZ_res'
 if isothermal: ZZZ_path += '_isoT'
 # ZZZ_file = 'mult_steadySt'
 # ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
+if not os.path.exists(ZZZ_path): os.mkdir(ZZZ_path)
+if not os.path.exists(outFolder): os.mkdir(outFolder)
 
 # -- set case parameters
 yInf = 0.02      # molar fraction farfar from sphere
 p = 101325      # presure	
 Runiv = 8.314   # universal gas constant
 R = 0.1           # sphere radius
+T0 = False     # used for multiple steady state (800), comment out or set to False if not used
 
 # -- set geometry
 domainSize = 1.1*R
@@ -57,13 +64,19 @@ tort = 2                # tortuosity
 kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
-# -- list parameters
-thieleLst = [2.0]   # Thiele modulus
+# -- list parameters [ORIGINAL]
+thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-# cellSizeLst = [0.4*R] # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-cellSizeLst = [0.2*R, 0.3*R, 0.4*R, 0.5*R, 0.6*R, 0.7*R]
+cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+
+# -- mesh tests
+thieleLst = [0.5]
+# thieleLst = [4.0]
+# cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
+cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R]  # khyrm@millipede
+# cellSizeLst = [0.4*R, 0.3*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -91,6 +104,8 @@ if isothermal:
     resNp2 = np.zeros((len(cellSizeLst)))
 else:
     resNp = np.zeros((2,len(thieleLst)+1))
+    if errMesh:
+        emdNp = np.zeros((2,len(cellSizeLst)))
 
 # -- create cases for
 cases = [(T,thiele,cellSize,beta,gamma) for T in TLst for thiele in thieleLst for cellSize in cellSizeLst for beta in betaLst for gamma in gammaLst ]
@@ -102,6 +117,7 @@ for case in cases:
     DEff = DFree/tort*0.5
     sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
     k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
+    if not T0: T0 = T
 
     caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g_T_%g'%(thiele,beta,cellSize,T)
     caseDir = '%s/%s/'%(outFolder,caseName)
@@ -114,7 +130,8 @@ for case in cases:
         # -- copy files
         sh.copytree(meshDir,caseDir)
         # -- change the case files
-        changeInCaseFolders(caseDir,'0.org/T',['isoT'],[str(T)])
+        # changeInCaseFolders(caseDir,'0.org/T',['isoT'],[str(T)]) # NOTE MK: modified to capture multiple steady states
+        changeInCaseFolders(caseDir,'0.org/T',['initT','boundT'],[str(T0),str(T)])
         changeInCaseFolders(caseDir,'0.org/CO',['yCOSet'],[str(yInf)])
         changeInCaseFolders(caseDir,'system/controlDict',['customSolver'],[solver])
         changeInCaseFolders(caseDir,'system/fvSolution',['nTCorr'],[str(numOfTCorr)])
@@ -124,7 +141,7 @@ for case in cases:
         os.chdir(caseDir)
         os.system('chmod u=rwx All*')
         if parallel: 
-            os.system('./AllrunIntraSphere-parallel') # NOTE: Only for newly created protoMeshes, change them to setup.
+            os.system('./AllrunIntraSphere-parallel')
         else:
             os.system('./AllrunIntraSphere')
 
@@ -176,9 +193,12 @@ for case in cases:
             id_parameters = (T,thiele)
             mesh_err_csv(ZZZ_path, id_parameters, cellSize, etaErrRel)
 
-    else:
+    else: # nonisothermal
         print('beta',beta,'thiele',thiele,'etaSim',etaSim,'R',R,'k0Art',k0Art,'Deff',DEff)
         resNp[:,thieleLst.index(thiele)] = np.array([thiele,etaSim])
+        if errMesh:
+            etaErr = abs(etaSim-nonisoT_etaAnal)
+            emdNp[:,cellSizeLst.index(cellSize)] = np.array([cellSize, etaErr])
 
         # -- writing to a .csv
         if runSim or getCsv:
@@ -209,7 +229,7 @@ if showPlots:
         # plt.plot(cellSizeLst,resNp2[1],label='whole sol diff (STF)')
         plt.plot(cellSizeLst,cellSizeLst,label='slope = 1')
         plt.plot(cellSizeLst,np.array(cellSizeLst)**2,label='slope = 2')
-        title = 'Dependence of the error on the mesh.'
+        title = 'Dependence of error on the mesh.'
         fileName = 'error_mesh.png'
         plt.title(title)
         plt.xlabel('FV cell size')
@@ -221,13 +241,16 @@ if showPlots:
         plt.show()
     else:
         # -- eta-thiele diagram
-        with open('baseCase/analRes06.csv' ,'r') as fl:
+        with open('baseCase/analRes06.csv', 'r') as fl:
+        # with open('etaAnal_beta_%g_gamma_%g.csv'%(beta,gamma),'r') as fl:
             lines = fl.readlines()
         analRes = np.zeros((len(lines)-1,2))
         for i in range(1,len(lines)):
             analRes[i-1,:] = np.array(lines[i].split(',')) 
         plt.plot(analRes[:,0], analRes[:,1],'r',label='anal. res')
         plt.plot(resNp[0,:],resNp[1,:],'x',label='sim res.')
+        plt.xlim((1e-1,1e1))
+        plt.ylim((1e0,1e2))
         title = 'Multiple steady states.'
         fileName = 'mult_steadySt.png'
         plt.title(title)
@@ -236,3 +259,33 @@ if showPlots:
         plt.legend()
         # plt.savefig('%s/%s'%(ZZZ_path,fileName))
         plt.show()
+if errMesh:
+    # -- error mesh dependence plot
+    print(emdNp)
+    if not os.path.exists(ZZZ_path+'/errMeshcsv'):
+        os.makedirs(ZZZ_path+'/errMeshcsv')
+    with open(ZZZ_path+'/errMeshcsv/errMesh_phi_%3.2f_beta_%g_gamma_%g'%(thiele,beta,gamma), 'w') as f1:
+        f1.writelines(['cS, \terr\n'])
+        for i in range(len(emdNp[0])):
+            f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
+    if showPlots:
+        title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
+        # -- centred slopes
+        at = 1  # crosspoint at
+        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
+        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
+        plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        
+        # -- uncentered slopes
+        # plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
+        # plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
+        # plt.plot(cellSizeLst, emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.title(title)
+        plt.legend()
+        plt.show()
+        
+ 
+ 
