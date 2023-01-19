@@ -85,19 +85,19 @@ volScalarField rho
     p/univR/thermo.T()*Mg
 );
 
-volScalarField cTot
-(
-    IOobject
-    (
-        "cTot",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption1
-    ),
-    // thermo.rho()
-    p/univR/thermo.T()
-);
+// volScalarField cTot
+// (
+//     IOobject
+//     (
+//         "cTot",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         writeOption1
+//     ),
+//     // thermo.rho()
+//     p/univR/thermo.T()
+// );
 
 
 #include "compressibleCreatePhi.H"

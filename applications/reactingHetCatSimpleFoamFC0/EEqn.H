@@ -59,5 +59,8 @@
 
     thermo.correct();
 
+    rho = thermo.p()/univR/thermo.T()*Mg;
+    thermo.rho() = rho;
+
     Info << "Min (thermo.T): " << min(thermo.T()).value() << ", max (thermo.T): " << max(thermo.T()).value() << "." << endl;
 }

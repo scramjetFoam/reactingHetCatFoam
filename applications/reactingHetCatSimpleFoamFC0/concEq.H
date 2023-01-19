@@ -61,10 +61,10 @@ forAll(specieNames,lstI)
         fvScalarMatrix concEq
         (
             // -- convection
-            fvm::div((linearInterpolate(cTot*(U)) & mesh.Sf()), currSp)
+            fvm::div(phi/fvc::interpolate(Mg), currSp)
             ==
             // -- diffusion
-            fvm::laplacian(DEff*cTot, currSp)                              
+            fvm::laplacian(DEff*rho/Mg, currSp)                              
             // + fvc::laplacian(DEff*currSp, cTot)       
             // -- source
             + fvModels.source(dummyConcEqn, currSp)
@@ -127,3 +127,8 @@ if (diffusion == "FickConv")
     // UD.correctBoundaryConditions();
 }
 
+Mg = 0*Mg;
+forAll(specieNames,lstI)
+{
+    Mg += MFrList[lstI] * molMList[lstI];
+}

@@ -130,21 +130,16 @@
     // rho = p/univR/T*molMList[molMList.size()-1];
     
     // -- update gas molar mass
-    Mg = 0*Mg;
-    forAll(specieNames,lstI)
-    {
-        Mg += MFrList[lstI] * molMList[lstI];
-    }
 
     // Info <<max(rho)<<endl;
 
     // -- update rho
-    rho = thermo.p()/univR/thermo.T()*Mg;
+    rho = p/univR/thermo.T()*Mg;
     thermo.rho() = rho;
 
-    // -- update cTot
-    cTot = p/univR/thermo.T();
-    cTot.correctBoundaryConditions();
+    // // -- update cTot
+    // cTot = p/univR/thermo.T();
+    // cTot.correctBoundaryConditions();
 
     // Info <<max(rho)<<endl;
     
