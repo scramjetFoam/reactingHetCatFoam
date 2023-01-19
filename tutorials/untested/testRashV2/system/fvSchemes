@@ -30,10 +30,10 @@ gradSchemes
 divSchemes
 {
         //  default                             bounded Gauss upwind;
-    default                             none;
+    default                             bounded Gauss Minmod;
     div(phi,U)                          bounded Gauss Minmod;
     //    div(phi,U)                          bounded Gauss upwind;
-    //    div(phi,U)                          bounded Gauss linearUpwind grad(U);
+        // div(phi,U)                          bounded Gauss linearUpwind grad(U);
     //    div(phi,U)                          bounded Gauss QUICK;
     //    div(phi,U)                          bounded Gauss UMIST;
     //    div(phi,U)                          bounded Gauss vanLeer;
@@ -48,8 +48,8 @@ divSchemes
      //  div((phi|molM),ethylene)            bounded Gauss linearUpwind grad(U);
     div(phi,K)                          bounded Gauss Minmod;
     //    div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
-    div((phi*interpolate(Cp)),T)        bounded Gauss Minmod;
-    //    div((phi*interpolate(Cp)),T)        bounded Gauss linearUpwind grad(U);
+    // div((phi*interpolate(Cp)),T)        bounded Gauss Minmod;
+       div((phi*interpolate(Cp)),T)        bounded Gauss linearUpwind grad(T);
     //   div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div(((rho*nuEff)*dev2(T(grad(UD))))) Gauss linear;

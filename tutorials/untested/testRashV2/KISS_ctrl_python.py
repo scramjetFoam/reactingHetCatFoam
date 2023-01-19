@@ -78,7 +78,7 @@ scalarfields = ['T','ethylene','prod','N2']
 vectorfields = ['U']
 fields = "'(T ethylene U p prod N2)'"
 # nIt = 850
-nIt = 850
+nIt = 1500
 
 whenChange = [0,7,22, 26]
 values = [55000*1.1,75000*1.1,91700*1.1]

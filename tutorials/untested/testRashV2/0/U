@@ -23,8 +23,11 @@ boundaryField
 {
     inlet
     {
-        type    fixedValue;
-	    value	uniform (0.65 0 0.0);
+			
+type	timeVaryingMappedFixedValue;			
+offset (0 0 0);			
+setAverage off;			
+mapMethod nearest;
     }
     
     outlet

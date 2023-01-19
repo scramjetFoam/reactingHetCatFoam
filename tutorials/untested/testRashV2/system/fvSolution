@@ -86,8 +86,8 @@ solvers
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors 2;              // n of concentration calculations for each specie
-    nTempCorrectors 2;	            // n of temperature corrections 
+    nConcCorrectors 1;              // n of concentration calculations for each specie
+    nTempCorrectors 1;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
 
     debug 2;
@@ -111,14 +111,14 @@ relaxationFactors
         p           0.05;
         U           0.1;
         T           0.5;
-        //  "(ethylene|prod|CO|O2|CO2)" 	 0.1;
+         "(ethylene|prod|CO|O2|CO2)" 	 0.5;
     }
     equations
     {
-        "(p|U)" 0.9;
+        "(p|U)" 0.85;
         "(T)" 0.98;
-        "(ethylene|CO|O2|CO2)" 	 0.9;
-        "(prod)" 	 0.9;
+        "(ethylene|prod|CO|O2|CO2)" 	 0.1;
+        // "(prod)" 	 0.9;
     }
 }
 // ************************************************************************* //
