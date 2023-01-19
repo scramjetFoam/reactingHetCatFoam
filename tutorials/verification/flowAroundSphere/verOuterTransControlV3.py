@@ -221,7 +221,7 @@ if errMesh:
         for i in range(len(emdNp[0])):
             f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
     if showPlots:
-        title = 'Dependence of error on the mesh for φ = %g.'%thiele
+        title = 'Dependence of error on the mesh for φ = %g, Re = %g.'%(thiele,Re)
         # -- centred slopes
         at = -1  # crosspoint at
         plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
