@@ -276,6 +276,7 @@ if errMesh:
         # -- numerical slope fit
         try:
             fit, slope = logfit(emdNp)
+            print('slope =', slope)
         except NameError:
             fit = emdNp[1]
             slope = 0
