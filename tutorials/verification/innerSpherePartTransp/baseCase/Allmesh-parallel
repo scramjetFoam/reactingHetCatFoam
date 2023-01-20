@@ -1,0 +1,16 @@
+#!/bin/sh
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm -rf 0
+mkdir 0
+cp -rf 0.org/* 0
+
+# generate geometry
+runApplication blockMesh
+runApplication decomposePar
+runParallel snappyHexMesh -overwrite -dict system/snappyHexMeshDictIntraTrans
+runApplication reconstructPar
+runApplication topoSet
+
+# create .OpenFOAM file
+paraFoam -touch

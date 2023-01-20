@@ -12,11 +12,3 @@ runApplication topoSet
 
 # create .OpenFOAM file
 paraFoam -touch
-
-# run the solver
-application=`getApplication`
-runApplication $application
-
-# postprocessing
-runApplication postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))'
-runApplication intSrcSphere

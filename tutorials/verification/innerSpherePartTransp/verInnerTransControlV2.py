@@ -20,7 +20,7 @@ from auxiliarFuncs import *
 
 # -- obtained from shootChandraVM.py
 nonisoT_etaAnal = 42.094    # phi = 0.5
-# nonisoT_etaAnal =  7.516    # phi = 4.0
+nonisoT_etaAnal =  7.516    # phi = 4.0
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -75,8 +75,7 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 # -- mesh tests
 thieleLst = [0.5]
 thieleLst = [4.0]
-# cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
-cellSizeLst = [1.6*R, 0.8*R, 0.4*R]
+cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -93,7 +92,7 @@ if makeMesh:
         changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
         os.chdir(meshDir)
         os.system('chmod u=rwx All*') # Just to make sure.
-        os.system('./AllmeshIntraSphere')
+        os.system('./Allmesh')
         os.chdir('../../../')
     if not runSim:
         sys.exit()
@@ -145,9 +144,9 @@ for case in cases:
         os.chdir(caseDir)
         os.system('chmod u=rwx All*')
         if parallel: 
-            os.system('./AllrunIntraSphere-parallel')
+            os.system('./Allrun-parallel')
         else:
-            os.system('./AllrunIntraSphere')
+            os.system('./Allrun')
 
     else:
         os.chdir(caseDir)

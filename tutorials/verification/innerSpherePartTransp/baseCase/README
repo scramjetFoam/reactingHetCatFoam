@@ -1,0 +1,17 @@
+# Allrun
+#   -- serial mesh generation
+#   -- serial solver run
+
+# Allrun-parallel
+#   -- serial mesh generation
+#   -- parallel solver run
+
+# Allmesh
+#   -- serial mesh generation
+
+# Allmesh-parallel
+#   -- parallel mesh generation
+
+# Allrun-fullparallel
+#   -- parallel mesh generation
+#   -- parallel solver run
