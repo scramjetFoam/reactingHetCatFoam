@@ -92,7 +92,6 @@ if makeMesh:
         sh.copytree(baseCaseDir,meshDir)
         changeInCaseFolders(meshDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
         changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-        changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
         os.chdir(meshDir)
         os.system('chmod u=rwx All*') # NOTE: Just to make sure.
         os.system('./Allmesh')

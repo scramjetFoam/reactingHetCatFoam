@@ -75,12 +75,12 @@ tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # == ARCHIVED SETTINGS: 
 # -- 17. 1. 2023: mesh independence tests
-thieleLst = [2]
-thieleLst = [6]
+thieleLst = [2,6]
 ReLst = [80]
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]
 # cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
-cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
+# cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
+cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
 tortLst = [1]
 
 # -- prepare prototype mesh for each cellSize
@@ -97,7 +97,6 @@ if makeMesh:
         sh.copytree(baseCaseDir,meshDir)
         changeInCaseFolders(meshDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
         changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-        changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
         os.chdir(meshDir)
         os.system('chmod u=rwx All*') # NOTE MK: Just to make sure.
         os.system('./Allmesh')

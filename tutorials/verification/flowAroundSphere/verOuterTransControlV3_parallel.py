@@ -11,8 +11,7 @@ import sys
 from auxiliarFuncsV3 import *
 
 # -- set solver to be used
-solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO']
-solver = solverLst[0]
+solver = 'reactingHetCatSimpleFoam'
 
 # -- script arguments logic
 args = sys.argv
@@ -48,11 +47,11 @@ width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
 # thieleLst = [2,6]       # Thiele modulus
-thieleLst = [2]
+thieleLst = [2,6]
 ReLst = [80]            # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst] # inlet velocity
 # cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]  # FV cell Size
-cellSizeLst = [0.4*R]
+cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
 tortLst = [1]           # tortuosity
 
 # -- create cases for:
@@ -78,7 +77,6 @@ for case in cases:
     # -- write parameters
     changeInCaseFolders(caseDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
     changeInCaseFolders(caseDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-    changeInCaseFolders(caseDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
     changeInCaseFolders(caseDir,'0.org/T',['isoT'],[str(T)])
     changeInCaseFolders(caseDir,'0.org/CO',['yCOSet'],[str(yInf)])
     changeInCaseFolders(caseDir,'0.org/U', ['inv'],[str(inv)])
@@ -89,6 +87,6 @@ for case in cases:
     # -- run simulation
     os.chdir(caseDir)
     os.system('chmod u=rwx All*')
-    os.system('./Allrun-fullParallel')
+    os.system('python3 Allrun.py')
 
     os.chdir('../../')
