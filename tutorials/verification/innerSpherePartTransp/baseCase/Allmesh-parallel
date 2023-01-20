@@ -9,7 +9,7 @@ cp -rf 0.org/* 0
 runApplication blockMesh
 runApplication decomposePar
 runParallel snappyHexMesh -overwrite -dict system/snappyHexMeshDictIntraTrans
-runApplication reconstructPar
+runApplication reconstructParMesh -latestTime
 runApplication topoSet
 
 # create .OpenFOAM file

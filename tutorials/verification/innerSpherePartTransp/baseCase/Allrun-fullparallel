@@ -9,7 +9,7 @@ cp -rf 0.org/* 0
 runApplication blockMesh
 runApplication decomposePar
 runParallel snappyHexMesh -overwrite -dict system/snappyHexMeshDictIntraTrans
-runApplication reconstructPar
+runApplication reconstructParMesh -latestTime
 runApplication topoSet
 
 # create .OpenFOAM file
@@ -17,7 +17,6 @@ paraFoam -touch
 
 # cleaning
 mv log.decomposePar log2.decomposePar
-mv log.reconstructPar log2.reconstructPar
 rm processor* -rf
 
 # running the solver
@@ -26,7 +25,7 @@ application=`getApplication`
 runParallel $application
 mv log.$application log2.$application
 runParallel $application
-runApplication reconstructPar
+runApplication reconstructPar -latestTime
 
 # postprocessing
 runApplication postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))'
