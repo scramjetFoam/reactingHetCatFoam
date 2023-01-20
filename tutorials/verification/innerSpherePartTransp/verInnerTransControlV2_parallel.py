@@ -82,5 +82,5 @@ for case in cases:
     # -- make mesh && run simulation        
     os.chdir(caseDir)
     os.system('chmod u=rwx All*')        
-    os.system('./AllmeshrunIntraSphere-parallel')
+    os.system('./Allrun-fullparallel')
     os.chdir('../../')
