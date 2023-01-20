@@ -221,17 +221,18 @@ if errMesh:
         for i in range(len(emdNp[0])):
             f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
     if showPlots:
-        title = 'Dependence of error on the mesh for φ = %g, Re = %g.'%(thiele,Re)
-        # -- centred slopes
-        at = -1  # crosspoint at
-        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
-        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
-        plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
-        
-        # -- uncentered slopes
-        # plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
-        # plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
-        # plt.plot(cellSizeLst, emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        title = 'Dependence of error on the mesh for φ = %g, Re = %g, Deff/DFree = %g.'%(thiele,Re, DEff/DFree)        # -- numerical slope fit
+        # -- numerical slope fit
+        fit = np.array(logfit(emdNp))
+        # -- centerinhg
+        at = -1
+        # at = False
+        if at: b, c, d = emdNp[0,at], emdNp[1,at], fit[at]
+        else:  b, c, d = 1, 1, 1
+        plt.plot(emdNp[0], emdNp[1], marker='x', linewidth=0, label='absolute η error', color='black')
+        plt.plot(emdNp[0], fit/d*c, linestyle='--', label='error slope fit', color='black')
+        plt.plot(emdNp[0], (emdNp[0])/b*c, label='slope = 1')
+        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2)*c, label='slope = 2')
         
         plt.yscale('log')
         plt.xscale('log')

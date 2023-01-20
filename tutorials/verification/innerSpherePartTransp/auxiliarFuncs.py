@@ -4,6 +4,7 @@ import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys
+from scipy.stats import linregress
 
 
 def isFloat(val):
@@ -221,3 +222,9 @@ def mesh_err_csv(ZZZ_path, id_parameters, cell_size, err):
     with open(ZZZ_filepath, 'a') as f2:
         f2.writelines(['%g,%g\n'%(cell_size, err)])
 
+
+# == regression for error mesh dependence
+def logfit(emdNp):
+    lr = linregress(np.log(emdNp))
+    l = lambda x : (x**lr.slope)*np.exp(lr.intercept)
+    return l(emdNp[0])

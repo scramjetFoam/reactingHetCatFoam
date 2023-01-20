@@ -17,10 +17,11 @@ import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
+from scipy.stats import linregress
 
 # -- obtained from shootChandraVM.py
 nonisoT_etaAnal = 42.094    # phi = 0.5
-nonisoT_etaAnal =  7.516    # phi = 4.0
+# nonisoT_etaAnal =  7.516    # phi = 4.0
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -57,6 +58,7 @@ p = 101325      # presure
 Runiv = 8.314   # universal gas constant
 R = 0.1           # sphere radius
 T0 = False     # used for multiple steady state (800), comment out or set to False if not used
+# T0 = 800
 
 # -- set geometry
 domainSize = 1.1*R
@@ -74,9 +76,8 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 # -- mesh tests
 thieleLst = [0.5]
 # thieleLst = [4.0]
-# cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
-cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R]  # khyrm@millipede
-# cellSizeLst = [0.4*R, 0.3*R]
+# cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
+cellSizeLst = [0.8*R, 0.4*R, 0.1*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -124,6 +125,7 @@ for case in cases:
     meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
 
     if runSim:
+        print('--------------------------')
         print('Preparing case %s'%caseName)
         # -- check that caseDir is clean
         if os.path.isdir(caseDir): sh.rmtree(caseDir)
@@ -215,7 +217,6 @@ for case in cases:
             # -- TODO: Only write new values
             with open(csv_file, 'a') as f3: f3.writelines(['%s,%s\n'%(str(thiele),str(etaSim))])
 
-
     os.chdir('../../')
 
 
@@ -270,16 +271,17 @@ if errMesh:
             f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
     if showPlots:
         title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
-        # -- centred slopes
-        at = 1  # crosspoint at
-        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
-        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
-        plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
-        
-        # -- uncentered slopes
-        # plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
-        # plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
-        # plt.plot(cellSizeLst, emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        # -- numerical slope fit
+        fit = np.array(logfit(emdNp))
+        # -- centerinhg
+        at = -1
+        # at = False
+        if at: b, c, d = emdNp[0,at], emdNp[1,at], fit[at]
+        else:  b, c, d = 1, 1, 1
+        plt.plot(emdNp[0], emdNp[1], marker='x', linewidth=0, label='absolute η error', color='black')
+        plt.plot(emdNp[0], fit/d*c, linestyle='--', label='error slope fit', color='black')
+        plt.plot(emdNp[0], (emdNp[0])/b*c, label='slope = 1')
+        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2)*c, label='slope = 2')
         
         plt.yscale('log')
         plt.xscale('log')
