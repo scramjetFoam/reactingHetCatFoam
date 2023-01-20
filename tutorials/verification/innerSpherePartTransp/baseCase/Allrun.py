@@ -3,7 +3,6 @@ from sys import exit
 
 solver = False
 np = False
-
 # np = '4'
 # solver = 'reactingHetCatSimpleFoam'
 
@@ -12,19 +11,18 @@ with open('system/controlDict', mode='r') as f1:
     for line in lines:
         if 'application' in line and line[0] != '/':
             solver = line.split(' ')[-1][:-2]
-            print(solver)
+            # print(solver)
 
 with open('system/decomposeParDict', mode='r') as f2:
     lines = f2.readlines()
     for line in lines:
         if 'numberOfSubdomains' in line and line[0] != '/':
             np = line.split('\t')[-1][:-2]
-            print(np)
+            # print(np)
 
 if (not np) or (not solver):
     print('solver or np not found')
     exit()
-
 
 system('rm -rf 0')
 system('mkdir 0')

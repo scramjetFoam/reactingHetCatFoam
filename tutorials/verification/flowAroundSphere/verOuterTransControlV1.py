@@ -92,9 +92,6 @@ flow = True
 cellSizeLst = [0.7*R]  # FV cell Size
 
 # MK: change naming for flow
-if flow:
-    baseCaseDir += '_flow'
-    outFolder += '_flow'
 if isothermal:
     outFolder += '_isoT'
 
@@ -256,7 +253,6 @@ for flowInd in range(len(tortLst)):
 
 # create &or name directory for res plot:
 dirName = 'ZZZ_res'
-if flow:    dirName += '_flow'
 if isothermal: dirName += '_isoT'
 if not os.path.exists(dirName): os.mkdir(dirName)
 

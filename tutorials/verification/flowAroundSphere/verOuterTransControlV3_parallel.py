@@ -18,8 +18,8 @@ solver = solverLst[0]
 args = sys.argv
 
 # -- directory naming
-baseCaseDir = 'baseCase_flow'
-outFolder = 'ZZ_cases_flow'
+baseCaseDir = 'baseCase'
+outFolder = 'ZZ_cases'
 ZZZ_path = 'ZZZ_res'
 ZZZ_file = 'flow.csv'
 ZZZ_filepath = ZZZ_path+'/'+ZZZ_file

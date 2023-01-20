@@ -42,8 +42,8 @@ getCsv = (True if 'getCsv' in args else False)
 errMesh = (True if 'errMesh' in args else False)
 
 # -- directory naming
-baseCaseDir = 'baseCase_flow'
-outFolder = 'ZZ_cases_flow'
+baseCaseDir = 'baseCase'
+outFolder = 'ZZ_cases'
 ZZZ_path = 'ZZZ_res'
 ZZZ_file = 'flow.csv'
 ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
@@ -222,20 +222,28 @@ if errMesh:
             f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
     if showPlots:
         title = 'Dependence of error on the mesh for φ = %g, Re = %g, Deff/DFree = %g.'%(thiele,Re, DEff/DFree)        # -- numerical slope fit
-        # -- numerical slope fit
-        fit = np.array(logfit(emdNp))
+       # -- numerical slope fit
+        try:
+            fit, slope = logfit(emdNp)
+        except NameError:
+            fit = emdNp[1]
+            slope = 0
+            print('Warning: missing scipy')
         # -- centerinhg
         at = -1
         # at = False
         if at: b, c, d = emdNp[0,at], emdNp[1,at], fit[at]
         else:  b, c, d = 1, 1, 1
-        plt.plot(emdNp[0], emdNp[1], marker='x', linewidth=0, label='absolute η error', color='black')
-        plt.plot(emdNp[0], fit/d*c, linestyle='--', label='error slope fit', color='black')
-        plt.plot(emdNp[0], (emdNp[0])/b*c, label='slope = 1')
-        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2)*c, label='slope = 2')
+        # plt.plot(emdNp[0], emdNp[1]/c, marker='x', linewidth=0, label='absolute η error', color='black')
+        plt.plot(emdNp[0], fit/d, linestyle='--', label='slope fit = %3.2f'%slope, color='black')
+        plt.plot(emdNp[0], (emdNp[0])/b, label='slope = 1')
+        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2), label='slope = 2')
         
         plt.yscale('log')
         plt.xscale('log')
         plt.title(title)
         plt.legend()
         plt.show()
+        
+ 
+ 
