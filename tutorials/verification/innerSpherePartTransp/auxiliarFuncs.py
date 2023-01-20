@@ -233,4 +233,4 @@ if not noscipy:
     def logfit(emdNp):
         lr = linregress(np.log(emdNp))
         l = lambda x : (x**lr.slope)*np.exp(lr.intercept)
-        return l(emdNp[0])
+        return l(emdNp[0]), lr.slope

@@ -109,7 +109,7 @@ forAll(specieNames,lstI)
         // fvm::div(linearInterpolate(U*cTot) & mesh.Sf(), currSp)
         ==
         fvm::laplacian(DEff*cTot, currSp)                              
-        // + fvc::laplacian(DEff*currSp, cTot)       
+        + fvc::laplacian(DEff*currSp, cTot)       
         // + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvOptions, linearized -- part implicit, part explicit
         + fvModels.source(dummyConcEqn, currSp)                                      // source term defined in fvModels, linearized -- part implicit, part explicit
     );
