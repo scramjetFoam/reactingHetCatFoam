@@ -17,7 +17,6 @@ import shutil as sh
 import matplotlib.pyplot as plt
 import sys
 from auxiliarFuncs import *
-from scipy.stats import linregress
 
 # -- obtained from shootChandraVM.py
 nonisoT_etaAnal = 42.094    # phi = 0.5
@@ -75,9 +74,9 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 
 # -- mesh tests
 thieleLst = [0.5]
-# thieleLst = [4.0]
+thieleLst = [4.0]
 # cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
-cellSizeLst = [0.8*R, 0.4*R, 0.1*R]
+cellSizeLst = [1.6*R, 0.8*R, 0.4*R]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -127,6 +126,9 @@ for case in cases:
     if runSim:
         print('--------------------------')
         print('Preparing case %s'%caseName)
+        if not os.path.isdir(meshDir):
+            print('Warning: protoMesh not ready')
+            os.system('python3 verInnerTransControlV2.py makeMesh')
         # -- check that caseDir is clean
         if os.path.isdir(caseDir): sh.rmtree(caseDir)
         # -- copy files
@@ -272,7 +274,11 @@ if errMesh:
     if showPlots:
         title = 'Dependence of error on the mesh for φ = %g, β = %g, γ = %g.'%(thiele,beta,gamma)
         # -- numerical slope fit
-        fit = np.array(logfit(emdNp))
+        try:
+            fit = np.array(logfit(emdNp))
+        except NameError:
+            fit = emdNp[1]
+            print('Warning: missing scipy')
         # -- centerinhg
         at = -1
         # at = False
