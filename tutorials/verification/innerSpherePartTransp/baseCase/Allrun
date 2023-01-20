@@ -7,7 +7,7 @@ cp -rf 0.org/* 0
 
 # generate geometry
 runApplication blockMesh
-runApplication snappyHexMesh -overwrite -dict system/snappyHexMeshDictIntraTrans
+runApplication snappyHexMesh -overwrite
 runApplication topoSet
 
 # create .OpenFOAM file

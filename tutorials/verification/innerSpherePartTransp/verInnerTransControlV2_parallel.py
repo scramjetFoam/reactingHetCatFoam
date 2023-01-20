@@ -30,7 +30,8 @@ yInf = 0.02         # molar fraction farfar from sphere
 p = 101325          # presure	
 Runiv = 8.314       # universal gas constant
 R = 0.1             # sphere radius
-T0Lst = [300, 800]
+# T0Lst = [300, 800]
+T0Lst = [300]
 
 # -- set geometry
 domainSize = 1.1*R
@@ -42,8 +43,10 @@ DFreeZ = 1e-5       # set diffusivity in fluid
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-thieleLst = [4.0, 0.5]
-cellSizeLst = [0.2*R, 0.1*R]
+# thieleLst = [4.0, 0.5]
+thieleLst = [4.0]
+# cellSizeLst = [0.2*R, 0.1*R]
+cellSizeLst = [1.6*R]
 
 # -- numpy array for results
 resNp = np.zeros((2,len(thieleLst)+1))
@@ -82,5 +85,5 @@ for case in cases:
     # -- make mesh && run simulation        
     os.chdir(caseDir)
     os.system('chmod u=rwx All*')        
-    os.system('./Allrun-fullparallel')
+    os.system('python3 Allrun.py')
     os.chdir('../../')

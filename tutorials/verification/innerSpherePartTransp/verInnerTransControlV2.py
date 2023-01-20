@@ -20,7 +20,7 @@ from auxiliarFuncs import *
 
 # -- obtained from shootChandraVM.py
 nonisoT_etaAnal = 42.094    # phi = 0.5
-nonisoT_etaAnal =  7.516    # phi = 4.0
+# nonisoT_etaAnal =  7.516    # phi = 4.0
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -57,7 +57,7 @@ p = 101325      # presure
 Runiv = 8.314   # universal gas constant
 R = 0.1           # sphere radius
 T0 = False     # used for multiple steady state (800), comment out or set to False if not used
-# T0 = 800
+T0 = 800
 
 # -- set geometry
 domainSize = 1.1*R
@@ -74,8 +74,10 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 
 # -- mesh tests
 thieleLst = [0.5]
-thieleLst = [4.0]
+# thieleLst = [4.0]
 cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
+cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R]
+
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -283,10 +285,10 @@ if errMesh:
         # at = False
         if at: b, c, d = emdNp[0,at], emdNp[1,at], fit[at]
         else:  b, c, d = 1, 1, 1
-        plt.plot(emdNp[0], emdNp[1], marker='x', linewidth=0, label='absolute η error', color='black')
-        plt.plot(emdNp[0], fit/d*c, linestyle='--', label='error slope fit', color='black')
-        plt.plot(emdNp[0], (emdNp[0])/b*c, label='slope = 1')
-        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2)*c, label='slope = 2')
+        # plt.plot(emdNp[0], emdNp[1]/c, marker='x', linewidth=0, label='absolute η error', color='black')
+        plt.plot(emdNp[0], fit/d, linestyle='--', label='error slope fit', color='black')
+        plt.plot(emdNp[0], (emdNp[0])/b, label='slope = 1')
+        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2), label='slope = 2')
         
         plt.yscale('log')
         plt.xscale('log')

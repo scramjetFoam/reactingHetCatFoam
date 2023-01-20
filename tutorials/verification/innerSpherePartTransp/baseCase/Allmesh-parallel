@@ -8,7 +8,7 @@ cp -rf 0.org/* 0
 # generate geometry
 runApplication blockMesh
 runApplication decomposePar
-runParallel snappyHexMesh -overwrite -dict system/snappyHexMeshDictIntraTrans
+runParallel snappyHexMesh -overwrite
 runApplication reconstructParMesh -latestTime
 runApplication topoSet
 
