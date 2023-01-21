@@ -18,7 +18,7 @@ FoamFile
 //application     reactingHetCatSimpleFoam;
 application     customSolver;
 
-startFrom       startTime;
+startFrom       latestTime;
 
 startTime 	    0;
 

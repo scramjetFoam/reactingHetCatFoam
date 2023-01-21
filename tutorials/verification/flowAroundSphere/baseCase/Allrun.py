@@ -43,6 +43,6 @@ if not path.isdir('processor0/100'):
 system('reconstructPar -latestTime > log.reconstructPar')
 
 print('3/3 postprocessing')
-system('postProcess -func \'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))\'> log.postProcess')
+system('postProcess -func integrace -latestTime > log.integrace')
 system('intSrcSphere > log.intSrcSphere')
 system('rm -rf processor*')
