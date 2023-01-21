@@ -1,4 +1,4 @@
-from os import system
+from os import system, path
 from sys import exit
 
 solver = False
@@ -25,24 +25,24 @@ if (not np) or (not solver):
     exit()
 
 system('rm -rf 0')
-system('mkdir 0')
-system('cp -rf 0.org/* 0')
+system('cp -rf 0.org 0')
 
 print('1/3 generating mesh')
 system('blockMesh > log.blockMesh')
 system('decomposePar > log.decomposePar1')
 system(f'mpirun -np {np} snappyHexMesh -overwrite -parallel > log.snappyHexMesh')
-system('reconstructParMesh -time 0 > log.reconstructParMesh1')
-system('reconstructParMesh -constant > log.reconstructParMesh2')
+system('reconstructParMesh -constant -time 0 > log.reconstructParMesh1')
+
 
 print('2/3 running solver')
 system('decomposePar -force > log.decomposePar2')
-system(f'mpirun -np {np} renumberMesh -overwrite > log.renumberMesh')
+system(f'mpirun -np {np} renumberMesh -overwrite -parallel > log.renumberMesh')
 system(f'mpirun -np {np} {solver} -parallel > log.{solver}1')
-system(f'mpirun -np {np} {solver} -parallel > log.{solver}2')
+if not path.isdir('processor0/100'):
+    system(f'mpirun -np {np} {solver} -parallel > log.{solver}2')
 system('reconstructPar -latestTime > log.reconstructPar')
 
 print('3/3 postprocessing')
 system('postProcess -func \'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))\'> log.postProcess')
 system('intSrcSphere > log.intSrcSphere')
-system('rm processor* -rf')
+system('rm -rf processor*')
