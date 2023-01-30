@@ -35,7 +35,7 @@ geometry
     {
         type            searchableSphere;
         centre          (0 0 0);
-        radius          1;
+        radius          spR;
     }
 };
 
@@ -76,7 +76,7 @@ castellatedMeshControls
     // Number of buffer layers between different levels.
     // 1 means normal 2:1 refinement restriction, larger means slower
     // refinement.
-    nCellsBetweenLevels 3;
+    nCellsBetweenLevels 4;
 
 
 
@@ -111,10 +111,10 @@ castellatedMeshControls
         sphere
         {
             // Surface-wise min and max refinement level
-            level (1 1);
+            level (5 5);
             cellZone reactingCellZone;
-            faceZone batt1;
-            // cellZone batt1;
+            // faceZone batt1;
+            // // cellZone batt1;
             cellZoneInside inside;
         }
     }
@@ -141,7 +141,7 @@ castellatedMeshControls
         sphere
         {
             mode inside;
-            level 1;
+            level 3;
             // levels ((1e-5 2));
             // cellZone rashigs;
         }

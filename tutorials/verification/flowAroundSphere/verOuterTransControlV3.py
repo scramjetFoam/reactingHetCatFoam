@@ -42,8 +42,8 @@ getCsv = (True if 'getCsv' in args else False)
 errMesh = (True if 'errMesh' in args else False)
 
 # -- directory naming
-baseCaseDir = 'baseCase_flow'
-outFolder = 'ZZ_cases_flow'
+baseCaseDir = 'baseCase'
+outFolder = 'ZZ_cases'
 ZZZ_path = 'ZZZ_res'
 ZZZ_file = 'flow.csv'
 ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
@@ -75,12 +75,12 @@ tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # == ARCHIVED SETTINGS: 
 # -- 17. 1. 2023: mesh independence tests
-thieleLst = [2]
-thieleLst = [6]
+thieleLst = [2,6]
 ReLst = [80]
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]
 # cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
-cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
+# cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
+cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
 tortLst = [1]
 
 # -- prepare prototype mesh for each cellSize
@@ -97,7 +97,6 @@ if makeMesh:
         sh.copytree(baseCaseDir,meshDir)
         changeInCaseFolders(meshDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
         changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-        changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
         os.chdir(meshDir)
         os.system('chmod u=rwx All*') # NOTE MK: Just to make sure.
         os.system('./Allmesh')
@@ -221,20 +220,29 @@ if errMesh:
         for i in range(len(emdNp[0])):
             f1.writelines(['%g,\t%g\n'%(emdNp[0,i], emdNp[1,i])])
     if showPlots:
-        title = 'Dependence of error on the mesh for φ = %g.'%thiele
-        # -- centred slopes
-        at = -1  # crosspoint at
-        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)/cellSizeLst[at]*emdNp[1,at], label='slope = 1')
-        plt.plot(np.array(cellSizeLst), np.array(cellSizeLst)**2/cellSizeLst[at]**2*emdNp[1,at], label='slope = 2')
-        plt.plot(np.array(cellSizeLst), emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
-        
-        # -- uncentered slopes
-        # plt.plot(cellSizeLst, cellSizeLst, label='slope = 1')
-        # plt.plot(cellSizeLst, np.array(cellSizeLst)**2, label='slope = 2')
-        # plt.plot(cellSizeLst, emdNp[1], marker='x', linestyle='--', label='absolute η error', color='black')
+        title = 'Dependence of error on the mesh for φ = %g, Re = %g, Deff/DFree = %g.'%(thiele,Re, DEff/DFree)        # -- numerical slope fit
+       # -- numerical slope fit
+        try:
+            fit, slope = logfit(emdNp)
+        except NameError:
+            fit = emdNp[1]
+            slope = 0
+            print('Warning: missing scipy')
+        # -- centerinhg
+        at = -1
+        # at = False
+        if at: b, c, d = emdNp[0,at], emdNp[1,at], fit[at]
+        else:  b, c, d = 1, 1, 1
+        # plt.plot(emdNp[0], emdNp[1]/c, marker='x', linewidth=0, label='absolute η error', color='black')
+        plt.plot(emdNp[0], fit/d, linestyle='--', label='slope fit = %3.2f'%slope, color='black')
+        plt.plot(emdNp[0], (emdNp[0])/b, label='slope = 1')
+        plt.plot(emdNp[0], (emdNp[0]**2)/(b**2), label='slope = 2')
         
         plt.yscale('log')
         plt.xscale('log')
         plt.title(title)
         plt.legend()
         plt.show()
+        
+ 
+ 

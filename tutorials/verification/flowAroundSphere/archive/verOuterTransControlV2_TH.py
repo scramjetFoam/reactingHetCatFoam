@@ -32,8 +32,8 @@ makeMesh = (True if 'makeMesh' in args else False)
 getCsv = (True if 'getCsv' in args else False)
 
 # -- directory naming
-baseCaseDir = 'baseCase_flow'
-outFolder = 'ZZ_cases_flow'
+baseCaseDir = 'baseCase'
+outFolder = 'ZZ_cases'
 ZZZ_path = 'ZZZ_res'
 ZZZ_file = 'flow.csv'
 ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
@@ -46,8 +46,7 @@ sHr = -283e3        # standard reaction enthalpy (physical 283e3)
 T = 500             # temperature
 DFreeZ = 1e-5       # Diffusivity in fluid
 kappaEff = 1        # mass transfer coefficient
-eps = 0.5       # material porosity
-nu = 5.58622522e-05 # kinematic viscosity, NOTE: might be read from log, but is used for calculation
+nu = 5.58622522e-05 # kinematic viscosity !?
 EA = 90e3           # activation energy
 
 # -- geometry
@@ -56,27 +55,18 @@ length1 = 15*R      # inlet <-> sphere centre
 length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
-# -- list parameters [ORIGINAL]
-invLst = [0.11,0.22]                # inlet velocity
+# -- list parameters
+invLst = [0.22]                # inlet velocity
 k0Lst = [1e9]                       # reaction pre-exponential factor
-cellSizeLst = [0.35*R]              # FV cell Size
-tortLst = [0.5,5]                   # tortuosity
+cellSizeLst = [0.45*R]              # FV cell Size
+tortLst = [50]                   # tortuosity
 
 # == ARCHIVED SETTINGS: 
-# -- 12/11/2022 khyrm@multipede, (12 cases):
-# -- NOTE: refinementSurfaces, refinement set to (2 2)
+# -- 12/11/2022 khyrm@multipede (12 cases):
 # invLst = [0.0275,0.11,0.22,0.44]
 # k0Lst = [1e9]
 # cellSizeLst = [0.35*R]
 # tortLst = [0.5,5,50]
-
-# -- 14/11/2022 khyrm@multipede, (12 cases with smaller cellSize & lower Thiele)
-# -- NOTE: refinementSurfaces, refinement set to (5, 5)
-invLst = [round(Re*nu/2/R,4) for Re in [10,40,80,160]] # ReLst = [10,40,80,160]
-k0Lst = [1e9]
-cellSizeLst = [0.25*R]
-tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [0.5,1,2,4]] # thieleLst = [0.5,1,2]
-# tortLst = [round((thiele**2/R**2*eps/k0Lst[0]*DFreeZ/np.exp(-EA/Runiv/T)),5) for thiele in [4]]
 
 # -- prepare prototype mesh for each cellSize
 if makeMesh:
@@ -92,12 +82,11 @@ if makeMesh:
         sh.copytree(baseCaseDir,meshDir)
         changeInCaseFolders(meshDir,'system/blockMeshDict',['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))])
         changeInCaseFolders(meshDir,'system/snappyHexMeshDict',['spR'],[str(R)])
-        changeInCaseFolders(meshDir,'system/snappyHexMeshDictIntraTrans',['spR'],[str(R)])
         os.chdir(meshDir)
         os.system('chmod u=rwx All*') # NOTE: Just to make sure.
         os.system('./Allmesh')
         os.chdir('../../../')
-    if not runSim: sys.exit()
+
 
 # -- create cases for:
 cases = [(inv,k0,cellSize,tort) for inv in invLst for k0 in k0Lst for cellSize in cellSizeLst for tort in tortLst]
@@ -106,7 +95,7 @@ for case in cases:
     inv,k0,cellSize,tort = case
     k = k0*np.exp(-EA/(Runiv*T))
     DFree = DFreeZ
-    DEff = DFree*eps/tort
+    DEff = DFree/tort*0.5
 
     caseName = 'intraTrans_yInf_%g_R_%g_T_%g_cS_%g_k0_%g_tort_%g_inv_%g'%(yInf,R,T,cellSize,k0,tort,inv)
     caseDir = '%s/%s/'%(outFolder,caseName)
@@ -180,30 +169,10 @@ for case in cases:
 
     
 
-
-
-if getCsv:
-    # -- create eta 
-    generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst)
-    # -- create eta csv
-    for tort in tortLst:
-        # generate arrays
-        ReLst = [inv*(R*2)/nu for inv in invLst]
-        n = 60
-        ReNp = np.array([ReLst[0]+i*(ReLst[-1]-ReLst[0])/n for i in range(n+1)])
-        DFree,DEff = DFreeZ,DFree*eps/tort
-        Sc = nu/DFree
-        Sh_corrNp = 2+.6*Sc**(1/3)*ReNp**(1/2)
-        BiM_corrNp = Sh_corrNp/2 * DFree/DEff
-        k0Art = k0Lst[0]*np.exp(-EA/(Runiv*T))
-        thiele = R*np.sqrt(k0Art/DEff)
-        eta_corrNp = np.array(3/(thiele**2) * (thiele/np.tanh(thiele)-1)/(1+(thiele/np.tanh(thiele)-1)/BiM_corrNp))
-        # write to CSVs
-        with open(ZZZ_path+'/etacsv/etaCorr_tort%g.csv'%tort, 'w') as f1:
-            f1.writelines(['x, y\n'])
-            f1.writelines(['%g, %g\n'%(ReNp[i], eta_corrNp[i]) for i in range(len(ReNp))])
-
 if showPlots:
     for tort in tortLst:
         eta_plt(ZZZ_filepath, tort)
     eta_err_plt(ZZZ_filepath, tortLst, invLst)
+
+if getCsv:
+    generate_eta_csvs(ZZZ_path,ZZZ_filepath,tortLst)

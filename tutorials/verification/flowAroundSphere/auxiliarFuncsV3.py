@@ -11,6 +11,13 @@ import re
 import shutil as sh
 import matplotlib.pyplot as plt
 import sys
+try:
+    from scipy.stats import linregress
+except ModuleNotFoundError:
+    print('Warning: missing scipy')
+    noscipy = True
+else:
+    noscipy = False
 
 
 def isFloat(val):
@@ -176,3 +183,10 @@ def eta_plt(ZZZ_filepath, thiele, tort):
     plt.ylabel('eta')
     plt.legend()
     plt.show()
+
+# == regression for error mesh dependence
+if not noscipy:
+    def logfit(emdNp):
+        lr = linregress(np.log(emdNp))
+        l = lambda x : (x**lr.slope)*np.exp(lr.intercept)
+        return l(emdNp[0]), lr.slope
