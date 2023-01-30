@@ -97,6 +97,9 @@ forAll(specieNames,lstI)
         forAll(currSp,cellI)
         { 
             currSp[cellI] = min(max(currSp[cellI],0),1); 
+            if(currSp[cellI] < 0){
+                Info <<currSp[cellI]<<endl;
+            } 
         }
         Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
 
