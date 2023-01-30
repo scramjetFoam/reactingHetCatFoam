@@ -96,7 +96,7 @@ forAll(specieNames,lstI)
         
         forAll(currSp,cellI)
         { 
-            currSp[cellI] = max(currSp[cellI],0); 
+            currSp[cellI] = min(max(currSp[cellI],0),1); 
         }
 
         sumWithoutRef += currSp;
