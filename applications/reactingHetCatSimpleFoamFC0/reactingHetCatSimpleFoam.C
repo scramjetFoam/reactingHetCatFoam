@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
             { 
                 Info << "\nSolving continuity equation for each specie, iteration "<< concIt+1 << "/" << nItconc << endl;
                 #include "concEq.H"
+                // #include "concEqMass.H"
             }
 
             for (label concT=0; concT < nItTemp; concT++)

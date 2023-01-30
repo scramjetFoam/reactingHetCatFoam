@@ -1,10 +1,12 @@
 // -- update sum of the molar fractions without reference
-volScalarField sumWithoutRefOld = sumWithoutRef;
 sumWithoutRef = 0*sumWithoutRef;
 // if (diffusion == "FickConv")
 // {
 //     sumJDif = 0*sumJDif;
 // }
+
+volScalarField MgNew = 0*Mg;
+PtrList<volScalarField> MassFrList(specieNames.size());
 
 // -- solve the concentration equation for all chemical species
 forAll(specieNames,lstI)
@@ -14,10 +16,12 @@ forAll(specieNames,lstI)
 
     Info<<"\nWorking on the specie: "<<currSpName<<endl;
 
-    volScalarField& currSp	= MFrList[lstI];                	//current concentration field
+    // volScalarField& currSp	= MFrList[lstI];                	//current concentration field
+    volScalarField currSpMass	= MFrList[lstI] * molMList[lstI] / Mg;                	//mass fraction
+    currSpMass.correctBoundaryConditions();
     
-    if (lstI != specieNames.size()-1)
-    {
+    // if (lstI != specieNames.size()-1)
+    // {
         // -- DIFUSION COEFICIENT CALCULATION 
         // -- difussivity of the specie in the reference gas see 22_Hlavaty_MSc
 
@@ -52,7 +56,7 @@ forAll(specieNames,lstI)
             Info << "Min rho: " << min(rho).value() << ", max rho: " << max(rho).value() << endl;
             Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
             Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
-            Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
+            // Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
         }
         if (debug <= 2 && debug != 0)
         {
@@ -62,13 +66,13 @@ forAll(specieNames,lstI)
         fvScalarMatrix concEq
         (
             // -- convection
-            fvm::div(phi/fvc::interpolate(Mg), currSp)
+            fvm::div(phi, currSpMass)
             ==
             // -- diffusion
-            fvm::laplacian(DEff*rho/Mg, currSp)                              
+            fvm::laplacian(DEff*rho, currSpMass)                              
             // + fvc::laplacian(DEff*currSp, cTot)       
             // -- source
-            + fvModels.source(dummyConcEqn, currSp)
+            + fvModels.source(dummyConcEqn*molMList[lstI], currSpMass)
         );
 
         if (diffusion == "FickConv")
@@ -92,9 +96,13 @@ forAll(specieNames,lstI)
 
         concEq.solve();
 
-        fvConstraints.constrain(currSp);
+        fvConstraints.constrain(currSpMass);
 
-        currSp.correctBoundaryConditions();
+        currSpMass.correctBoundaryConditions();
+
+        MgNew += molMList[lstI] / currSpMass;
+
+        MassFrList[lstI] = currSpMass;
         
         // forAll(currSp,cellI)
         // { 
@@ -104,32 +112,33 @@ forAll(specieNames,lstI)
         //     // } 
         // }
 
-        sumWithoutRef += currSp;
+        // sumWithoutRef += currSp;
         // if (diffusion == "FickConv")
         // {
         //     sumJDif += (DEff*(fvc::grad(thermo.p()/univR/thermo.T()*currSp)));
         // }
-    }
-    else{
-        // currSp = dimensionedScalar("jedna",dimless,1) - sumWithoutRef;
-        sumWithoutRef += currSp;
-    }
+    // }
+    // else{
+    //     // currSp = dimensionedScalar("jedna",dimless,1) - sumWithoutRef;
+    //     sumWithoutRef += currSp;
+    // }
 }
 
-// Mg = Mg*sumWithoutRefOld/sumWithoutRef;
-// Mg = 0*Mg;
+Mg = MgNew;
 // forAll(specieNames,lstI)
 // {
 //     Mg += MFrList[lstI] * molMList[lstI];
 // }
 
-Info << "Min y[sumWithoutRef]: " << min(sumWithoutRef).value() << ", max y[sumWithoutRef]: " << max(sumWithoutRef).value() << endl;
+// Info << "Min y[sumWithoutRef]: " << min(sumWithoutRef).value() << ", max y[sumWithoutRef]: " << max(sumWithoutRef).value() << endl;
 forAll(specieNames,lstI)
 {
-    MFrList[lstI] = MFrList[lstI] / sumWithoutRef;
-    // MFrList[lstI] = MFrList[lstI] * sumWithoutRefOld / sumWithoutRef;
+    // MFrList[lstI] = MFrList[lstI]/;
+    MFrList[lstI] = MassFrList[lstI] * Mg / molMList[lstI];
     Info << "Min y[" << specieNames[lstI] << "]: " << min(MFrList[lstI]).value() << ", max y[" << specieNames[lstI] << "]: " << max(MFrList[lstI]).value() << endl;
 }
+
+// thermo.p() = p*sumWithoutRef;
         
         // currSp = (1-sumWithoutRef)/(currSp);
 
@@ -150,12 +159,4 @@ if (diffusion == "FickConv")
     // phiD = linearInterpolate(rho*UD) & mesh.Sf();
 }
 
-// volScalarField& MgOld = Mg;
 
-Mg = 0*Mg;
-forAll(specieNames,lstI)
-{
-    Mg += MFrList[lstI] * molMList[lstI];
-}
-
-// thermo.p() = p*MgOld/Mg;
