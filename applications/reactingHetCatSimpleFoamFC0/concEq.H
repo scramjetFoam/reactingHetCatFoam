@@ -98,6 +98,7 @@ forAll(specieNames,lstI)
         { 
             currSp[cellI] = min(max(currSp[cellI],0),1); 
         }
+        Info << "Min y[" << specieNames[lstI] << "]: " << min(currSp).value() << ", max y[" << specieNames[lstI] << "]: " << max(currSp).value() << endl;
 
         sumWithoutRef += currSp;
         // if (diffusion == "FickConv")
