@@ -96,7 +96,7 @@ forAll(specieNames,lstI)
         
         forAll(currSp,cellI)
         { 
-            currSp[cellI] = min(max(currSp[cellI],0),1); 
+            currSp[cellI] = min(max(currSp[cellI],SMALL),1-SMALL); 
             // if(currSp[cellI] < 0){
                 Info <<currSp[cellI]<<endl;
             // } 
