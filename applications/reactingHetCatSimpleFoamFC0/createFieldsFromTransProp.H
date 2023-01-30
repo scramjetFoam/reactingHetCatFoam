@@ -21,19 +21,19 @@ forAll(specieNames,countI)
 }
 
 // -- creating field with sum of the diffusive fluxes of all species but reference
-volVectorField sumJDif
-(
-    IOobject
-    (
-        "sumJDif",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption2
-    ),
-    mesh,
-    dimensionedVector ("sumJDif",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
-);
+// volVectorField sumJDif
+// (
+//     IOobject
+//     (
+//         "sumJDif",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         writeOption2
+//     ),
+//     mesh,
+//     dimensionedVector ("sumJDif",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
+// );
 
 // -- prepare sum of the molar fractions without reference
 volScalarField sumWithoutRef

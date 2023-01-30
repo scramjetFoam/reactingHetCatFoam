@@ -1,9 +1,9 @@
 // -- update sum of the molar fractions without reference
 sumWithoutRef = 0*sumWithoutRef;
-if (diffusion == "FickConv")
-{
-    sumJDif = 0*sumJDif;
-}
+// if (diffusion == "FickConv")
+// {
+//     sumJDif = 0*sumJDif;
+// }
 
 // -- solve the concentration equation for all chemical species
 forAll(specieNames,lstI)
@@ -100,10 +100,10 @@ forAll(specieNames,lstI)
         }
 
         sumWithoutRef += currSp;
-        if (diffusion == "FickConv")
-        {
-            sumJDif += (DEff*(fvc::grad(thermo.p()/univR/thermo.T()*currSp)));
-        }
+        // if (diffusion == "FickConv")
+        // {
+        //     sumJDif += (DEff*(fvc::grad(thermo.p()/univR/thermo.T()*currSp)));
+        // }
     }
     else{
         currSp = dimensionedScalar("jedna",dimless,1) - sumWithoutRef;

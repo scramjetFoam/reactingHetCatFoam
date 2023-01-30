@@ -60,7 +60,7 @@ volScalarField sumZones
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        writeOption1
+        writeOption2
     ),
     mesh,
     dimensionedScalar("sumZones",dimless,0.0),

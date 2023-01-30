@@ -134,6 +134,7 @@
     // Info <<max(rho)<<endl;
 
     // -- update rho
+    rho.relax();
     rho = p/univR/thermo.T()*Mg;
     thermo.rho() = rho;
 
@@ -143,5 +144,5 @@
 
     // Info <<max(rho)<<endl;
     
-    rho.relax();
+    // rho.relax();
 }

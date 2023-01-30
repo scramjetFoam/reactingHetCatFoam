@@ -37,7 +37,7 @@ volScalarField dummyConcEqn
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        writeOption1
+        IOobject::NO_WRITE
     ),
     mesh,
     dimensionedScalar ("dummyConcEqn",dimMoles/dimVolume,1.0)
@@ -79,7 +79,7 @@ volScalarField rho
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        writeOption1
     ),
     // thermo.rho()
     p/univR/thermo.T()*Mg
