@@ -1,27 +1,3 @@
-// -- creating field Mg -- molar mass of gas
-Info<< "Reading field Mg\n" << endl;
-volScalarField Mg
-(
-    IOobject
-    (
-        "Mg",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption1
-    ),
-    mesh,
-    dimensionedScalar("Mg",dimMass/dimMoles,0.0),
-    "zeroGradient"
-);
-
-forAll(specieNames,countI)
-{
-    Mg += molMList[countI]*MFrList[countI];
-}
-
-volScalarField wRef = MFrList[MFrList.size()-1]*molMList[MFrList.size()-1]/Mg;
-
 // -- creating field with sum of the diffusive fluxes of all species but reference
 volVectorField sumJDif
 (
@@ -50,65 +26,6 @@ volScalarField sumWithoutRef
     ),
     mesh,
     dimensionedScalar("sumWithoutRef",dimless,1.0)
-);
-
-volScalarField sumWithoutRefOld = sumWithoutRef * 0;
-forAll(specieNames,lstI)
-{
-    if (lstI != specieNames.size()-1)
-    { 
-        sumWithoutRefOld += MFrList[lstI];
-    } 
-}
-
-
-
-// -- prepare sum of the molar fractions without reference
-// volScalarField sumMassAllButRef
-// (
-//     IOobject
-//     (
-//         "sumMassAllButRef",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         writeOption2
-//     ),
-//     mesh,
-//     dimensionedScalar("sumMassAllButRef",dimMass,0.0)
-// );
-
-// forAll(specieNames,lstI)
-// {
-//     if (lstI != specieNames.size()-1)
-//     { 
-//         sumMassAllButRef += MFrList[lstI];
-//     } 
-// }
-
-// volScalarField sumYiMiOld = 0*Mg;
-// volScalarField sumWiWithoutRefOld = 0*Mg;
-// forAll(specieNames,lstI)
-// {
-//     if (lstI != specieNames.size()-1)
-//     { 
-//         sumWiWithoutRefOld += MFrList[lstI] * molMList[lstI];
-//     } 
-// }
-
-// -- prepare sum of the molar fractions without reference
-volScalarField diffN
-(
-    IOobject
-    (
-        "diffN",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption2
-    ),
-    mesh,
-    dimensionedScalar("diffN",dimless,1.0)
 );
 
 // -- zones volScalarFields -- from transport properties or from file

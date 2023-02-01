@@ -40,9 +40,9 @@ volScalarField dummyConcEqn
         IOobject::NO_WRITE
     ),
     mesh,
-    dimensionedScalar ("dummyConcEqn",dimMoles/dimVolume,1.0)
+    // dimensionedScalar ("dummyConcEqn",dimMoles/dimVolume,1.0)
     // dimensionedScalar ("dummyConcEqn",dimMoles*dimMoles/dimMass/dimMass/dimVolume,1.0)
-    // dimensionedScalar ("dummyConcEqn",dimMass/dimVolume,1.0)
+    dimensionedScalar ("dummyConcEqn",dimMass/dimVolume,1.0)
 );
 
 volScalarField dummyEEqn
@@ -155,4 +155,3 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 
 
 
-// volScalarField diffLatMn = 0 * p / univR / thermo.T();
