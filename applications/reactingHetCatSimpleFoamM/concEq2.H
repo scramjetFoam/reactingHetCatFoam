@@ -9,9 +9,8 @@ forAll(specieNames,lstI)
 
     Info << "\nWorking on the specie: " << currSpName << endl;
 
-    // -- mass and molar fractions of the current specie
-    const volScalarField& currSpMolar	= MFrList[lstI];                	
-    const volScalarField& currSpMass	= MassFrList[lstI];                	
+    // -- mass fraction of the current specie              	
+    volScalarField& currSpMass	= MassFrList[lstI];                	
     
     // -- if not the last specie
     if (lstI != specieNames.size()-1)
