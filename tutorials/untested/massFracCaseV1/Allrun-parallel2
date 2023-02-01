@@ -14,6 +14,8 @@ runApplication blockMesh
 # create .OpenFOAM file
 paraFoam -touch
 
+runApplication topoSet
+
 runApplication decomposePar
 
 # add reactive cell zone 

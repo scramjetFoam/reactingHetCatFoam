@@ -4,6 +4,9 @@ List<scalar> nuLst(transportProperties.subDict(currSpName).lookup("nuVec"));
 // -- load the current specie
 const volScalarField&  currSp = mesh().lookupObject<volScalarField>(currSpName);
 
+scalar molMS(readScalar(transportProperties.subDict(currSpName).lookup("molM")));
+dimensionedScalar molM("molM",dimMass/dimMoles,molMS);
+
 // -- initialize the fields for reaction term and its derivative w.r.t
 volScalarField R
 (
@@ -80,7 +83,7 @@ forAll(nuLst,rnI)
         }
         else if(kinSetupSwitch == 2)
         {
-            Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = " << EA.value() << endl;
+            // Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = " << EA.value() << endl;
             
             // -- Arhenius law
             volScalarField k(k0*Foam::exp(-EA/(univR*T)));
@@ -163,6 +166,10 @@ forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
     const volScalarField& currZoneVol = mesh().lookupObject<volScalarField>(currentZone); 
-    eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
-    eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
+    // eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
+    // eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
+    eqn += molM*currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
+    eqn += molM*currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
+
+    // eqn += molM*currZoneVol*coatWallFrac[countI]*(R);
 } 

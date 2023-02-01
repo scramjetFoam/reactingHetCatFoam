@@ -73,7 +73,7 @@ solvers
         mergeLevels             1;
     }
     
-    "(CO|O2|CO2|N2O|N2|NO|ethylene|prod)"
+    "(CO|O2|CO2|N2O|N2|NO|ethylene|prod|A|B|C|AMass|BMass|CMass)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -86,8 +86,8 @@ solvers
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors 2;              // n of concentration calculations for each specie
-    nTempCorrectors 2;	            // n of temperature corrections 
+    nConcCorrectors 1;              // n of concentration calculations for each specie
+    nTempCorrectors 1;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
 
     debug 2;
@@ -100,6 +100,7 @@ SIMPLE
         T           1e-5;
         prod           1.5e-4;
         ethylene           1.5e-4;
+        "(ethylene|CO|O2|CO2|AMass|BMass|CMass)" 	 0.9;
         // "(CO|NO|O2|N2O|CO2)"    5e-4;
     }
 }
@@ -117,7 +118,8 @@ relaxationFactors
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(ethylene|CO|O2|CO2)" 	 0.9;
+        "(ethylene|CO|O2|CO2|A|B|C)" 	 0.9;
+        "(ethylene|CO|O2|CO2|AMass|BMass|CMass)" 	 0.9;
         "(prod)" 	 0.9;
     }
 }

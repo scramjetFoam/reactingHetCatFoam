@@ -29,26 +29,26 @@ gradSchemes
 
 divSchemes
 {
-        //  default                             bounded Gauss upwind;
-    default                             none;
-    div(phi,U)                          bounded Gauss Minmod;
-    //    div(phi,U)                          bounded Gauss upwind;
-    //    div(phi,U)                          bounded Gauss linearUpwind grad(U);
-    //    div(phi,U)                          bounded Gauss QUICK;
-    //    div(phi,U)                          bounded Gauss UMIST;
-    //    div(phi,U)                          bounded Gauss vanLeer;
-    //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
-    //    div((phi|molM),ethylene)            bounded Gauss SFCD;
-    //    div((phi|molM),ethylene)            bounded Gauss upwind;
-    // div((interpolate((cTot*U))&Sf),prod)            bounded Gauss linearUpwind grad(prod);
-    div((interpolate((cTot*U))&Sf),prod)            bounded Gauss vanLeer01;
-    // div((interpolate((cTot*U))&Sf),ethylene)            bounded Gauss linearUpwind grad(ethylene);
-    div((interpolate((cTot*U))&Sf),ethylene)            bounded Gauss vanLeer01;
-    //    div((phi|molM),ethylene)            bounded Gauss upwind;
-     //  div((phi|molM),ethylene)            bounded Gauss linearUpwind grad(U);
-    div(phi,K)                          bounded Gauss Minmod;
-    //    div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
-    div((phi*interpolate(Cp)),T)        bounded Gauss Minmod;
+         default                             bounded Gauss upwind;
+    // default                             bounded Gauss vanLeer01;
+    // div(phi,U)                          bounded Gauss Minmod;
+    // //    div(phi,U)                          bounded Gauss upwind;
+    // //    div(phi,U)                          bounded Gauss linearUpwind grad(U);
+    // //    div(phi,U)                          bounded Gauss QUICK;
+    // //    div(phi,U)                          bounded Gauss UMIST;
+    // //    div(phi,U)                          bounded Gauss vanLeer;
+    // //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
+    // //    div((phi|molM),ethylene)            bounded Gauss SFCD;
+    // //    div((phi|molM),ethylene)            bounded Gauss upwind;
+    // // div((interpolate((cTot*U))&Sf),prod)            bounded Gauss linearUpwind grad(prod);
+    // div((phi|interpolate(Mg)),prod)            bounded Gauss vanLeer01;
+    // // div((interpolate((cTot*U))&Sf),ethylene)            bounded Gauss linearUpwind grad(ethylene);
+    // div((phi|interpolate(Mg)),ethylene)            bounded Gauss vanLeer01;
+    // //    div((phi|molM),ethylene)            bounded Gauss upwind;
+    //  //  div((phi|molM),ethylene)            bounded Gauss linearUpwind grad(U);
+    // div(phi,K)                          bounded Gauss Minmod;
+    // //    div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
+    // div((phi*interpolate(Cp)),T)        bounded Gauss Minmod;
     //    div((phi*interpolate(Cp)),T)        bounded Gauss linearUpwind grad(U);
     //   div((phi*interpolate(Cp)),T)        bounded Gauss SFCD;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;

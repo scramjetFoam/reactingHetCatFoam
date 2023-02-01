@@ -74,14 +74,20 @@ dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"))
 
 // -- reference molar mass 
 scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
+
 dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
+
+// scalar molM(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
+// dimensionedScalar molM("molM",dimMass/dimMoles,molM);
 
 // -- load temperature and pressure fields
 const volScalarField& T = mesh().lookupObject<volScalarField>("T"); 
-const volScalarField& Trho = mesh().lookupObject<volScalarField>("thermo:rho"); 
+const volScalarField& p = mesh().lookupObject<volScalarField>("p"); 
+// const volScalarField& Mg = mesh().lookupObject<volScalarField>("Mg"); 
+// const volScalarField& Trho = mesh().lookupObject<volScalarField>("thermo:rho"); 
 
 // -- calculate the total concentration
-volScalarField cTot(Trho/molMRef);
+volScalarField cTot(p/T/univR);
 
 // load data for clipping the gradients (problem with potential infinite values)
 scalar  clipGradMin(readScalar(reactiveProperties.subDict("reactProps").subDict("numProps").lookup("clipGradMin")));

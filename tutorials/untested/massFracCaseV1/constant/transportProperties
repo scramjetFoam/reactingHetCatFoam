@@ -19,10 +19,13 @@ transportModel  Newtonian;
 
 // -- list of chemical species that are assumed
 // species (ethylene O2);
-species (ethylene prod N2);
+// species (ethylene prod N2);
+species (A B C N2);
 
 // -- list of porous Zones
 zones (coatZone);
+
+// diffusionType "FickConv";
 
 // ************************************************************************* //
 // -- information about individual chemical species
@@ -53,6 +56,59 @@ N2
     molM        28.0e-3; 
     nuVec       (0.0 0.0);                                                             
     alphaVec       (0.0 0.0);                                                             
+}
+
+A
+{
+    sigmaV      16.0;
+    molM        28.0e-3;
+    nuVec       (0.0 -1.0);                                                     
+    alphaVec       (0.0 1.0);                                                                                             
+}
+B
+{
+    sigmaV      16.0;
+    molM        14.0e-3;
+    nuVec       (0.0 1.0);                                                     
+    alphaVec       (0.0 0.0);                                                                                             
+}
+C
+{
+    sigmaV      16.0;
+    molM        14.0e-3;
+    nuVec       (0.0 1.0);                                                     
+    alphaVec       (0.0 0.0);                                                                                             
+}
+
+N2Mass
+{
+    // -- reference diffusion volume in m3mol-1 for diffusivity computations (see Fuller)
+    sigmaV      16.2;     
+    molM        28.0e-3; 
+    nuVec       (0.0 0.0);                                                             
+    alphaVec       (0.0 0.0);                                                             
+}
+
+AMass
+{
+    sigmaV      16.0;
+    molM        28.0e-3;
+    nuVec       (0.0 -1.0);                                                     
+    alphaVec       (0.0 1.0);                                                                                             
+}
+BMass
+{
+    sigmaV      16.0;
+    molM        14.0e-3;
+    nuVec       (0.0 1.0);                                                     
+    alphaVec       (0.0 0.0);                                                                                             
+}
+CMass
+{
+    sigmaV      16.0;
+    molM        14.0e-3;
+    nuVec       (0.0 1.0);                                                     
+    alphaVec       (0.0 0.0);                                                                                             
 }
 
 ethylene
