@@ -39,47 +39,11 @@ volScalarField Mg
         writeOption1
     ),
     mesh,
-    dimensionedScalar("Mg",dimMass/dimMoles,1),
+    dimensionedScalar("Mg",dimMass/dimMoles,0),
     "zeroGradient"
 );
 
-// prepare list to store mass fractions in
-PtrList<volScalarField> MassFrList(specieNames.size());
-
-forAll(specieNames,countI)
-{
-    word currentSp = specieNames[countI] + "Mass";
-    Info<< "Preparing the mass fraction of the: " << currentSp << endl;
-
-    MassFrList.set
-    (
-        countI,
-        new volScalarField
-        // volScalarField
-        (
-            IOobject
-            (
-                currentSp,
-                runTime.timeName(),
-                mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh
-            // MFrList[countI] * molMList[countI] / Mg,
-            // "fixedValue"
-        )
-    );
-}
-
-volScalarField sumWiMi = 0/Mg;
-forAll(specieNames,lstI)
-{
-    sumWiMi += MassFrList[lstI] / molMList[lstI];
-}
-Mg = 1/sumWiMi;
-
-// prepare list to store molar fractions in
+// -- prepare list to store molar fractions in (read from BC)
 PtrList<volScalarField> MFrList(specieNames.size());
 
 forAll(specieNames,countI)
@@ -100,11 +64,75 @@ forAll(specieNames,countI)
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            // mesh
-            MassFrList[countI] * Mg / molMList [countI]
+            mesh
         )
     );
 }
+
+forAll(specieNames,lstI)
+{
+    // sumWiMi += MassFrList[lstI] / molMList[lstI];
+    Mg += MFrList[lstI] * molMList[lstI];
+}
+
+// prepare list to store mass fractions in
+PtrList<volScalarField> MassFrList(specieNames.size());
+
+forAll(specieNames,countI)
+{
+    word currentSp = specieNames[countI] + "Mass";
+    Info<< "Preparing the mass fraction of the: " << currentSp << endl;
+
+    volScalarField currentSpMass = MFrList[countI] * Mg / molMList[countI];
+
+    // loop over all boundaries
+    forAll(currentSpMass.boundaryField(), bfI)
+    {
+        if (MFrList[countI].boundaryField()[bfI].type() == "fixedValue")
+        {
+            currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], currentSpMass));
+
+            const polyPatch& patch = mesh.boundaryMesh()[bfI];
+
+            forAll(patch , faceI)
+            {
+                currentSpMass.boundaryFieldRef()[bfI][faceI] = (MFrList[countI].boundaryFieldRef()[bfI][faceI] * Mg.boundaryFieldRef()[bfI][faceI] / molMList[countI]).value();
+            }
+        }
+        else
+        {
+            currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], currentSpMass));
+        }
+        Info << "I set " << currentSpMass.boundaryField()[bfI] << endl;
+    }
+
+    MassFrList.set
+    (
+        countI,
+        new volScalarField
+        (
+            IOobject
+            (
+                currentSp,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            currentSpMass
+        )
+    );
+}
+
+
+// volScalarField sumWiMi = 0/Mg;
+// forAll(specieNames,lstI)
+// {
+//     sumWiMi += MassFrList[lstI] / molMList[lstI];
+// }
+// Mg = 1/sumWiMi;
+
+
 
 // -- reading field U
 Info<< "Reading field U\n" << endl;

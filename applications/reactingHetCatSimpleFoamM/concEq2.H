@@ -63,10 +63,11 @@ forAll(specieNames,lstI)
             fvm::div(phi, currSpMass)
             ==
             // -- specie mass diffusion                           
-            fvm::laplacian(DEff*rho, currSpMass) +
-            fvc::laplacian(DEff*rho/Mg*currSpMass, Mg)   
+            fvm::laplacian(DEff*rho, currSpMass) 
+            // + fvc::laplacian(DEff*rho/Mg*currSpMass, Mg)   
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
+            //  fvModels.source(dummyConcEqn, currSpMass)
         );
             
         // fvOptions.constrain(concEq);
