@@ -152,6 +152,18 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 #include "createFvModels.H"
 #include "createFvConstraints.H"
 
+surfaceScalarField phiD
+(
+    IOobject
+    (
+        "phiD",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        writeOption2
+    ),
+    linearInterpolate(rho*UD) & mesh.Sf()
+);
 
 
 

@@ -1,6 +1,12 @@
 // -- update sum of the mass fractions without reference
 sumWithoutRef = 0*sumWithoutRef;
 
+// -- calculate the diffusive flux
+// -- update sum of the diffusive fluxes
+sumJMDiff = 0*sumJMDiff;
+
+volScalarField sumWiMi = 0/Mg;
+
 // -- solve the concentration equation for all but one chemical species
 forAll(specieNames,lstI)
 {
@@ -11,6 +17,7 @@ forAll(specieNames,lstI)
 
     // -- mass fraction of the current specie              	
     volScalarField& currSpMass	= MassFrList[lstI];                	
+    volScalarField& currSpMoles	= MFrList[lstI];                	
     
     // -- if not the last specie
     if (lstI != specieNames.size()-1)
@@ -61,10 +68,20 @@ forAll(specieNames,lstI)
         (
             // -- specie mass convection
             fvm::div(phi, currSpMass)
+            // fvm::div(phi, currSpMass)
             ==
             // -- specie mass diffusion                           
+            // fvm::laplacian(DEff*rho, currSpMass) 
+            // // + fvc::laplacian(DEff*rho/Mg*currSpMass, Mg)   
+            // + fvm::div(linearInterpolate(rho*DEff/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)  
+
             fvm::laplacian(DEff*rho, currSpMass) 
-            // + fvc::laplacian(DEff*rho/Mg*currSpMass, Mg)   
+            // + fvc::laplacian(DEff*currSpMass, rho)   
+            // + fvm::div(linearInterpolate(rho*DEff/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
+            + fvm::div(linearInterpolate(DEff*fvc::grad(rho)) & mesh.Sf(), currSpMass)    
+
+            // fvm::laplacian(DEff*rho, currSpMass) 
+            //  fvc::laplacian(DEff*rho/Mg*molMList[lstI], currSpMoles) 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
             //  fvModels.source(dummyConcEqn, currSpMass)
@@ -82,25 +99,81 @@ forAll(specieNames,lstI)
         currSpMass.correctBoundaryConditions();
 
         sumWithoutRef += currSpMass;
+
+        // sumJMDiff += (DEff*rho/Mg*fvc::grad(currSpMass*Mg));
+        // sumWiMi += currSpMass / molMList[lstI];
     }
     else{
+        // sumJMDiff += (DEff*rho/Mg*currSpMass*fvc::grad(Mg));
         currSpMass = 1 - sumWithoutRef;
+        // currSpMass = (1 / Mg - sumWiMi) * molMList[lstI];
+        // sumJMDiff += (DEff*rho*fvc::grad(currSpMass));
     }
 }
 
-// -- calculate the gas molar mass
-volScalarField sumWiMi = 0/Mg;
-forAll(specieNames,lstI)
+for (label corMg = 0; corMg < 1; corMg++)
 {
-    sumWiMi += MassFrList[lstI] / molMList[lstI];
-}
-Mg = 1/sumWiMi;
+    sumWiMi = 0/Mg;
+    forAll(specieNames,lstI)
+    {
+        sumWiMi += MassFrList[lstI] / molMList[lstI];
+    }
+    Mg = 1/sumWiMi;
 
-// -- calculate the molar fractions 
-forAll(specieNames,lstI)
-{
-    MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;
+    // -- calculate the molar fractions, update UD from overall diffusive flux
+    sumWithoutRef = sumWithoutRef*0;
+    forAll(specieNames,lstI)
+    {
+        // if (lstI != specieNames.size() - 1){
+            MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;
+        // }
+        // else
+        // {
+        //     MFrList[lstI] = 1 - sumWithoutRef;
+        // }
+    }
+
+    // forAll(specieNames,lstI)
+    // {
+    //     sumJMDiff += (DEff*rho/Mg*fvc::grad(MassFrList[lstI]*Mg));
+    // }
+
+    // -- calculate the gas molar mass 
+    // sumWiMi = 0/Mg;
+    // Mg = Mg*0;
+
+    // forAll(specieNames,lstI)
+    // {
+    //     // sumWiMi += MassFrList[lstI] / molMList[lstI];
+    //     Mg += MFrList[lstI] * molMList[lstI];
+    // }
+
+    // sumWithoutRef = sumWithoutRef*0;
+    // forAll(specieNames,lstI)
+    // {
+    //     // if (lstI != specieNames.size() - 1){
+    //         MassFrList[lstI] = MFrList[lstI] * molMList[lstI] / Mg;
+    //     // }
+    //     // else
+    //     // {
+    //     //     MassFrList[lstI] = 1 - sumWithoutRef;
+    //     // }
+    // }
+
+    // sumWiMi = 0/Mg;
+    // forAll(specieNames,lstI)
+    // {
+    //     sumWiMi += MassFrList[lstI] / molMList[lstI];
+    // }
+    // Mg = 1/sumWiMi;
 }
+// Mg = 1/sumWiMi;
+
+// rho = p/univR/thermo.T()*Mg;
+// thermo.rho() = rho;
+
+// UD = sumJMDiff / Mg;
+// phiD = linearInterpolate(rho*UD) & mesh.Sf();
 
 // -- inform about mass and molar fractions
 if (debug > 0)

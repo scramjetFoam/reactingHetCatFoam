@@ -119,12 +119,12 @@
 
     // For closed-volume cases adjust the pressure and density levels
     // to obey overall mass continuity
-    if (closedVolume)
-    {
-        p += (initialMass - fvc::domainIntegrate(psi*p))
-            /fvc::domainIntegrate(psi);
-        p.correctBoundaryConditions();
-    }
+    // if (closedVolume)
+    // {
+    //     p += (initialMass - fvc::domainIntegrate(psi*p))
+    //         /fvc::domainIntegrate(psi);
+    //     p.correctBoundaryConditions();
+    // }
 
     // rho = thermo.rho();
     // rho = p/univR/T*molMList[molMList.size()-1];
@@ -135,7 +135,7 @@
 
     // -- update rho
     // rho.relax();
-    // rho = p/univR/thermo.T()*Mg;
+    rho = p/univR/thermo.T()*Mg;
     // thermo.rho() = rho;
 
     // // -- update cTot

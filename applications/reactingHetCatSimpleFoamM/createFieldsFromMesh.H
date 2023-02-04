@@ -39,8 +39,7 @@ volScalarField Mg
         writeOption1
     ),
     mesh,
-    dimensionedScalar("Mg",dimMass/dimMoles,0),
-    "zeroGradient"
+    dimensionedScalar("Mg",dimMass/dimMoles,0)
 );
 
 // -- prepare list to store molar fractions in (read from BC)
@@ -83,28 +82,31 @@ forAll(specieNames,countI)
     word currentSp = specieNames[countI] + "Mass";
     Info<< "Preparing the mass fraction of the: " << currentSp << endl;
 
-    volScalarField currentSpMass = MFrList[countI] * Mg / molMList[countI];
+    // volScalarField currentSpMass = MFrList[countI] * Mg / molMList[countI];
 
-    // loop over all boundaries
-    forAll(currentSpMass.boundaryField(), bfI)
-    {
-        if (MFrList[countI].boundaryField()[bfI].type() == "fixedValue")
-        {
-            currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], currentSpMass));
+    // // loop over all boundaries
+    // forAll(currentSpMass.boundaryField(), bfI)
+    // {
+    //     if (MFrList[countI].boundaryField()[bfI].type() == "fixedValue")
+    //     {
+    //         currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], currentSpMass));
+    //         Mg.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], Mg));
 
-            const polyPatch& patch = mesh.boundaryMesh()[bfI];
+    //         const polyPatch& patch = mesh.boundaryMesh()[bfI];
 
-            forAll(patch , faceI)
-            {
-                currentSpMass.boundaryFieldRef()[bfI][faceI] = (MFrList[countI].boundaryFieldRef()[bfI][faceI] * Mg.boundaryFieldRef()[bfI][faceI] / molMList[countI]).value();
-            }
-        }
-        else
-        {
-            currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], currentSpMass));
-        }
-        Info << "I set " << currentSpMass.boundaryField()[bfI] << endl;
-    }
+    //         forAll(patch , faceI)
+    //         {
+    //             Mg.boundaryFieldRef()[bfI][faceI] = (Mg.boundaryFieldRef()[bfI][faceI]);
+    //             currentSpMass.boundaryFieldRef()[bfI][faceI] = (MFrList[countI].boundaryFieldRef()[bfI][faceI] * Mg.boundaryFieldRef()[bfI][faceI] / molMList[countI]).value();
+    //         }
+    //     }
+    //     else
+    //     {
+    //         currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], currentSpMass));
+    //         Mg.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], Mg));
+    //     }
+    //     Info << "I set " << currentSpMass.boundaryField()[bfI] << endl;
+    // }
 
     MassFrList.set
     (
@@ -119,7 +121,8 @@ forAll(specieNames,countI)
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            currentSpMass
+            // currentSpMass
+            mesh
         )
     );
 }
@@ -165,19 +168,20 @@ volVectorField U
 // );
 
 // -- reading field UD -- velocity enforced by diffusion
-// Info<< "Reading field UD\n" << endl;
-// volVectorField UD
-// (
-//     IOobject
-//     (
-//         "UD",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::MUST_READ,
-//         IOobject::AUTO_WRITE
-//     ),
-//     mesh
-// );
+Info<< "Creating field UD\n" << endl;
+volVectorField UD
+(
+    IOobject
+    (
+        "UD",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    U*0
+);
+
 
 
 
