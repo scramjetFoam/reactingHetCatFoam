@@ -14,9 +14,11 @@
 
         rhoEq.solve();
 
-        fvConstraints.constrain(currSpMass);
+        fvConstraints.constrain(rho);
 
-        currSpMass.correctBoundaryConditions();
+        rho.correctBoundaryConditions();
 
-        sumWithoutRef += currSpMass;
+        p = rho * univR * thermo.T() / Mg;
+
+        phi = linearInterpolate(U * rho) & mesh.Sf();
 }

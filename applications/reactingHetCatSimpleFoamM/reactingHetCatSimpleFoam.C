@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
         {
             Info << "\nSolving momentum equation"<<endl;
              
-            #include "UEqn.H"
+            
 
             scalar nItconc(readScalar(simple.dict().lookup("nConcCorrectors")));
             scalar nItTemp(readScalar(simple.dict().lookup("nTempCorrectors")));
@@ -92,9 +92,10 @@ int main(int argc, char *argv[])
                 Info << "\nSolving enthalpy balance, iteration "<< concT+1 << "/" << nItTemp << endl;
                 #include "EEqn.H"
             }
-            
+            #include "UEqn.H"
             Info << "\nCorrection of pressure"<<endl;
             #include "pEqn.H"   
+            // #include "rhoEqn.H"   
         }              
                 
         turbulence->correct();

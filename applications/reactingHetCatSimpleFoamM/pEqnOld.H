@@ -7,10 +7,7 @@
     // const volScalarField& psi = rho/p;
     // volScalarField psi = rho/p;
     volScalarField psi = Mg/univR/thermo.T();
-    // volScalarField psiConst = Mgconst/univR/thermo.T();
-    // volScalarField psi = Mg/univR/thermo.T();
 
-    // rhoConst = Mgconst/univR/thermo.T();
 
     tmp<volVectorField> tHbyA;
     if (pressureImplicitPorosity)
@@ -54,8 +51,7 @@
                 fvm::laplacian(rho*trTU(), p)
               + fvModels.source(psi, p, rho.name())
              ==
-                // - fvc::div(phiCorr)
-                // - fvc::div(phiCons)
+                - fvc::div(phiD) +
                 fvc::div(phiHbyA)
                 // + fvc::div(phiRHSbyA)
             );
@@ -69,8 +65,8 @@
               + fvModels.source(psi, p, rho.name())
              ==
                 // - fvc::div(linearInterpolate(rho*UD)&mesh.Sf()) +
-                // - fvc::div(phiCorr)
-                // - fvc::div(phiCons)
+                - phiCorrFlux
+                - phiConsFlux
                 fvc::div(phiHbyA)
                 // - fvc::div(phiD)
                 // + fvc::div(phiRHSbyA)
@@ -126,8 +122,8 @@
     // to obey overall mass continuity
     // if (closedVolume)
     // {
-    //     p += (initialMass - fvc::domainIntegrate(psiConst*p))
-    //         /fvc::domainIntegrate(psiConst);
+    //     p += (initialMass - fvc::domainIntegrate(psi*p))
+    //         /fvc::domainIntegrate(psi);
     //     p.correctBoundaryConditions();
     // }
 
@@ -144,29 +140,9 @@
 
     // Info <<max(rho)<<endl;
         // -- update rho
-
-    // rho.relax();
-
-    // rho = p * psiConst;
-    // rho = p * psi;
-    
-    // rho = p/univR/thermo.T()*Mg;
-    rho = p * psi;
-    thermo.rho() = rho;
     rho.relax();
-
-    // rhoN = rho * Mg / Mgconst;
-    // volScalarField rhoStar = rhoN - rho;
-
-    // fvScalarMatrix UStarEqn
-    // (
-    //     // -- specie mass convection
-    //     fvc::div(fvc::interpolate(rhoN), UStar)
-    //     ==
-    //     // - fvc::div(linearInterpolate(rhoN*U) & mesh.Sf())
-    //     - fvc::div(fvc::interpolate(rhoStar), U)
-    //     // 0
-    // );
-
-    // surfaceScalarField phiStar = UStarEqn.flux();
+    // rho = p/univR/thermo.T()*Mg;
+    rho = p*psi;
+    thermo.rho() = rho;
+    // rho.relax();
 }

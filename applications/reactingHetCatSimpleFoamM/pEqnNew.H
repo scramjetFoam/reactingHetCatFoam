@@ -6,9 +6,9 @@
 
     // const volScalarField& psi = rho/p;
     // volScalarField psi = rho/p;
-    volScalarField psi = Mg/univR/thermo.T();
-    // volScalarField psiConst = Mgconst/univR/thermo.T();
     // volScalarField psi = Mg/univR/thermo.T();
+    volScalarField psiConst = Mgconst/univR/thermo.T();
+    volScalarField psi = Mg/univR/thermo.T();
 
     // rhoConst = Mgconst/univR/thermo.T();
 
@@ -30,9 +30,9 @@
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        fvc::interpolate(rho)*fvc::flux(HbyA)
+        fvc::interpolate(rhoConst)*fvc::flux(HbyA)
     );
-    MRF.makeRelative(fvc::interpolate(rho), phiHbyA);
+    MRF.makeRelative(fvc::interpolate(rhoConst), phiHbyA);
 
     closedVolume = adjustPhi(phiHbyA, U, p);
 
@@ -51,12 +51,12 @@
         {
             tpEqn =
             (
-                fvm::laplacian(rho*trTU(), p)
-              + fvModels.source(psi, p, rho.name())
+                fvm::laplacian(rhoConst*trTU(), p)
+              + fvModels.source(psiConst, p, rho.name())
              ==
-                // - fvc::div(phiCorr)
-                // - fvc::div(phiCons)
-                fvc::div(phiHbyA)
+                - fvc::div(phiCorr)
+                - fvc::div(phiCons)
+                + fvc::div(phiHbyA)
                 // + fvc::div(phiRHSbyA)
             );
         }
@@ -65,13 +65,13 @@
         {
             tpEqn =
             (
-                fvm::laplacian(rho*trAU(), p)
-              + fvModels.source(psi, p, rho.name())
+                fvm::laplacian(rhoConst*trAU(), p)
+              + fvModels.source(psiConst, p, rho.name())
              ==
                 // - fvc::div(linearInterpolate(rho*UD)&mesh.Sf()) +
-                // - fvc::div(phiCorr)
-                // - fvc::div(phiCons)
-                fvc::div(phiHbyA)
+                - fvc::div(phiCorr)
+                - fvc::div(phiCons)
+                + fvc::div(phiHbyA)
                 // - fvc::div(phiD)
                 // + fvc::div(phiRHSbyA)
             );
@@ -145,28 +145,12 @@
     // Info <<max(rho)<<endl;
         // -- update rho
 
-    // rho.relax();
+    rho.relax();
 
-    // rho = p * psiConst;
-    // rho = p * psi;
+    rhoConst = p * psiConst;
     
     // rho = p/univR/thermo.T()*Mg;
     rho = p * psi;
     thermo.rho() = rho;
-    rho.relax();
-
-    // rhoN = rho * Mg / Mgconst;
-    // volScalarField rhoStar = rhoN - rho;
-
-    // fvScalarMatrix UStarEqn
-    // (
-    //     // -- specie mass convection
-    //     fvc::div(fvc::interpolate(rhoN), UStar)
-    //     ==
-    //     // - fvc::div(linearInterpolate(rhoN*U) & mesh.Sf())
-    //     - fvc::div(fvc::interpolate(rhoStar), U)
-    //     // 0
-    // );
-
-    // surfaceScalarField phiStar = UStarEqn.flux();
+    // rho.relax();
 }

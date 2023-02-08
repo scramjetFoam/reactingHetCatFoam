@@ -168,19 +168,19 @@ volVectorField U
 // );
 
 // -- reading field UD -- velocity enforced by diffusion
-Info<< "Creating field UD\n" << endl;
-volVectorField UD
-(
-    IOobject
-    (
-        "UD",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    U*0
-);
+// Info<< "Creating field UD\n" << endl;
+// volVectorField UD
+// (
+//     IOobject
+//     (
+//         "UD",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     U*0
+// );
 
 
 

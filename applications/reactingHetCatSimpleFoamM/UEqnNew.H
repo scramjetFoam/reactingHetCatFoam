@@ -26,7 +26,7 @@
     tmp<fvVectorMatrix> tUEqn
     (
         fvm::div(phi, U)
-      + MRF.DDt(rho, U)
+      + MRF.DDt(rhoConst, U)
       + turbulence->divDevTau(U)
     //   + fvm::div(phiD,U)
      ==
@@ -44,7 +44,7 @@
         //
         //  explRHS*mesh.V()/dimensionedScalar("jedna",dimVolume,1) +
         //  explRHS +
-         fvModels.source(rho, U)
+         fvModels.source(rhoConst, U)
     );
     fvVectorMatrix& UEqn = tUEqn.ref();
 

@@ -1,9 +1,9 @@
 // -- creating field with sum of the diffusive fluxes of all species but reference
-volVectorField sumJMDiff
+volVectorField UD
 (
     IOobject
     (
-        "sumJMDiff",
+        "UD",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -11,9 +11,124 @@ volVectorField sumJMDiff
     ),
     mesh,
     // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
-    dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
+    dimensionedVector ("UD",dimLength/dimTime, vector(0.0,0.0,0.0))
     // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
 );
+
+// surfaceScalarField phiD = linearInterpolate(UD * )
+
+// surfaceVectorField UDRef
+// (
+//     IOobject
+//     (
+//         "UDRef",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         writeOption2
+//     ),
+//     mesh,
+//     // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+//     dimensionedVector ("UDRef", dimLength/dimTime, vector(0.0,0.0,0.0))
+//     // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+// );
+
+volVectorField mD
+(
+    IOobject
+    (
+        "mD",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption2
+    ),
+    mesh,
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+    dimensionedVector ("mD",dimMass/dimVolume*dimLength/dimTime, vector(0.0,0.0,0.0))
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+);
+
+surfaceScalarField UDF
+(
+    IOobject
+    (
+        "UDF",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption2
+    ),
+    mesh,
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+    dimensionedScalar ("UDF",dimLength/dimTime, 0)
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+);
+
+surfaceVectorField UDFS
+(
+    IOobject
+    (
+        "UDFS",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption2
+    ),
+    mesh,
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+    dimensionedVector ("UDFS",dimLength/dimTime, vector(1.0,0.0,0.0))
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+);
+
+surfaceVectorField UDFSOld
+(
+    IOobject
+    (
+        "UDFSOld",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption2
+    ),
+    mesh,
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+    dimensionedVector ("UDFSOld",dimless, vector(1.0,0.0,0.0))
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+);
+
+volVectorField mDBC
+(
+    IOobject
+    (
+        "mDBC",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption2
+    ),
+    mesh,
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+    dimensionedVector ("mDBC",dimMass/dimVolume*dimLength/dimTime, vector(0.0,0.0,0.0)),
+    "fixedValue"
+    // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+);
+
+// volScalarField sumMDi
+// (
+//     IOobject
+//     (
+//         "sumMDi",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         writeOption2
+//     ),
+//     mesh,
+//     // dimensionedVector ("sumJMDiff",dimLength/dimTime, vector(0.0,0.0,0.0))
+//     dimensionedScalar ("sumMDi",dimMass/dimVolume/dimTime, 0)
+//     // dimensionedVector ("sumJMDiff",dimLength/dimTime*dimMass/dimMoles, vector(0.0,0.0,0.0))
+// );
 
 // // -- creating field with sum of the diffusive molar fluxes of all species but reference
 // volVectorField sumJDiff

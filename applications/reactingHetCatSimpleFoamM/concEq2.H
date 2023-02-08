@@ -3,9 +3,11 @@ sumWithoutRef = 0*sumWithoutRef;
 
 // -- calculate the diffusive flux
 // -- update sum of the diffusive fluxes
-sumJMDiff = 0*sumJMDiff;
+// volVectorField mDOld = mD;
+// sumMDi = sumMDi * 0;
 
-volScalarField sumWiMi = 0/Mg;
+// volVectorField UDOld = UD;
+UD = UD * 0;
 
 // -- solve the concentration equation for all but one chemical species
 forAll(specieNames,lstI)
@@ -67,8 +69,9 @@ forAll(specieNames,lstI)
         fvScalarMatrix concEq
         (
             // -- specie mass convection
-            fvm::div(phi, currSpMass)
-            // fvm::div(phi, currSpMass)
+            fvm::div(phi, currSpMass) 
+            // fvm::div(fvc::interpolate(UDOld * rho) & mesh.Sf(), currSpMass)
+            // fvm::div(phi + phiCons + phiCorr, currSpMass) 
             ==
             // -- specie mass diffusion                           
             // fvm::laplacian(DEff*rho, currSpMass) 
@@ -77,8 +80,8 @@ forAll(specieNames,lstI)
 
             fvm::laplacian(DEff*rho, currSpMass) 
             // + fvc::laplacian(DEff*currSpMass, rho)   
-            // + fvm::div(linearInterpolate(rho*DEff/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
-            + fvm::div(linearInterpolate(DEff*fvc::grad(rho)) & mesh.Sf(), currSpMass)    
+            + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
+            // + fvm::div(linearInterpolate(DEff*fvc::grad(rho)) & mesh.Sf(), currSpMass)    
 
             // fvm::laplacian(DEff*rho, currSpMass) 
             //  fvc::laplacian(DEff*rho/Mg*molMList[lstI], currSpMoles) 
@@ -99,21 +102,41 @@ forAll(specieNames,lstI)
         currSpMass.correctBoundaryConditions();
 
         sumWithoutRef += currSpMass;
+        // mD += rho * U * currSpMass;
+        // sumMDi += fvc::laplacian( DEff * rho / Mg, currSpMass * Mg);
+        // mD -= (DEff*rho/Mg*fvc::grad(currSpMass*Mg));
+        // mD -= (DEff*rho/Mg*fvc::grad(currSpMoles)*molMList[lstI]);
 
-        // sumJMDiff += (DEff*rho/Mg*fvc::grad(currSpMass*Mg));
+        UD -= (DEff/Mg*fvc::grad(currSpMass*Mg));
+        // mD -= (DEff/Mg*fvc::grad(currSpMass*Mg));
         // sumWiMi += currSpMass / molMList[lstI];
+        // Info << "mD = " << max(mD).value() << endl;
+
     }
-    else{
-        // sumJMDiff += (DEff*rho/Mg*currSpMass*fvc::grad(Mg));
+    else
+    {
+        // mD += rho * U * currSpMass;
+        
         currSpMass = 1 - sumWithoutRef;
+
+        UD = UD / currSpMass;
+
+        // mD = mD / currSpMass;
+        
+        // mD = mD / currSpMass;
+        
+        // UD -= (DEff/Mg*fvc::grad(currSpMass*Mg));
+        // Info << "UD = " << max(UD).value() << endl;
         // currSpMass = (1 / Mg - sumWiMi) * molMList[lstI];
         // sumJMDiff += (DEff*rho*fvc::grad(currSpMass));
     }
 }
 
+// surfaceScalarField phiOld = (linearInterpolate(rho*U) & mesh.Sf());
+
 for (label corMg = 0; corMg < 1; corMg++)
 {
-    sumWiMi = 0/Mg;
+    volScalarField sumWiMi = 0/Mg;
     forAll(specieNames,lstI)
     {
         sumWiMi += MassFrList[lstI] / molMList[lstI];
@@ -121,18 +144,43 @@ for (label corMg = 0; corMg < 1; corMg++)
     Mg = 1/sumWiMi;
 
     // -- calculate the molar fractions, update UD from overall diffusive flux
-    sumWithoutRef = sumWithoutRef*0;
+    sumWithoutRef = sumWithoutRef * 0;
     forAll(specieNames,lstI)
     {
+        MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;
         // if (lstI != specieNames.size() - 1){
-            MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;
+        //     UD -= (DEff/Mg*fvc::grad(MassFrList[lstI]*Mg));
         // }
+        // // if (lstI != specieNames.size() - 1){
+        // //     // mD -= (DEff*rho/Mg*fvc::grad(MassFrList[lstI]*Mg));
+        // //     // mDF -= fvc::interpolate(DEff*rho/Mg * fvc::grad(MassFrList[lstI]*Mg)) & mesh.Sf();
+        // //     // UDF -= fvc::interpolate(DEff/Mg) * fvc::snGrad(MassFrList[lstI]*Mg);
+        // //     UD -= (DEff/Mg*fvc::grad(MassFrList[lstI]*Mg));
+        // // }
+        // //     // dimensionedScalar D(transportProperties.subDict(specieNames[lstI]).lookup("D"));//R constant
+        // //     // DEff = 0*DEff + D;
+        // // // }
         // else
         // {
-        //     MFrList[lstI] = 1 - sumWithoutRef;
+        // //     // mD = mD / MassFrList[lstI];
+        //     UD = UD / MassFrList[lstI];
+        // //     // UDF = UDF / fvc::interpolate(MassFrList[lstI]);
         // }
     }
 
+    // UDFS = UDFSOld * UDF;
+
+    // surfaceScalarField rhoS = fvc::interpolate(rho);
+
+    // forAll(UDFS, faceI)
+    // {
+        // UDFS[faceI][0] = UDF[faceI];
+    // }
+
+    // Info << max(UDFS.boundaryField()) << endl;
+
+    // UDFS = mDF / fvc::interpolate(rho);
+    
     // forAll(specieNames,lstI)
     // {
     //     sumJMDiff += (DEff*rho/Mg*fvc::grad(MassFrList[lstI]*Mg));
@@ -167,10 +215,24 @@ for (label corMg = 0; corMg < 1; corMg++)
     // }
     // Mg = 1/sumWiMi;
 }
+// volScalarField rhoStar = p / univR / thermo.T() * (Mg - Mgconst);
+
+// phiCons = ((linearInterpolate(rhoStar * U) & mesh.Sf()));
+// volVectorField UStar = - (fvc::div(phi) + fvc::div(phiCons) + fvc::div(((linearInterpolate(UStar) & mesh.Sf()))) * rho) / fvc::div(((linearInterpolate(rho)) & mesh.Sf()));
+// phiCorr = fvc::div(linearInterpolate(rho * UStar) & mesh.Sf());
 // Mg = 1/sumWiMi;
+
+// volScalarField rhoOld = rho;
 
 // rho = p/univR/thermo.T()*Mg;
 // thermo.rho() = rho;
+
+// p = p * rho / rhoOld;
+
+// rho = rhoOld;
+
+
+// phi = linearInterpolate(rho*U) & mesh.Sf();
 
 // UD = sumJMDiff / Mg;
 // phiD = linearInterpolate(rho*UD) & mesh.Sf();
