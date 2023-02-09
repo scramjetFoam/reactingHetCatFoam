@@ -3,7 +3,7 @@ Folder with model verification cases:
         1) flowAroundSphere
             -- Folder with verification cases for specie transport and reaction, flow over the spherical particle.
             Includes:
-                i) baseCase_flow
+                i) baseCase
                     -- case folder that is copied in each study
                 ii) ZZ_*
                     -- folders to store created verification cases in
@@ -24,11 +24,11 @@ Folder with model verification cases:
         3) flowAroundSphereMass
             -- Folder with verification cases for specie transport and reaction, flow over the spherical particle, mass formulation
             Includes:
-                i) baseCase_flow
+                i) baseCase
                     -- case folder that is copied in each study (mass formulation)
                 ii) ZZ_*
                     -- folders to store created verification cases in
-                iii) verOuterTransControlV1.py
+                iii) verOuterTransControlMassV1.py
                     -- template of the control script for creation and running verification studies
 
             
