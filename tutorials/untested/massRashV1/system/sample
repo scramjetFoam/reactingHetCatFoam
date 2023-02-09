@@ -1,0 +1,35 @@
+type surfaces;
+libs            ("libsampling.so");
+
+interpolationScheme cell;
+
+setFormat       raw;
+
+surfaceFormat foam;
+
+// sets
+// (
+//     line_centreProfile
+//     {
+//         type    lineUniform;
+//         axis    distance;
+//         start   (10.001 -1 0.01);
+//         end     (10.001 1 0.01);
+//         nPoints 100;
+//     }
+// );
+
+fields          ( U T ethylene );
+
+surfaces
+(
+    outlet_field
+    {
+        type patch;
+        patches (outlet );
+        interpolate true;
+        // Optional: whether to leave as faces (=default) or triangulate
+        triangulate false;
+    }
+);
+

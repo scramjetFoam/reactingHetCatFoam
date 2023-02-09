@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  4.0                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      CO;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.07;
+//~ internalField   uniform 0.01;
+
+boundaryField
+{
+    inlet
+    {
+        type            timeVaryingMappedFixedValue;
+        offset 0; 
+        setAverage off;
+        mapMethod nearest;
+        // value           uniform 0.07;
+    }
+
+    "(outlet|walls|inletCyl)"
+    {
+        type        zeroGradient;
+    }
+    cylinder
+//   sides 
+    {
+//	    type zeroGradient;
+        type            codedMixed;
+        refValue        uniform 0;
+        refGradient        uniform 0;
+        valueFraction    uniform 0;        //1 - pure Neumann, 0 - pure Dirichlet
+        
+        name            customBC;        //The name of the dynamically created BC
+        
+        code
+        #{
+                    
+            const volScalarField& CO = this->db().lookupObject<volScalarField>("ethylene");
+
+            //const volScalarField& T = this->db().lookupObject<volScalarField>("thermo:T");
+            //const volScalarField& p = this->db().lookupObject<volScalarField>("thermo:p");
+            const volScalarField& rho = this->db().lookupObject<volScalarField>("thermo:rho");
+            //volScalarField rho = p*28e-3/8.31446261815324/T;
+      //      surfaceScalarField sngradCTot = fvc::snGrad(rho);
+	    surfaceScalarField e_feld (-fvc::snGrad(rho)*fvc::interpolate(CO)/fvc::interpolate(rho));
+
+
+      //      surfaceScalarField e_feld
+      //      (
+      //          IOobject
+      //          (
+      //              "e_feld",
+      //              db().time().timePath(),
+      //              db(),
+      //              IOobject::NO_READ,
+      //              IOobject::AUTO_WRITE
+      //          ),
+      //          -fvc::interpolate(CO)*sngradCTot/fvc::interpolate(rho)
+      //      );
+
+//            Info << min(e_feld) << " " << max(e_feld)<<endl;
+            this->refGrad() =  e_feld.boundaryField()[patch().index()];
+        #};
+         
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude \
+            -I$(LIB_SRC)/sampling/lnInclude
+        #};
+    }
+
+}
+
+// ************************************************************************* //
