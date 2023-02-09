@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  4.0                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      CO;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.426;
+//~ internalField   uniform 0.01;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 0.426;
+    }
+
+    "(outlet|walls|inletCyl)"
+    {
+        // type        zeroGradient;
+        type            fixedValue;
+        value           uniform 0;
+    }
+    cylinder
+//   sides 
+    {
+	    type zeroGradient;
+        // type empty;
+        // type            codedMixed;
+        // refValue        uniform 0;
+        // refGradient        uniform 0;
+        // valueFraction    uniform 0;        //1 - pure Neumann, 0 - pure Dirichlet
+        
+        // name            customBC;        //The name of the dynamically created BC
+        
+        // code
+        // #{
+                    
+        //     const volScalarField& CO = this->db().lookupObject<volScalarField>("ethylene");
+        //     const volScalarField& cTot = this->db().lookupObject<volScalarField>("cTot");
+	    //     // surfaceScalarField e_feld (-fvc::snGrad(rho)*fvc::interpolate(CO)/fvc::interpolate(rho));
+	    //     surfaceScalarField e_feld (-fvc::snGrad(cTot)*fvc::interpolate(CO)/fvc::interpolate(cTot));
+        //     this->refGrad() =  e_feld.boundaryField()[patch().index()];
+        // #};
+         
+        // codeInclude
+        // #{
+        //     #include "fvCFD.H"
+        // #};
+
+        // codeOptions
+        // #{
+        //     -I$(LIB_SRC)/finiteVolume/lnInclude \
+        //     -I$(LIB_SRC)/meshTools/lnInclude \
+        //     -I$(LIB_SRC)/sampling/lnInclude
+        // #};
+    }
+
+}
+
+// ************************************************************************* //
