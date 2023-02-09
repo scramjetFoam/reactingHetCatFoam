@@ -74,6 +74,23 @@ forAll(specieNames,lstI)
     Mg += MFrList[lstI] * molMList[lstI];
 }
 
+volScalarField MgOld = Mg;
+
+// // loop over all boundaries
+forAll(MFrList[0].boundaryField(), bfI)
+{
+    if (MFrList[0].boundaryField()[bfI].type() == "fixedValue")
+    {
+        Mg.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], Mg));
+        const polyPatch& patch = mesh.boundaryMesh()[bfI];
+        forAll(patch , faceI)
+        {
+            Mg.boundaryFieldRef()[bfI][faceI] = (MgOld.boundaryFieldRef()[bfI][faceI]);
+        }
+    }
+    Info << "I set " << Mg.boundaryField()[bfI] << endl;
+}
+
 // prepare list to store mass fractions in
 PtrList<volScalarField> MassFrList(specieNames.size());
 
@@ -82,31 +99,30 @@ forAll(specieNames,countI)
     word currentSp = specieNames[countI] + "Mass";
     Info<< "Preparing the mass fraction of the: " << currentSp << endl;
 
-    // volScalarField currentSpMass = MFrList[countI] * Mg / molMList[countI];
+    volScalarField currentSpMass = MFrList[countI] / Mg * molMList[countI];
 
     // // loop over all boundaries
-    // forAll(currentSpMass.boundaryField(), bfI)
-    // {
-    //     if (MFrList[countI].boundaryField()[bfI].type() == "fixedValue")
-    //     {
-    //         currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], currentSpMass));
-    //         Mg.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], Mg));
+    forAll(currentSpMass.boundaryField(), bfI)
+    {
+        if (MFrList[countI].boundaryField()[bfI].type() == "fixedValue")
+        {
+            currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], currentSpMass));
+            // Mg.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("fixedValue", mesh.boundary()[bfI], Mg));
 
-    //         const polyPatch& patch = mesh.boundaryMesh()[bfI];
+            const polyPatch& patch = mesh.boundaryMesh()[bfI];
 
-    //         forAll(patch , faceI)
-    //         {
-    //             Mg.boundaryFieldRef()[bfI][faceI] = (Mg.boundaryFieldRef()[bfI][faceI]);
-    //             currentSpMass.boundaryFieldRef()[bfI][faceI] = (MFrList[countI].boundaryFieldRef()[bfI][faceI] * Mg.boundaryFieldRef()[bfI][faceI] / molMList[countI]).value();
-    //         }
-    //     }
-    //     else
-    //     {
-    //         currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], currentSpMass));
-    //         Mg.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], Mg));
-    //     }
-    //     Info << "I set " << currentSpMass.boundaryField()[bfI] << endl;
-    // }
+            forAll(patch , faceI)
+            {
+            //     // Mg.boundaryFieldRef()[bfI][faceI] = (Mg.boundaryFieldRef()[bfI][faceI]);
+                currentSpMass.boundaryFieldRef()[bfI][faceI] = (MFrList[countI].boundaryFieldRef()[bfI][faceI] / Mg.boundaryFieldRef()[bfI][faceI] * molMList[countI]).value();
+            }
+        }
+        else if (MFrList[countI].boundaryField()[bfI].type() == "fixedValue")
+        {
+            currentSpMass.boundaryFieldRef().set(bfI , fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[bfI], currentSpMass));
+        }
+        Info << "I set " << currentSpMass.boundaryField()[bfI] << endl;
+    }
 
     MassFrList.set
     (
@@ -121,8 +137,8 @@ forAll(specieNames,countI)
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            // currentSpMass
-            mesh
+            currentSpMass
+            // mesh
         )
     );
 }
