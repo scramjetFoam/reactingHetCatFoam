@@ -1,8 +1,23 @@
-# -- Python script to create manage openFoam cases using python class OpenFOAMCase
+# -- Script for verification simulation of conjugated mass transport
+# -- NOTE SCRIPT ARGUMENTS:
+#       -- "makeMesh": prepare mesh for each cellSize 
+#           (this must be done manually if protoMesh doesn't exist yet)
+#       -- "runSim": run the simulation
+#       -- "showPlots": shows Plots
+#       -- "getCsv": generate csv files for TeX plots 
+#       -- "errMesh": evaluate error mesh dependency 
+#           (for otherwise identical parameters) 
+# -- NOTE V3 changelog: 
+#       -- thieleLst + tortLst --> k0
+#       -- ReLst + R --> invLst
+#       -- flow.csv stores Thiele modulus
+#       -- removed eta_anal
+#       -- uses auxiliarFuncsV3
+#       -- added error mesh dependency tests
 
-# -- for the usage see please OF_caseClass.py
-
+# -- using OF_caseClass for the description see OF_caseClass.py
 # -- imports 
+
 from OF_caseClass import OpenFOAMCase
 import sys
 import numpy as np
@@ -107,18 +122,19 @@ for case in cases:
         caseHere.loadOFCaseFromBaseCase(meshDir)
         caseHere.changeOFCaseDir(caseDir)
         meshCase.copyBaseCase()
-        caseHere.replace(caseDir,'0.org/T',['isoT'],[str(T)])
-        caseHere.replace(caseDir,'0.org/CO',['yCOSet'],[str(yInf)])
-        caseHere.replace(caseDir,'0.org/U', ['inv'],[str(inv)])
-        caseHere.replace(caseDir,'system/controlDict',['customSolver'],[solver])
-        caseHere.replace(caseDir,'system/fvSolution',['nTCorr'],[str(numOfTCorr)])
-        caseHere.replace(caseDir,'constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)])
-        caseHere.replace(caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)])
+        caseHere.replace([caseDir,'0.org/T',['isoT'],[str(T)],
+                          caseDir,'0.org/CO',['yCOSet'],[str(yInf)],
+                          caseDir,'0.org/U', ['inv'],[str(inv)],
+                          caseDir,'system/controlDict',['customSolver'],[solver],
+                          caseDir,'system/fvSolution',['nTCorr'],[str(numOfTCorr)],
+                          caseDir,'constant/reactiveProperties',['k0Set','EASet','sHrSet'],
+                          caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]
+                        ])
         # -- run simulation
         caseHere.runCommands(['chmod u=rwx Allrun-parallel', './Allrun-parallel'])
     else: 
         caseHere = OpenFOAMCase()
-        caseHere.loadOFCaseFromBaseCase(meshDir)
+        caseHere.loadOFCaseFromBaseCase(caseDir)
     
     os.chdir(caseDir)
     rSqIdeal = 4./3*np.pi*R**3*k0Art*yInf*p/Runiv/T             # ideal reaction source
