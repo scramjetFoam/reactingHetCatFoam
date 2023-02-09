@@ -1,1 +1,35 @@
-Folder with model verification cases.
+Folder with model verification cases:
+    Includes:
+        1) flowAroundSphere
+            -- Folder with verification cases for specie transport and reaction, flow over the spherical particle.
+            Includes:
+                i) baseCase_flow
+                    -- case folder that is copied in each study
+                ii) ZZ_*
+                    -- folders to store created verification cases in
+                iii) verOuterTransControlV1.py
+                    -- template of the control script for creation and running verification studies over the spherical particle
+        2) innerSpherePartTransp
+            -- Folder with verification cases for specie and enthalpy transport and reaction inside spherical particle.
+            Includes:
+                i) baseCase
+                    -- case folder that is copied in each study
+                ii) ZZ_*
+                    -- folders to store created verification cases in
+                iii) verInnerTransControl.py
+                    -- template of the control script for creation and running verification studies in the sphere       
+                shootChandra.py
+                    -- python script to compute curves of eta/thiele diagram with multiple steady states
+                    NOTE: not full curves, needs to be extended
+        3) flowAroundSphereMass
+            -- Folder with verification cases for specie transport and reaction, flow over the spherical particle, mass formulation
+            Includes:
+                i) baseCase_flow
+                    -- case folder that is copied in each study (mass formulation)
+                ii) ZZ_*
+                    -- folders to store created verification cases in
+                iii) verOuterTransControlV1.py
+                    -- template of the control script for creation and running verification studies
+
+            
+
