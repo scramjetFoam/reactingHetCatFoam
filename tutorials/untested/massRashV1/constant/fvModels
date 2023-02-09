@@ -39,6 +39,32 @@ reactionSourceEthyleneIW
     #};
 }
 
+reactionSourceProdIW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceCOIW;
+    selectionMode   all;
+
+    // field 		        CO;
+    // field 		        ethylene;
+    field 		        prod;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{        
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("prod");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
 
 enthalpySourceINWALL
 {

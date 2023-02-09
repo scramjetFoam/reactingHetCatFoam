@@ -6,6 +6,8 @@ cd ${0%/*} || exit 1    # run from this directory
 
 #~ cp -ar constant/* constantBAC
 
+rm -rf constant/boundaryData*
+
 cleanCase
 
 rm -rf 0

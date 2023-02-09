@@ -32,8 +32,13 @@ rm -rf */pointLevel
 # runApplication decomposePar 
 
 runParallel renumberMesh -overwrite
+runApplication reconstructParMesh -constant
+runApplication topoSet
+rm -rf processor*
+mv log.decomposePar log.decomposePar1
+runApplication decomposePar -fields
 # add reactive cell zone 
-# runApplication topoSet
+
 
 #application=`getApplication`
 #runParallel $application

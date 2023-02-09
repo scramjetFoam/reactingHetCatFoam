@@ -16,19 +16,21 @@ FoamFile
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.1;
+internalField   uniform 0.07;
 //~ internalField   uniform 0.01;
 
 boundaryField
 {
     inlet
     {
-        type            fixedValue;
-        // value           uniform 0.1;
-        value           $internalField;
+			
+type	timeVaryingMappedFixedValue;			
+offset 0;			
+setAverage off;			
+mapMethod nearest;
     }
 
-    "(outlet|walls|inletCyl)"
+    "(outlet|walls)"
     {
         type        zeroGradient;
     }
@@ -36,80 +38,34 @@ boundaryField
 //   sides 
     {
 	    type zeroGradient;
-        type            codedMixed;
-        refValue        uniform 0;
-        refGradient        uniform 0;
-        valueFraction uniform 0;
+        // type            codedMixed;
+        // refValue        uniform 0;
+        // refGradient        uniform 0;
+        // valueFraction    uniform 0;        //1 - pure Neumann, 0 - pure Dirichlet
         
-        name            problemWithRho;        //The name of the dynamically created BC
+        // name            customBC;        //The name of the dynamically created BC
         
-        code
-        #{
+        // code
+        // #{
                     
-            const volScalarField& ethylene = this->db().lookupObject<volScalarField>("ethylene");
-
-           // const volScalarField& T = this->db().lookupObject<volScalarField>("TPrevIter");
-        //    const volScalarField& cp = this->db().lookupObject<volScalarField>("Cp");
-        //    const volScalarField& h = this->db().lookupObject<volScalarField>("h");
-        //    const volScalarField& p = this->db().lookupObject<volScalarField>("pPrevIter");
-            const volScalarField& rho = this->db().lookupObject<volScalarField>("rho");
-        //    volScalarField rho = p*28e-3/8.31446261815324/h*cp;
-      //      surfaceScalarField sngradCTot = fvc::snGrad(rho);
-           // surfaceScalarField e_feld (-fvc::snGrad(rho)*fvc::interpolate(ethylene)/fvc::interpolate(rho));
-           surfaceScalarField e_feld (-fvc::snGrad(rho)*linearInterpolate(ethylene)/linearInterpolate(rho));
-          //  const surfaceScalarField& e_feld =this->db().lookupObject<surfaceScalarField>("e_feld");
-
-
-      //      surfaceScalarField e_feld
-      //      (
-      //          IOobject
-      //          (
-      //              "e_feld",
-      //              db().time().timePath(),
-      //              db(),
-      //              IOobject::NO_READ,
-      //              IOobject::AUTO_WRITE
-      //          ),
-      //          -fvc::interpolate(CO)*sngradCTot/fvc::interpolate(rho)
-      //      );
-
-           // Info << min(e_feld) << " " << max(e_feld)<<endl;
-           
-	  	//const IOdictionary& d = static_cast<const IOdictionary&>(dict.parent().parent());
-//                const fvMesh& mesh = refCast<const fvMesh>(this->db());
-//                const label id = mesh.boundary().findPatchID("cylinder");
-//                const fvPatch& patch = mesh.boundary()[id];
-//                scalarField compGrad(patch.size(), 0.0);
-//
-//                //const volScalarField& rho = mesh.lookupObject<volScalarField>("rho");
-//                //const volScalarField& ethylene = mesh.lookupObject<volScalarField>("ethylene");
-//                const scalarField& rhoB = mesh.lookupObject<volScalarField>("rho").boundaryField()[id];
-//                const scalarField& ethyleneB = mesh.lookupObject<volScalarField>("ethylene").boundaryField()[id];
-//                const scalarField& gradRhoB = mesh.lookupObject<surfaceScalarField>("gradRho").boundaryField()[id];
-//		//volScalarField gradRhoB2 = fvc::snGrad(mesh.lookupObject<volScalarField>("rho"));
-//	//	Info << patch().nf() <<endl;
-//
-//                forAll(compGrad, facei)
-//                {
-//                   //const scalar y = patch.Cf()[facei].y();
-//                   compGrad[facei] = -ethyleneB[facei]*gradRhoB[facei]/rhoB[facei];
-//                }
-                //writeEntry(os, "", epsp);
-	    this->refGrad() =  e_feld.boundaryField()[patch().index()];
-//	   this->refGrad() =  compGrad;
-        #};
+        //     const volScalarField& CO = this->db().lookupObject<volScalarField>("ethylene");
+        //     const volScalarField& cTot = this->db().lookupObject<volScalarField>("cTot");
+	    //     // surfaceScalarField e_feld (-fvc::snGrad(rho)*fvc::interpolate(CO)/fvc::interpolate(rho));
+	    //     surfaceScalarField e_feld (-fvc::snGrad(cTot)*fvc::interpolate(CO)/fvc::interpolate(cTot));
+        //     this->refGrad() =  e_feld.boundaryField()[patch().index()];
+        // #};
          
-        codeInclude
-        #{
-            #include "fvCFD.H"
-        #};
+        // codeInclude
+        // #{
+        //     #include "fvCFD.H"
+        // #};
 
-        codeOptions
-        #{
-            -I$(LIB_SRC)/finiteVolume/lnInclude \
-            -I$(LIB_SRC)/meshTools/lnInclude \
-            -I$(LIB_SRC)/sampling/lnInclude
-        #};
+        // codeOptions
+        // #{
+        //     -I$(LIB_SRC)/finiteVolume/lnInclude \
+        //     -I$(LIB_SRC)/meshTools/lnInclude \
+        //     -I$(LIB_SRC)/sampling/lnInclude
+        // #};
     }
 
 }

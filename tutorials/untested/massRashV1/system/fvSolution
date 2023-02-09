@@ -24,7 +24,7 @@ solvers
         {
             preconditioner  GAMG;
             tolerance       1e-07;
-            relTol          0.05;
+            relTol          0.01;
             smoother        symGaussSeidel;
             nPreSweeps      0;
             nPostSweeps     2;
@@ -37,22 +37,22 @@ solvers
             mergeLevels             1;
         }
         tolerance       1e-08;
-        relTol          0.05;
+        relTol          0.01;
     }
 
     "(U)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-10;
-        relTol          0.05;
+        tolerance       1e-9;
+        relTol          0.01;
     }
 
     "T"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-08;
+        tolerance       1e-8;
         relTol          0.01;
     }
     
@@ -73,11 +73,11 @@ solvers
         mergeLevels             1;
     }
     
-    "(CO|O2|CO2|N2O|N2|NO|ethylene)"
+    "(CO|O2|CO2|N2O|N2|NO|ethylene|prod)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-08;
+        tolerance       1e-8;
         relTol          0.01;
     }  
 
@@ -88,16 +88,19 @@ SIMPLE
     nUCorrectors 0;            
     nConcCorrectors 1;              // n of concentration calculations for each specie
     nTempCorrectors 1;	            // n of temperature corrections 
-    nNonOrthogonalCorrectors 3;     // n of presure corrections (not necessary on this mesh)
+    nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
 
+    debug 2;
     consistent yes;
     
     residualControl
     {
-        p           1e-7;
-        U           1e-5;
-        T           1e-9;
-        "(CO|NO|O2|N2O|CO2)"    1e-8;
+        p           1e-4;
+        // U           5e-5;
+        T           1e-5;
+        prod           1.5e-4;
+        ethylene           1.5e-4;
+        // "(CO|NO|O2|N2O|CO2)"    5e-4;
     }
 }
 
@@ -105,16 +108,17 @@ relaxationFactors
 {
     fields
     {
-        p           0.2;
-        U           0.4;
-        // T           0.5;
-         "(ethylene|CO|O2|CO2)" 	 0.02;
+        p           0.05;
+        U           0.1;
+        T           0.5;
+         "(ethylene|prod|CO|O2|CO2)" 	 0.5;
     }
     equations
     {
-        "(p|U)" 0.9;
+        "(p|U)" 0.85;
         "(T)" 0.98;
-        "(ethylene|CO|O2|CO2)" 	 0.98;
+        "(ethylene|prod|CO|O2|CO2)" 	 0.1;
+        // "(prod)" 	 0.9;
     }
 }
 // ************************************************************************* //

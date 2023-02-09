@@ -2,20 +2,17 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  10
+    \\  /    A nd           | Version:  6
      \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     1.0;
+    version     2.0;
     format      ascii;
     class       dictionary;
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-// SnappyHexMeshDict to set cellZone 
-
 
 // Which of the steps to run
 castellatedMesh true;
@@ -31,18 +28,30 @@ addLayers       false;
 // - to 'snap' the mesh boundary to the surface
 geometry
 {
-    sphere
+    rashigs
     {
-        type            searchableSphere;
-        centre          (0 0 0);
-        radius          spR;
+        type triSurfaceMesh;
+        // file "spheres.stl";
+        file "rashigs6.stl";
+        // scale 0.1;
+        // file "rashigs.stl";
     }
-	refBox
+//    cylinder
+//    {
+//        type triSurfaceMesh;
+//        // file "spheres.stl";
+//        file "hull.stl";
+//        scale 0.1;
+//        // file "rashigs.stl";
+//    }
+    cylinder
     {
-        type searchableBox;
-        min (-0.05 -0.04 -0.04);
-        max (0.18 0.04 0.04);
+        type    searchableCylinder;
+        point1  (-1 0.00005 0.00015);
+        point2  (1 0.00005 0.00015);
+        radius  0.01435;
     }
+
 };
 
 
@@ -84,6 +93,8 @@ castellatedMeshControls
     // refinement.
     nCellsBetweenLevels 4;
 
+    // blockLevel 2;
+
 
 
     // Explicit feature edge refinement
@@ -114,20 +125,23 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-        sphere
+        rashigs
         {
             // Surface-wise min and max refinement level
-             level (4 4);
-            // level (1 1);
-            cellZone reactingCellZone;
+            level (1 2);
+            // cellZone coatZone;
             faceZone batt1;
             // cellZone batt1;
-            cellZoneInside inside;
+            // cellZoneInside inside;
+        }
+        cylinder
+        {
+            level (1 1);
         }
     }
 
     // Resolve sharp angles
-    resolveFeatureAngle 30;
+    resolveFeatureAngle 50;
 
 
     // Region-wise refinement
@@ -145,24 +159,11 @@ castellatedMeshControls
 
     refinementRegions
     {
-        sphere
+        rashigs
         {
             mode inside;
-            level 3;
-            // levels ((1e-5 2));
-            // cellZone rashigs;
-        }
-		sphere
-        {
-            mode distance;
-            // //~ level 1;
-            levels  ((0.01 3));
-            // cellZone rashigs;
-        }
-        refBox
-        {
-            mode inside;
-            levels ((1E4 2));
+            levels ((1e-5 2));
+           // cellZone rashigs;
         }
     }
 
@@ -191,15 +192,14 @@ snapControls
 {
     //- Number of patch smoothing iterations before finding correspondence
     //  to surface
-    nSmoothPatch 3;
+    // nSmoothPatch 3;
+    nSmoothPatch 5;
 
     //- Relative distance for points to be attracted by surface feature point
     //  or edge. True distance is this factor times local
     //  maximum edge length.
-    tolerance 2.0;
-
-    //- Number of mesh displacement relaxation iterations.
-    nSolveIter 30;
+    tolerance 1.4;   //- Number of mesh displacement relaxation iterations.
+    nSolveIter 20;
 
     //- Maximum number of snapping relaxation iterations. Should stop
     //  before upon reaching a correct mesh.
@@ -234,7 +234,7 @@ addLayersControls
     // Per final patch (so not geometry!) the layer information
     layers
     {
-        sphere
+        rashigs
         {
             nSurfaceLayers 2;
         }

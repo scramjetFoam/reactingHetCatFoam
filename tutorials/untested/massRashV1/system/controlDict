@@ -23,14 +23,16 @@ startFrom       latestTime;
 startTime 	    0;
 
 stopAt          endTime;
+// stopAt          writeNow;
 
-endTime	       750;  //endlineLine
+endTime	       1500;  //endlineLine
 
 deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval	       750;
+writeInterval	       1500;
+
 writeFormat     ascii;
 
 writePrecision  10;

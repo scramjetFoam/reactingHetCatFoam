@@ -5,6 +5,8 @@ interpolationScheme cell;
 
 setFormat       raw;
 
+// surfaceFormat       vtk;
+
 surfaceFormat foam;
 
 // sets
@@ -19,17 +21,33 @@ surfaceFormat foam;
 //     }
 // );
 
-fields          ( U T ethylene );
+fields          ( U T ethylene prod N2);
 
 surfaces
 (
     outlet_field
     {
         type patch;
-        patches (outlet );
+        patches (outlet);
         interpolate true;
         // Optional: whether to leave as faces (=default) or triangulate
         triangulate false;
     }
+    sliceMinMax
+    {
+        type    plane;
+        planeType pointAndNormal;
+        
+        pointAndNormalDict
+        {
+            point (0.0 0 0);
+            normal (1 0 0);
+        }
+        
+        bounds (-0.01 -0.001 -0.001) (0.01 0.001 0.001);
+        zone minMaxZone;
+    }
 );
+
+
 
