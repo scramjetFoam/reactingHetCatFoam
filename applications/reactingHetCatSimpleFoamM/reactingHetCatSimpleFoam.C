@@ -72,13 +72,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl; 
         
         {
-            Info << "\nSolving momentum equation"<<endl;
-             
-            
-
             scalar nItconc(readScalar(simple.dict().lookup("nConcCorrectors")));
-            scalar nItTemp(readScalar(simple.dict().lookup("nTempCorrectors")));
-
             for (label concIt = 0; concIt < nItconc; concIt++)
             { 
                 Info << "\nSolving continuity equation for each specie, iteration "<< concIt+1 << "/" << nItconc << endl;
@@ -87,12 +81,18 @@ int main(int argc, char *argv[])
                 // #include "concEqMass.H"
             }
 
+            Info << "\nSolving momentum equation"<<endl;
+             
+            #include "UEqn.H"
+
+            scalar nItTemp(readScalar(simple.dict().lookup("nTempCorrectors")));
+
             for (label concT=0; concT < nItTemp; concT++)
             {   
                 Info << "\nSolving enthalpy balance, iteration "<< concT+1 << "/" << nItTemp << endl;
                 #include "EEqn.H"
             }
-            #include "UEqn.H"
+            
             Info << "\nCorrection of pressure"<<endl;
             #include "pEqn.H"   
             // #include "rhoEqn.H"   
