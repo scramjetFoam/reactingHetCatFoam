@@ -10,20 +10,20 @@ FoamFile
     version     1.0;
     format      ascii;
     class       volScalarField;
-    object      CO;
+    object      N2;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform yCOSet;
+internalField   uniform wN2Set;
 
 boundaryField
 {
     inlet
     {
         type            fixedValue;
-        value           uniform yCOSet;
+        value           uniform wN2Set;
     }
     outlet
     {

@@ -14,14 +14,14 @@ FoamFile
     object      fvModels;
 }
 
-reactionSourceCOIW
+reactionSourceCOMassIW
 {
     type            coded;
     active          yes;
-    name	        reactionSourceCOIW;
+    name	        reactionSourceCOMassIW;
     selectionMode   all;
 
-    field 		        CO;
+    field 		        COMass;
 
     codeInclude
     #{
@@ -37,6 +37,31 @@ reactionSourceCOIW
         #include "../../constant/rnTerms/r_powerLawV3.H"                 
     #};
 }
+
+reactionSourceprodMassIW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceprodMassIW;
+    selectionMode   all;
+
+    field 		        prodMass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{        
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("prod");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
 
 reactionSourceO2IW
 {

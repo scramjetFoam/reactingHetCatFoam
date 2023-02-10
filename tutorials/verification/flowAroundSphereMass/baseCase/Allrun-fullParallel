@@ -31,6 +31,6 @@ mv log.$application log0.$application
 runParallel $application
 runApplication reconstructPar -latestTime
 
+runApplication intSrcSphereM
 postProcess -func integrace -latestTime > log.integrace
-runApplication intSrcSphere
 rm -rf processor*

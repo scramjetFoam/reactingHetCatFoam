@@ -20,4 +20,4 @@ paraFoam -touch
 application=`getApplication`
 runApplication $application
 
-runApplication intSrcSphere
+runApplication intSrcSphereM

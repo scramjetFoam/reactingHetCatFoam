@@ -58,15 +58,15 @@ laplacianSchemes
 //    laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected; //MK
 //    laplacian((rho*rAU),p)		Gauss linear corrected;
 
-   default                             none;       //orthogonal mesh
+   default                             Gauss linear corrected 0.2;       //orthogonal mesh
 //    default                             Gauss linear corrected 0.7;       //orthogonal mesh
-   laplacian((rho*nuEff),U)		Gauss linear corrected 1;
-//    laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 0.7;
-//    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss downwind MGradT corrected 0.7;
-   laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 1;
-   laplacian((DEff*(thermo:rho|molM)),CO)		Gauss downwind MGradT corrected 1;
-   laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT corrected 1; //MK
-   laplacian((rho*rAU),p)		Gauss linear corrected;
+//    laplacian((rho*nuEff),U)		Gauss linear corrected 1;
+// //    laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 0.7;
+// //    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss downwind MGradT corrected 0.7;
+//    laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 1;
+//    laplacian((DEff*(thermo:rho|molM)),CO)		Gauss downwind MGradT corrected 1;
+//    laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT corrected 1; //MK
+//    laplacian((rho*rAU),p)		Gauss linear corrected;
 
    // laplacian((DEff*CO2),(thermo:rho|molM))		Gauss upwind phi uncorrected;
    // laplacian((DEff*O2),(thermo:rho|molM))		Gauss upwind phi uncorrected;
