@@ -1,5 +1,5 @@
 // -- debug level, so far I have 3 debug levels, see ifs below
-int debug = 0;
+int debug = 1;
 
 if (simple.dict().found("debug"))
 {
@@ -80,7 +80,7 @@ volScalarField rho
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        writeOption1
+        IOobject::AUTO_WRITE
     ),
     // thermo.rho()
     p/univR/thermo.T()*Mg
