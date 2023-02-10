@@ -70,7 +70,7 @@ width = 15*R        # top|bottom wall <-> sphere centre
 ReLst = [10, 40, 80, 160]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-cellSizeLst = [0.4*R]                           # FV cell Size
+cellSizeLst = [1*R]                           # FV cell Size
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # == ARCHIVED SETTINGS: 

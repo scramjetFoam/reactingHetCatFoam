@@ -108,13 +108,13 @@ relaxationFactors
         p           0.2;
         U           0.4;
         // T           0.5;
-        // "(CO|O2|CO2)" 	 0.0001;
+         "(COMass|prodMass|O2|CO2)" 	 0.9;
     }
     equations
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(CO|O2|CO2|COMass|prodMass)" 	 0.98;
+        "(CO|O2|CO2|COMass|prodMass)" 	 0.9;
     }
 }
 // ************************************************************************* //

@@ -29,7 +29,5 @@ integrace
     (
         cCOS
         gradCCO
-        yCOS
-        gradYCO
     );
 }
