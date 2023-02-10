@@ -2,7 +2,7 @@
 sumWithoutRef = 0 * sumWithoutRef;
 
 // -- calculate the diffusive flux
-// -- update sum of the diffusive fluxes
+// -- update sum of the diffusive velocity for boundary condition (all but the reference)
 UD = UD * 0;
 
 // -- solve the concentration equation for all but one chemical species
@@ -14,8 +14,7 @@ forAll(specieNames,lstI)
     Info << "\nWorking on the specie: " << currSpName << endl;
 
     // -- mass fraction of the current specie              	
-    volScalarField& currSpMass	= MassFrList[lstI];                	
-    volScalarField& currSpMoles	= MFrList[lstI];                	
+    volScalarField& currSpMass	= MassFrList[lstI];             	
     
     // -- if not the last specie
     if (lstI != specieNames.size()-1)
