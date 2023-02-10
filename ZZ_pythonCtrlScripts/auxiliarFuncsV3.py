@@ -47,7 +47,7 @@ def changeInCaseFolders(caseDir,file,whatLst,forWhatLst):
 
 def read_real_source():
     """Read real reaction source from integration log."""
-    with open('log.intSrcSphere', 'r') as fl:
+    with open('log.intSrcSphereM', 'r') as fl:
         lines = fl.readlines()
     for lineInd in range(len(lines)-1,0,-1):
         if lines[lineInd].find('reaction source') >= 0:
@@ -93,7 +93,7 @@ def frossling(Re, nu, DFree):
     return ShC
 
 
-def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,jY,kmY,ShY):
+def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km):
     print('==========================================================')
     print('Case with thiele = %g'%thiele)
     print('DEff/DFree = %g'%(DEff/DFree))

@@ -160,9 +160,9 @@ for case in cases:
     # km, kmY = j/(yInf*p/Runiv/T-cCO), jY/(yInf-yCO)
     # Sh, ShY = km*(2*R)/DFree, kmY*(2*R)/DFree
 
-    j, jY = gradCCO
-    km, kmY = j/(yInf*p/Runiv/T-cCO)
-    Sh, ShY = km*(2*R)/DFree
+    j = gradCCO
+    km = j/(yInf*p/Runiv/T-cCO)
+    Sh = km*(2*R)/DFree
 
     # eta_corr
     # correlation: Sherwood -> Biot -> eta_corr
@@ -180,7 +180,7 @@ for case in cases:
         etaErr = abs(eta_sim-eta_corr)
         emdNp[:,cellSizeLst.index(cellSize)] = np.array([cellSize, etaErr])
 
-    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,jY,kmY,ShY)
+    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km)
     os.chdir(caseHere.whereIStart)
     flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr)
 
