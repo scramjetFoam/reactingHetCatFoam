@@ -91,6 +91,20 @@ int main(int argc, char *argv[])
         mesh
     );
 
+    // -- read Mg field
+    volScalarField Mg
+    (
+        IOobject
+            (
+            "Mg", 
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    );
+
     // -- read rho field
     volScalarField reactingCellZone
     (
@@ -165,7 +179,7 @@ int main(int argc, char *argv[])
 
     //     // integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
     //     // integral += mesh.V()[celli]*CO[celli]*rho[celli]/molMR;
-        integral += k[celli]*mesh.V()[celli]*reactingCellZone[celli]*CO[celli]*rho[celli]/(molMR*1e-3);
+        integral += k[celli]*mesh.V()[celli]*reactingCellZone[celli]*CO[celli]*rho[celli]/Mg[celli];
         // Info<<reactingCellZone[celli]<<endl;
     }
 
@@ -174,11 +188,11 @@ int main(int argc, char *argv[])
     Info << "Calculation of the concentration and the gradient of the concentration." << endl;
 
     // -- read Mg field
-    volScalarField Mg
+    volScalarField DEff
     (
         IOobject
             (
-            "Mg", 
+            "DEff", 
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -187,22 +201,22 @@ int main(int argc, char *argv[])
         mesh
     );
 
-    volScalarField cCO
+    surfaceScalarField cCOS
     (
         IOobject
             (
-            "cCO", 
+            "cCOS", 
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
         // mesh
-        rho / Mg * CO
+        mag(fvc::interpolate(rho / Mg * CO))
     );
-    cCO.write();
+    cCOS.write();
 
-    volVectorField gradCCO
+    surfaceScalarField gradCCO
     (
         IOobject
             (
@@ -213,7 +227,7 @@ int main(int argc, char *argv[])
             IOobject::AUTO_WRITE
         ),
         // mesh
-        fvc::grad(cCO)
+        mag(fvc::interpolate(DEff) * fvc::snGrad( rho / Mg * CO))
     );
     gradCCO.write();
 
