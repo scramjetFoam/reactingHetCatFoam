@@ -25,7 +25,7 @@ import os
 from auxiliarFuncsV3 import *
 
 # -- set solver to be used
-solverLst = ['reactingHetCatSimpleFoam','scalarTransportFoamCO']
+solverLst = ['reactingHetCatSimpleFoamM','scalarTransportFoamCO']
 solver = solverLst[0]
 
 # -- set number of the enthalpy corrections
@@ -71,7 +71,7 @@ width = 15*R        # top|bottom wall <-> sphere centre
 ReLst = [10, 40, 80, 160]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-cellSizeLst = [0.4*R]                           # FV cell Size
+cellSizeLst = [1*R]                           # FV cell Size
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # -- baseCase object
@@ -121,14 +121,15 @@ for case in cases:
         caseHere = OpenFOAMCase()
         caseHere.loadOFCaseFromBaseCase(meshDir)
         caseHere.changeOFCaseDir(caseDir)
-        meshCase.copyBaseCase()
-        caseHere.replace([caseDir,'0.org/T',['isoT'],[str(T)],
-                          caseDir,'0.org/CO',['yCOSet'],[str(yInf)],
-                          caseDir,'0.org/U', ['inv'],[str(inv)],
-                          caseDir,'system/controlDict',['customSolver'],[solver],
-                          caseDir,'system/fvSolution',['nTCorr'],[str(numOfTCorr)],
-                          caseDir,'constant/reactiveProperties',['k0Set','EASet','sHrSet'],
-                          caseDir,'constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]
+        caseHere.copyBaseCase()
+        caseHere.replace([['0.org/T',['isoT'],[str(T)]],
+                          ['0.org/COMass',['wCOSet'],[str(yInf)]],
+                          ['0.org/N2Mass',['wN2Set'],[str(1-yInf)]],
+                          ['0.org/U', ['inv'],[str(inv)]],
+                          ['system/controlDict',['customSolver'],[solver]],
+                          ['system/fvSolution',['nTCorr'],[str(numOfTCorr)]],
+                          ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)]],
+                          ['constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]]
                         ])
         # -- run simulation
         caseHere.runCommands(['chmod u=rwx Allrun-parallel', './Allrun-parallel'])
@@ -144,20 +145,24 @@ for case in cases:
     # 
     with open('log.integrace','r') as fl:
         lines = fl.readlines()  
-    inds = [0,0,0,0]
-    names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO",'areaAverage(batt1) of yCOS','areaAverage(batt1) of gradYCO']
+    inds = [0,0]
+    names = ['areaAverage(batt1) of cCOS',"areaAverage(batt1) of gradCCO"]
     for lineInd in range(len(lines)):
         for j in range(len(names)):
             if names[j] in lines[lineInd]:
                 inds[j] = lineInd
     cCO = float(lines[inds[0]].split('=')[1])
     gradCCO = float(lines[inds[1]].split('=')[1])
-    yCO = float(lines[inds[2]].split('=')[1])
-    gradYCO = float(lines[inds[3]].split('=')[1])
+    # yCO = float(lines[inds[2]].split('=')[1])
+    # gradYCO = float(lines[inds[3]].split('=')[1])
     
-    j, jY = gradCCO, gradYCO #/(4*np.pi*R**2)
-    km, kmY = j/(yInf*p/Runiv/T-cCO), jY/(yInf-yCO)
-    Sh, ShY = km*(2*R)/DFree, kmY*(2*R)/DFree
+    # j, jY = gradCCO, gradYCO #/(4*np.pi*R**2)
+    # km, kmY = j/(yInf*p/Runiv/T-cCO), jY/(yInf-yCO)
+    # Sh, ShY = km*(2*R)/DFree, kmY*(2*R)/DFree
+
+    j, jY = gradCCO
+    km, kmY = j/(yInf*p/Runiv/T-cCO)
+    Sh, ShY = km*(2*R)/DFree
 
     # eta_corr
     # correlation: Sherwood -> Biot -> eta_corr
@@ -175,8 +180,8 @@ for case in cases:
         etaErr = abs(eta_sim-eta_corr)
         emdNp[:,cellSizeLst.index(cellSize)] = np.array([cellSize, etaErr])
 
-    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY)
-    os.chdir('../../')
+    log_report(thiele,DEff,DFree,Re,Sh_corr,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,jY,kmY,ShY)
+    os.chdir(caseHere.whereIStart)
     flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr)
 
 if getCsv:

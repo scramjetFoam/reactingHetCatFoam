@@ -93,7 +93,7 @@ def frossling(Re, nu, DFree):
     return ShC
 
 
-def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,gradYCO,yCO,jY,kmY,ShY):
+def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,jY,kmY,ShY):
     print('==========================================================')
     print('Case with thiele = %g'%thiele)
     print('DEff/DFree = %g'%(DEff/DFree))
@@ -102,7 +102,7 @@ def log_report(thiele,DEff,DFree,Re,ShC,Sc,Sh,eta_sim,eta_corr,gradCCO,cCO,j,km,
     print('simulation:  Sh =  %g'%Sh)
     print('eta_sim =  %g\neta_corr = %g'%(eta_sim,eta_corr))
     print('gradCCO = %g, cCO = %g, j = %g, km = %g, Sh = %g'%(gradCCO,cCO,j,km,Sh))
-    print('gradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(gradYCO,yCO,jY,kmY,ShY))
+    # print('gradYCO = %g, yCO = %g, jy = %g, kmy = %g, Shy = %g'%(gradYCO,yCO,jY,kmY,ShY))
     print('==========================================================')
  
 
