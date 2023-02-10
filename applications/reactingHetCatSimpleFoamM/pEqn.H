@@ -36,14 +36,6 @@
 
     closedVolume = adjustPhi(phiHbyA, U, p);
 
-    // volVectorField RHSbyA(trAU()*explRHS);
-
-    // surfaceScalarField phiRHSbyA
-    // (
-    //     "phiRHSbyA",
-    //     fvc::interpolate(rho)*fvc::flux(RHSbyA)
-    // );
-
     while (simple.correctNonOrthogonal())
     {
         tmp<fvScalarMatrix> tpEqn;
@@ -54,10 +46,7 @@
                 fvm::laplacian(rho*trTU(), p)
               + fvModels.source(psi, p, rho.name())
              ==
-                // - fvc::div(phiCorr)
-                // - fvc::div(phiCons)
                 fvc::div(phiHbyA)
-                // + fvc::div(phiRHSbyA)
             );
         }
 
@@ -68,12 +57,7 @@
                 fvm::laplacian(rho*trAU(), p)
               + fvModels.source(psi, p, rho.name())
              ==
-                // - fvc::div(linearInterpolate(rho*UD)&mesh.Sf()) +
-                // - fvc::div(phiCorr)
-                // - fvc::div(phiCons)
                 fvc::div(phiHbyA)
-                // - fvc::div(phiD)
-                // + fvc::div(phiRHSbyA)
             );
         }
 
@@ -88,13 +72,7 @@
         pEqn.solve();
         if (simple.finalNonOrthogonalIter())
         {
-            // phi = phiHbyA - pEqn.flux() + phiRHSbyA;
-            // phi = phiHbyA - pEqn.flux() + phiRHSbyA;
-            // phi = phiHbyA - pEqn.flux() - phiD;
-            phi = phiHbyA - pEqn.flux();// - phiD;
-            // phiD = linearInterpolate(rho*UD) & mesh.Sf();
-            // phi = phiHbyA - pEqn.flux() + fvc::flux(trAU()*explRHS);
-            // phi = phiHbyA - pEqn.flux();
+            phi = phiHbyA - pEqn.flux();
         }
     }
 
@@ -105,16 +83,11 @@
 
     if (pressureImplicitPorosity)
     {
-        U = HbyA - (trTU() & fvc::grad(p)); //+ trAU()*explRHS;
-        // U = HbyA - (trTU() & fvc::grad(p)) + trAU()*explRHS;
+        U = HbyA - (trTU() & fvc::grad(p));
     }
     else
     {
-        // U = HbyA - trAU()*fvc::grad(p) + trAU()*explRHS;
-        // U = HbyA - trAU()*fvc::grad(p) + trAU()*explRHS;
         U = HbyA - trAU()*fvc::grad(p);
-        // U = HbyA - trAU()*fvc::grad(p) + RHSbyA;
-        // U = HbyA - trAU()*fvc::grad(p) + trAU()*explRHS;
     }
 
     U.correctBoundaryConditions();
@@ -124,49 +97,14 @@
 
     // For closed-volume cases adjust the pressure and density levels
     // to obey overall mass continuity
-    // if (closedVolume)
-    // {
-    //     p += (initialMass - fvc::domainIntegrate(psiConst*p))
-    //         /fvc::domainIntegrate(psiConst);
-    //     p.correctBoundaryConditions();
-    // }
+    if (closedVolume)
+    {
+        p += (initialMass - fvc::domainIntegrate(psi*p))
+            /fvc::domainIntegrate(psi);
+        p.correctBoundaryConditions();
+    }
 
-    // rho = thermo.rho();
-    // rho = p/univR/T*molMList[molMList.size()-1];
-    
-    // -- update gas molar mass
-
-    // Info <<max(rho)<<endl;
-
-    // // -- update cTot
-    // cTot = p/univR/thermo.T();
-    // cTot.correctBoundaryConditions();
-
-    // Info <<max(rho)<<endl;
-        // -- update rho
-
-    // rho.relax();
-
-    // rho = p * psiConst;
-    // rho = p * psi;
-    
-    // rho = p/univR/thermo.T()*Mg;
     rho = p * psi;
     thermo.rho() = rho;
     rho.relax();
-
-    // rhoN = rho * Mg / Mgconst;
-    // volScalarField rhoStar = rhoN - rho;
-
-    // fvScalarMatrix UStarEqn
-    // (
-    //     // -- specie mass convection
-    //     fvc::div(fvc::interpolate(rhoN), UStar)
-    //     ==
-    //     // - fvc::div(linearInterpolate(rhoN*U) & mesh.Sf())
-    //     - fvc::div(fvc::interpolate(rhoStar), U)
-    //     // 0
-    // );
-
-    // surfaceScalarField phiStar = UStarEqn.flux();
 }
