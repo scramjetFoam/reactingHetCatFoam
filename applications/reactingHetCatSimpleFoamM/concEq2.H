@@ -102,7 +102,7 @@ forAll(specieNames,lstI)
 
 volScalarField MgOld = Mg;
 
-volScalarField sumWiMi = 0/Mg;
+sumWiMi = 0 * sumWiMi;
 forAll(specieNames,lstI)
 {
     sumWiMi += MassFrList[lstI] / molMList[lstI];
@@ -112,7 +112,6 @@ Mg = 1/sumWiMi;
 UD = UD * MgOld / Mg;
 
 // -- calculate the molar fractions, update UD from overall diffusive flux
-sumWithoutRef = sumWithoutRef * 0;
 forAll(specieNames,lstI)
 {
     MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;

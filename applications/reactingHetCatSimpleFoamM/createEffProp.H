@@ -14,22 +14,6 @@ volScalarField epsEff
     "zeroGradient"
 );
 
-// -- porosity
-volVectorField permEff
-(
-    IOobject
-    (
-        "permEff",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption1
-    ),
-    mesh,
-    dimensionedVector("permEff",dimless/dimLength/dimLength,vector (0, 0, 0)),
-    "zeroGradient"
-);
-
 // -- prepare the effective diffusion coefficient
 volScalarField DEff
 (
@@ -43,11 +27,7 @@ volScalarField DEff
     ),
     mesh,
     dimensionedScalar("DEff",dimLength*dimLength/dimTime,0.0),
-    // "fixedValue"
     "zeroGradient"
-    // (1.0-max(isOnWallCoat,isInWallCoat))*DifMix +
-    // isOnWallCoat*(porEpsC/(tortC*(1.0/DifMix+1.0/DKn)))+
-    // isInWallCoat*(porEpsS/(tortS*(1.0/DifMix+1.0/DKn))) 
 );
 DEff.correctBoundaryConditions();
 
@@ -71,25 +51,24 @@ forAll(zoneLst,countI)
 {
     sumZones += zoneLst[countI];
     epsEff += zoneLst[countI]*(eps[countI]);
-    permEff += zoneLst[countI]*perm[countI];
 }
 volScalarField freeChannel = dimensionedScalar("jedna",dimless,1.0)-sumZones;
 epsEff += freeChannel;
 
 //-- surface field for kappaG interpolation
-surfaceScalarField MGradT
-(
-    IOobject
-    (
-        "MGradT",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    // linearInterpolate(U*rho*Cp) & mesh.Sf()
-    fvc::snGrad(epsEff)
-);
+// surfaceScalarField MGradT
+// (
+//     IOobject
+//     (
+//         "MGradT",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE
+//     ),
+//     // linearInterpolate(U*rho*Cp) & mesh.Sf()
+//     fvc::snGrad(epsEff)
+// );
 
 // // -- prepare Knudsen diffusivity
 volScalarField DKn

@@ -59,15 +59,6 @@ Info<< "Loaded zones are\n" << zoneNames << endl;
 // ---- 2) FickConv -- Fick diffusion with convective fluxes forced by diffussion
 // ---- 3) SMConv -- Stefan-Maxwell with convective fluxes forced by diffussion
 
-word diffusion = "Fick";
-
-if (transportProperties.found("diffusionType"))
-{
-    diffusion = word(transportProperties.lookup("diffusionType"));
-}
-
-Info << "Diffusion type: " << diffusion <<endl;
-
 // -- prepare the output variables - volumetric diffusion coeficients for individual species
 PtrList<dimensionedScalar> volDiffLst(specieNames.size());		// list of volumetric diffusion coeficients + reference
 PtrList<dimensionedScalar> molMList(specieNames.size());		    // list of molatr masses + reference
@@ -101,7 +92,6 @@ PtrList<dimensionedScalar> eps(zoneNames.size());		// list of porosities
 PtrList<dimensionedScalar> tort(zoneNames.size());		// list of tortuosities 
 PtrList<dimensionedScalar> kappaZ(zoneNames.size());		// list of effective heat conduitivities 
 PtrList<dimensionedScalar> dp(zoneNames.size());		// list of pore diameter
-PtrList<dimensionedVector> perm(zoneNames.size());		// list of permeabilities
 forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
@@ -121,12 +111,6 @@ forAll(zoneNames,countI)
     (
         countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("dP"))
     );
-    perm.set
-    (
-        // countI, new dimensionedVector(porosityProperties.subDict("reactingCellZone").subDict("DarcyForchheimerCoeffs").lookup("d"))
-        countI, new dimensionedVector(porosityProperties.subDict(currentZone).subDict("DarcyForchheimerCoeffs").lookup("dPerm"))
-    );
-
 }
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//R constant
 

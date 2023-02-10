@@ -82,59 +82,15 @@ volScalarField rho
         IOobject::READ_IF_PRESENT,
         writeOption1
     ),
-    thermo.rho()
-    // p/univR/thermo.T()*Mg
+    // thermo.rho()
+    p/univR/thermo.T()*Mg
     // mesh
 );
 
-// volScalarField cTot
-// (
-//     IOobject
-//     (
-//         "cTot",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::NO_READ,
-//         writeOption1
-//     ),
-//     // thermo.rho()
-//     p/univR/thermo.T()
-// );
 
-
-// #include "compressibleCreatePhi.H"
-// -- reference molar mass const
-// scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
-// dimensionedScalar Mgconst("molMRef",dimMass/dimMoles,molMR*1e-3);
-// volScalarField rhoN = p*Mg/univR/thermo.T();
-
-surfaceScalarField phi
-(
-    IOobject
-    (
-        "phi",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        writeOption2
-    ),
-    linearInterpolate(rho*U) & mesh.Sf()
-);
+#include "compressibleCreatePhi.H"
 
 Info<< "Reading/calculating face flux field from diffusion flux phiD\n" << endl;
- 
-// surfaceScalarField phiD
-// (
-//     IOobject
-//     (
-//         "phiD",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         writeOption2
-//     ),
-//     linearInterpolate(rho*UD) & mesh.Sf()
-// );
 
 pressureReference pressureReference
 (
@@ -169,55 +125,6 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 #include "createMRF.H"
 #include "createFvModels.H"
 #include "createFvConstraints.H"
-
-// surfaceScalarField phiD
-// (
-//     IOobject
-//     (
-//         "phiD",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         writeOption2
-//     ),
-//     linearInterpolate(0*rho*U) & mesh.Sf()
-// );
-
-// surfaceScalarField phiCorr
-// (
-//     IOobject
-//     (
-//         "phiCorr",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         writeOption2
-//     ),
-//     (- linearInterpolate(rho*U) & mesh.Sf())
-// );
-
-// surfaceScalarField phiCons
-// (
-//     IOobject
-//     (
-//         "phiCons",
-//         runTime.timeName(),
-//         mesh,
-//         IOobject::READ_IF_PRESENT,
-//         writeOption2
-//     ),
-//     0*phiCorr
-// );
-
-// volVectorField UStar = U*0;
-// surfaceScalarField phiStar = linearInterpolate(rhoN*UStar) & mesh.Sf();
-
-
-// // -- reference molar mass const
-// scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
-// dimensionedScalar Mgconst("molMRef",dimMass/dimMoles,molMR*1e-3);
-
-// volScalarField rhoC = p * Mgconst / univR / thermo.T();
 
 
 
