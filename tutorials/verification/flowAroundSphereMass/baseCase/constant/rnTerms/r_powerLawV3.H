@@ -100,7 +100,7 @@ forAll(nuLst,rnI)
             // calculating real kinetic constant of reaction with arrhenius kinetics and scaling with concentration for right dimension
             //~ dimensionedScalar kReact = k0*Foam::exp(-EA/(univR*cTemp))*Foam::pow(cTot,cTotExp);
             // volScalarField kReact = k*Foam::pow(cTot,cTotExp)*molM;
-            volScalarField kReact = k*Foam::pow(rho,cTotExp)*molM;
+            volScalarField kReact = k*Foam::pow(rho,cTotExp);
             
             volScalarField auxR(0.0*R);
             volScalarField auxGradR(0.0*gradR);
