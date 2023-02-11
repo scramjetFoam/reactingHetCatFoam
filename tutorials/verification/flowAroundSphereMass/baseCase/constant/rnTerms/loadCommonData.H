@@ -73,8 +73,8 @@ labelList activeReacts
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//gas constant
 
 // -- reference molar mass 
-// scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
-// dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
+scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
+dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
 
 // -- load temperature and pressure fields
 const volScalarField& T = mesh().lookupObject<volScalarField>("T"); 

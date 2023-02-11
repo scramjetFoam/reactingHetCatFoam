@@ -1,8 +1,9 @@
 // -- read the corresponding row of stoechiometric matrix
 List<scalar> nuLst(transportProperties.subDict(currSpName).lookup("nuVec"));
 
+word currSpNameMass = currSpName + "Mass";
 // -- load the current specie
-const volScalarField&  currSp = mesh().lookupObject<volScalarField>(currSpName);
+const volScalarField&  currSp = mesh().lookupObject<volScalarField>(currSpNameMass);
 
 // -- initialize the fields for reaction term and its derivative w.r.t
 volScalarField R
@@ -100,7 +101,7 @@ forAll(nuLst,rnI)
             // calculating real kinetic constant of reaction with arrhenius kinetics and scaling with concentration for right dimension
             //~ dimensionedScalar kReact = k0*Foam::exp(-EA/(univR*cTemp))*Foam::pow(cTot,cTotExp);
             // volScalarField kReact = k*Foam::pow(cTot,cTotExp)*molM;
-            volScalarField kReact = k*Foam::pow(rho,cTotExp);
+            volScalarField kReact = k*Foam::pow(rhoTu,cTotExp);
             
             volScalarField auxR(0.0*R);
             volScalarField auxGradR(0.0*gradR);
@@ -113,13 +114,15 @@ forAll(nuLst,rnI)
             {
                 word testedSpName = specieNames[countI];
                 List<scalar> nuLstTested(transportProperties.subDict(testedSpName).lookup("nuVec"));
+
+                word testedSpNameMass = testedSpName + "Mass";
                 
                 if (nuLstTested[rnI] < -SMALL)                              // if testedSpecie is reactant
                 {
                     Info << testedSpName << " ";
                     
                     List<scalar> alphaLst(transportProperties.subDict(testedSpName).lookup("alphaVec"));
-                    const volScalarField& testedSp = mesh().lookupObject<volScalarField>(testedSpName); 
+                    const volScalarField& testedSp = mesh().lookupObject<volScalarField>(testedSpNameMass); 
                 
                     auxR *= Foam::pow(testedSp, alphaLst[rnI]);
                     
