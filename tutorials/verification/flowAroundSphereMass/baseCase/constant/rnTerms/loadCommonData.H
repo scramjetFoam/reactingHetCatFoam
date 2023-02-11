@@ -79,9 +79,10 @@ dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
 // -- load temperature and pressure fields
 const volScalarField& T = mesh().lookupObject<volScalarField>("T"); 
 const volScalarField& p = mesh().lookupObject<volScalarField>("p");  
+const volScalarField& rho = mesh().lookupObject<volScalarField>("rho");  
 
 // -- calculate the total concentration
-volScalarField cTot(p/T/univR);
+// volScalarField cTot(p/T/univR);
 
 // load data for clipping the gradients (problem with potential infinite values)
 scalar  clipGradMin(readScalar(reactiveProperties.subDict("reactProps").subDict("numProps").lookup("clipGradMin")));
