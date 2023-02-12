@@ -77,6 +77,7 @@ simDir = './'
 scalarfields = ['T','ethylene','prod','N2']
 vectorfields = ['U']
 fields = "'(T ethylene U p prod N2)'"
+solver = "reactingHetCatSimpleFoamM"
 # nIt = 850
 nIt = 1500
 
@@ -103,7 +104,7 @@ for sim in range(Nzacatek,N):
     for j in range(len(whenChange)):
         if whenChange[j] == sim:
             changeK0(values[j])
-    os.system('foamJob -parallel -screen reactingHetCatSimpleFoamFC > log.rash%d'%sim)
+    os.system('foamJob -parallel -screen %s > log.rash%d'%(solver, sim))
     os.system('reconstructPar -latestTime -fields %s > log.reconstruct%d'%(fields,sim))
     os.system("postProcess -func 'sample' > log.sample%d"%sim)
     lT = latestTime()

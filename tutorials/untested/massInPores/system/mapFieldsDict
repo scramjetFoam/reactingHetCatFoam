@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      mapFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// mapFields1
+// {
+    // Mandatory entries (unmodifiable)
+    type            mapFields;
+    libs            (fieldFunctionObjects);
+
+    // Mandatory (inherited) entries (runtime modifiable)
+    fields          (ethylene T);
+    mapRegion       coarseMesh;
+    mapMethod       cellVolumeWeight;
+    consistent      false;
+
+    // Optional entries (runtime modifiable)
+    // patchMapMethod  direct;  // AMI-related entry
+    // enabled if consistent=false
+    patchMap        (inlet outlet);
+    cuttingPatches  ();
+
+    // Optional (inherited) entries
+    // region          region0;
+    // enabled         true;
+    // log             true;
+    // timeStart       0;
+    // timeEnd         1000;
+    // executeControl  timeStep;
+    // executeInterval 1;
+    // writeControl    timeStep;
+    // writeInterval   1;
+// }
