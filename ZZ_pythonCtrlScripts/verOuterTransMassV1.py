@@ -95,7 +95,7 @@ if makeMesh:
         replaceInSnappyHexMesh = ["system/snappyHexMeshDict", ['spR'], [str(R)]]             
         meshCase.replace([replaceInBlockMesh, replaceInSnappyHexMesh])
         meshCase.setParameter(['system/controlDict', 'endTime', str(endTime), ''])
-        meshCase.setParameter(['system/decomposePar', 'numberOfSubdomains', str(nProc), ''])
+        meshCase.setParameter(['system/decomposeParDict', 'numberOfSubdomains', str(nProc), ''])
         meshCase.runCommands(['chmod u=rwx All*', './Allmesh'])
         meshesCaseLst.append(meshCase)
     if not runSim: sys.exit()
