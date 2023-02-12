@@ -74,6 +74,7 @@ thieleLst = [2, 6]                              # Thiele modulus
 cellSizeLst = [1*R]                           # FV cell Size
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 endTime = 500
+nProc = 32
 
 # -- baseCase object
 # bsCase = OpenFOAMCase()
@@ -94,6 +95,7 @@ if makeMesh:
         replaceInSnappyHexMesh = ["system/snappyHexMeshDict", ['spR'], [str(R)]]             
         meshCase.replace([replaceInBlockMesh, replaceInSnappyHexMesh])
         meshCase.setParameter(['system/controlDict', 'endTime', str(endTime)])
+        meshCase.setParameter(['system/decomposePar', 'numberOfSubdomains', str(nProc)])
         meshCase.runCommands(['chmod u=rwx All*', './Allmesh'])
         meshesCaseLst.append(meshCase)
     if not runSim: sys.exit()
