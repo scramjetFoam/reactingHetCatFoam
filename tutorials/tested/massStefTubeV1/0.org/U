@@ -63,56 +63,52 @@ boundaryField
     {
         // type    fixedValue;
         // type fluxCorrectedVelocity;
-        type            zeroGradient;
+        // type            zeroGradient;
 //         phi             phi;
 //         rho             rho;
 
-//         type            codedMixed;
-//         refValue        uniform (0 0 0);
-//         refGradient     uniform (0 0 0);
-//         valueFraction   uniform 0;
-//         value           uniform (0 0 0);
-//         name            UZerGrad;
-//         code            #{
-//             // vector UC = (0.1 0 0);
-//             dimensionedVector UC("UC", dimLength/dimTime, vector(0.01, 0, 0));
-//             const fvPatch& boundaryPatch = patch();
-//             const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
-//             const fvMesh& mesh = boundaryMesh.mesh();
-//             const scalarField& delta = patch().deltaCoeffs();
-//             volVectorField U = ((mesh.lookupObject<volVectorField>("U")));
-//             volVectorField UCF = U*0 + UC;
-//             volScalarField rho = ((mesh.lookupObject<volScalarField>("rho")));
-//             // surfaceVectorField mDbyRhoSNGrad ( - fvc::snGrad(rho) * fvc::interpolate( UCF / rho));
-//             surfaceVectorField mDbyRhoSNGrad ( fvc::interpolate( UCF ) );
-//             // volVectorField UD = ((mesh.lookupObject<volVectorField>("UD")));
-//             // surfaceVectorField snGradUD = fvc::snGrad(UD);
-//             // surfaceVectorField UD = (fvc::interpolate(mD/rho));
-//             //~ //const volScalarField& lambda((mesh.lookupObject<volScalarField>("lambda")));
-//             //~ scalar lambda = 90.0;
-//             // const scalarField& lambdaTu = patch().lambda();
-//             // scalar lambdaNikl = 90;
-//             //~ scalar alpha_L = 150.0;
-//             //~ //scalar alpha_L = 10;
-//             //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
-//             // this->refValue() = UD.boundaryField()[patch().index()];
-//             this->refGrad() = mDbyRhoSNGrad.boundaryField()[patch().index()];
-//             //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
-//             // this->valueFraction() = 0;
-//             //~ this->valueFraction() = 1e-5;
-//         #};
+        type            codedMixed;
+        refValue        uniform (0 0 0);
+        refGradient     uniform (0 0 0);
+        valueFraction   uniform 0;
+        value           uniform (0 0 0);
+        name            UZerGrad;
+        code            #{
+            const fvPatch& boundaryPatch = patch();
+            const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
+            const fvMesh& mesh = boundaryMesh.mesh();
+            const scalarField& delta = patch().deltaCoeffs();
 
-//         codeInclude
-//         #{
-//             #include "fvCFD.H"
-//         #};
+            volVectorField UD = (mesh.lookupObject<volVectorField>("UD"));
+            surfaceVectorField UDSNGrad = fvc::snGrad(UD);
+            // volVectorField UD = ((mesh.lookupObject<volVectorField>("UD")));
+            // surfaceVectorField snGradUD = fvc::snGrad(UD);
+            // surfaceVectorField UD = (fvc::interpolate(mD/rho));
+            //~ //const volScalarField& lambda((mesh.lookupObject<volScalarField>("lambda")));
+            //~ scalar lambda = 90.0;
+            // const scalarField& lambdaTu = patch().lambda();
+            // scalar lambdaNikl = 90;
+            //~ scalar alpha_L = 150.0;
+            //~ //scalar alpha_L = 10;
+            //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
+            // this->refValue() = UD.boundaryField()[patch().index()];
+            this->refGrad() = UDSNGrad.boundaryField()[patch().index()];
+            //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
+            // this->valueFraction() = 0;
+            //~ this->valueFraction() = 1e-5;
+        #};
 
-//         codeOptions
-//         #{
-//             -I$(LIB_SRC)/finiteVolume/lnInclude \
-//             -I$(LIB_SRC)/meshTools/lnInclude \
-//             -I$(LIB_SRC)/sampling/lnInclude
-//         #};
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude \
+            -I$(LIB_SRC)/sampling/lnInclude
+        #};
 //     }
     
 //    cylinder 
