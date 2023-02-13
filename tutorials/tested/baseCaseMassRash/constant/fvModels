@@ -86,14 +86,14 @@ reactionSourceHClIW
     #};
 }
 
-reactionSourceC2H4ClMassIW
+reactionSourceC2H4Cl2MassIW
 {
     type            coded;
     active          yes;
     name	        reactionSourceC2H4ClMassIW;
     selectionMode   all;
 
-    field 		        C2H4ClMass;
+    field 		        C2H4Cl2Mass;
 
     codeInclude
     #{
@@ -104,7 +104,7 @@ reactionSourceC2H4ClMassIW
     #{        
         #include "../../constant/rnTerms/loadCommonData.H"      
         
-        word currSpName("C2H4Cl");
+        word currSpName("C2H4Cl2");
         
         #include "../../constant/rnTerms/r_powerLawV3.H"                 
     #};

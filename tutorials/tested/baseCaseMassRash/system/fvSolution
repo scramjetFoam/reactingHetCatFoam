@@ -73,7 +73,7 @@ solvers
         mergeLevels             1;
     }
     
-    "(customSolver)"
+    "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -86,8 +86,8 @@ solvers
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors 2;              // n of concentration calculations for each specie
-    nTempCorrectors nTCorr;	            // n of temperature corrections 
+    nConcCorrectors  2;              // n of concentration calculations for each specie
+    nTempCorrectors  2;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 4;     // n of presure corrections (not necessary on this mesh)
     debug 2;    // debug level
     consistent yes;
@@ -97,7 +97,7 @@ SIMPLE
         p           1e-7;
         U           1e-5;
         T           1e-9;
-        "(customSolver)"    1e-8;
+        "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)"    1e-8;
     }
 }
 
@@ -108,13 +108,13 @@ relaxationFactors
         p           0.2;
         U           0.4;
         // T           0.5;
-         "(customSolver)" 	 0.9;
+         "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.5;
     }
     equations
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(customSolver)" 	 0.9;
+        "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.9;
     }
 }
 // ************************************************************************* //

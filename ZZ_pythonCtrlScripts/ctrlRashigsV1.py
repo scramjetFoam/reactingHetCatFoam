@@ -95,6 +95,7 @@ nConc = 2
 nTemp = 2
 nProc = 12
 endTime = 1000
+wrInt = 50
 
 # ---------------------------------------------------------------------------------------------------------------------
 # -- set the parameters
@@ -184,13 +185,14 @@ case.setParameters( [
                     ] )
 # 9) residuals
 case.replace(   [
-                    [ 'system/residuals', [ 'flsLst' ], [ namesStr[:-1] ] ], 
+                    [ 'system/residuals', [ 'flsLst' ], [ 'U p T %s' % namesStr[:-1] ] ], 
                 ] ) 
 
 # 10) controlDict
 case.setParameters( [
                         [ 'system/controlDict', 'application', solver, '' ], 
                         [ 'system/controlDict', 'endTime', '%d' % endTime, '' ], 
+                        [ 'system/controlDict', 'writeInterval', '%d' % wrInt, '' ], 
                     ] ) 
 
 
