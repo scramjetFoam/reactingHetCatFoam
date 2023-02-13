@@ -10,14 +10,22 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      decomposeParDict;
+    object      residuals;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains	32;
+residuals
+    {
+        functionObjectLibs ("libutilityFunctionObjects.so");
+        type    residuals;
+        writeControl    timeStep;
+        writeInterval   1;
+        fields
+        (
+            U
+            p
+	        T
+	      ethylene 
+        );
+    }
 
-method          scotch;
-
-
-// ************************************************************************* //
