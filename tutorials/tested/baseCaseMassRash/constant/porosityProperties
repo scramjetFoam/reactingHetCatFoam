@@ -15,11 +15,11 @@ FoamFile
 } 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * // 
 
-reactingCellZone
+coatZone
 {
 	type		DarcyForchheimer;
 	active		yes;
-	cellZone	reactingCellZone;
+	cellZone	coatZone;
 
 	DarcyForchheimerCoeffs
 	{

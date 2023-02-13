@@ -34,9 +34,9 @@ boundaryField
         inletValue      uniform (0 0 0);
     }
     
-    sides
+    "cylinder|walls"
     {
-        type    slip;
+        type    noSlip;
     }
 }
 

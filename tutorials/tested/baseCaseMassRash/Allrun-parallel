@@ -14,11 +14,11 @@ runApplication blockMesh
 # create .OpenFOAM file
 paraFoam -touch
 
-# runApplication decomposePar
+runApplication decomposePar
 
 # add reactive cell zone 
-# runParallel snappyHexMesh -overwrite
-runApplication snappyHexMesh -overwrite
+runParallel snappyHexMesh -overwrite
+# runApplication snappyHexMesh -overwrite
 # runParallel snappyHexMesh -overwrite
 
 # rm -rf processor*/*/cellLevel
@@ -29,11 +29,16 @@ rm -rf */pointLevel
 # mv log.decomposePar log.decomposePar1
 # decompose
 # runApplication decomposePar -fields
-runApplication decomposePar 
+# runApplication decomposePar 
 
 runParallel renumberMesh -overwrite
-# add reactive cell zone 
-# runApplication topoSet
+runApplication reconstructParMesh -constant
+runApplication topoSet
+runApplication topoSet -dict system/topoSetDict.1
+
+rm -rf processor*
+mv log.decomposePar log.decomposePar1
+runApplication decomposePar
 
 application=`getApplication`
 runParallel $application
@@ -41,6 +46,6 @@ mv log.$application log2.$application
 runParallel $application
 runApplication reconstructPar -latestTime
 
-runApplication intSrcSphereM
-postProcess -func integrace -latestTime > log.integrace
+# runApplication intSrcSphereM
+# postProcess -func integrace -latestTime > log.integrace
 

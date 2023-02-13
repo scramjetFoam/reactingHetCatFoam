@@ -20,14 +20,6 @@ residuals
         type    residuals;
         writeControl    timeStep;
         writeInterval   1;
-        fields
-        (
-            U
-            p
-	        T
-	        CO
-            O2
-            CO2
-        );
+        fields (flsLst);
     }
 

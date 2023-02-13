@@ -21,7 +21,7 @@ transportModel  Newtonian;
 species (ethylene O2 prod N2);
 
 // -- list of porous Zones
-zones (reactingCellZone);
+zones (coatZone);
 
 
 // ************************************************************************* //
@@ -98,7 +98,7 @@ N2
 
 // ************************************************************************* //
 // -- information about the porous zones
-reactingCellZone    
+coatZone    
 {   
     porEps      porEps      [0 0 0 0 0 0 0]         0.5;    //material porosity
     tort        tort        [0 0 0 0 0 0 0]         tortSet;    //material tortuosity
