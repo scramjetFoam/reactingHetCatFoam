@@ -78,11 +78,11 @@ KEq = 0.2
 cCuCl = 0.012
 
 # -- geometry generation parameters
-nCellsBetweenLevels = 2 # 4
-rashLvl = '(1 1)' # (1 2)
+nCellsBetweenLevels = 4 # 4
+rashLvl = '(1 2)' # (1 2)
 cylLvl = '(1 1)' # (1 1)
-nX = 55 # 110
-nY = 16 # 32
+nX = 110
+nY = 32
 
 # -- rashigs zone parameters
 porEps = 0.42
