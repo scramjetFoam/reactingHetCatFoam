@@ -56,7 +56,7 @@ reactProps
         k2  k2  [0 0 -1 0 0 0 0]   k2Set;
         E2	E2	[1  2 -2 0 -1 0 0]  E2Set;
         KEq KEq [0  0  0 0  0 0 0]  KEqSet;
-        cCuCl cCuCl [-3  0  0 0 1 0 0]  cCuClSet;
+        cCuCl cCuCl [0 -3  0 0 1 0 0]  cCuClSet;
         sHr sHr [1 2 -2 0 -1 0 0]   sHrSet;
     }
     

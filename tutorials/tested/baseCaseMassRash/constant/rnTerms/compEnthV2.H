@@ -134,7 +134,7 @@ else if(kinSetupSwitch == 3)
                     dimensionedScalar k2  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k2");
                     dimensionedScalar E2  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("E2");
                     dimensionedScalar KEq  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("KEq");
-                    dimensionedScalar cCuCl  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("KEq");
+                    dimensionedScalar cCuCl  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("cCuCl");
                     volScalarField k2R(k2*Foam::exp(-E2/(univR*T)));
 
                     const volScalarField& ethylene = mesh().lookupObject<volScalarField>("ethylene"); 
