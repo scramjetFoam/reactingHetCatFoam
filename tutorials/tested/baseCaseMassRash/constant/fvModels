@@ -38,31 +38,6 @@ reactionSourceEthyleneMassIW
     #};
 }
 
-reactionSourceprodMassIW
-{
-    type            coded;
-    active          yes;
-    name	        reactionSourceprodMassIW;
-    selectionMode   all;
-
-    field 		        prodMass;
-
-    codeInclude
-    #{
-        #include "fvCFD.H"
-    #};
-
-    codeAddRhoSup
-    #{        
-        #include "../../constant/rnTerms/loadCommonData.H"      
-        
-        word currSpName("prod");
-        
-        #include "../../constant/rnTerms/r_powerLawV3.H"                 
-    #};
-}
-
-
 reactionSourceO2IW
 {
     type            coded;
@@ -86,6 +61,80 @@ reactionSourceO2IW
         #include "../../constant/rnTerms/r_powerLawV3.H"                 
     #};
 }
+
+reactionSourceHClIW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceHClIW;
+    selectionMode   all;
+
+    field 		        HClMass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{            
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("HCl");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
+reactionSourceC2H4ClMassIW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceC2H4ClMassIW;
+    selectionMode   all;
+
+    field 		        C2H4ClMass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{        
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("C2H4Cl");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
+reactionSourceH2OMassIW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceH2OMassIW;
+    selectionMode   all;
+
+    field 		        H2OMass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{        
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("H2O");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
+
 
 enthalpySourceINWALL
 {

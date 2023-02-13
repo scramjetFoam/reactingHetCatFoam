@@ -71,6 +71,7 @@ labelList activeReacts
 
 // -- load the general environment properties
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//gas constant
+dimensionedScalar atm("atm", dimpressure, 101325);//gas constant    //atmospheric pressure
 
 // -- reference molar mass 
 scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));

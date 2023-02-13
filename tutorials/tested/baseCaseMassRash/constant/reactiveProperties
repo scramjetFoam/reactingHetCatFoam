@@ -52,8 +52,12 @@ reactProps
     reaction02{
         kinSetupSwitch 3;                       // -- general power law kinetics
         k0  k0  [0 0 -1 0 0 0 0]   k0Set;
-        sHr sHr [1 2 -2 0 -1 0 0]   sHrSet;	
         EA	EA	[1  2 -2 0 -1 0 0]  EASet;
+        k2  k2  [0 0 -1 0 0 0 0]   k2Set;
+        E2	E2	[1  2 -2 0 -1 0 0]  E2Set;
+        KEq KEq [0  0  0 0  0 0 0]  KEqSet;
+        cCuCl cCuCl [-3  0  0 0 1 0 0]  cCuClSet;
+        sHr sHr [1 2 -2 0 -1 0 0]   sHrSet;
     }
     
     // -- numerical properties for gradients
