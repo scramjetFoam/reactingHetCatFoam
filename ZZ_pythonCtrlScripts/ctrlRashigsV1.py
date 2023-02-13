@@ -131,7 +131,7 @@ case.replace (  [
 
 for nameInd in range(len(specieNames)):
     name = specieNames[nameInd]
-    case.setParameters( [ [ 'constant/transportProperties', 'molM', '%.5g' % MolMass[nameInd], name ] ])
+    case.setParameters( [ [ 'constant/transportProperties', 'molM', '%.5g' % MolMass[nameInd], name.replace('Mass','') ] ])
 case.setParameters( [
                         [ 'constant/transportProperties', 'species', '(%s)' % namesStr[:-1], '' ]
                     ] )
