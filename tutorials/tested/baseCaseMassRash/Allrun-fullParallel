@@ -1,0 +1,36 @@
+#!/bin/sh
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm -rf 0
+
+mkdir 0
+cp -rf 0.org/* 0
+
+mkdir dynamicCode
+
+# create geometry
+runApplication blockMesh
+
+# create .OpenFOAM file
+paraFoam -touch
+
+runApplication decomposePar
+runParallel snappyHexMesh -overwrite
+runApplication reconstructPar
+rm -rf processor*
+rm -rf */cellLevel
+rm -rf */pointLevel
+mv log.decomposePar log0.decomposePar
+mv log.reconstructPar log0.reconstructPar 
+
+runApplication decomposePar
+runParallel renumberMesh -overwrite
+application=`getApplication`
+runParallel $application
+mv log.$application log0.$application
+runParallel $application
+runApplication reconstructPar -latestTime
+
+runApplication intSrcSphereM
+postProcess -func integrace -latestTime > log.integrace
+rm -rf processor*

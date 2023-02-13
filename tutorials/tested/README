@@ -2,3 +2,6 @@ Folder with prepared tested tutorials.
     Includes:
         1) baseCaseMass
             -- Basecase for the mass formulation of the solver 
+            -- Flow around sphere, first order kinetics
+        2) baseCaseMassRash
+            -- baseCase with rhs corresponding to the case of the rashig rings reactor
