@@ -48,7 +48,7 @@ specieNames = np.array(["ethylene", "O2", "HCl", "C2H4Cl2", "H2O", "N2"])
 namesStr = ''
 namesSolver = ''
 for nameInd in range(len(specieNames)):
-    namesStr += '%s ' % specieNames[nameInd]
+    namesStr += '%sMass ' % specieNames[nameInd]
 nIn = np.array([ 6.521E-03, 2.588E-03, 1.281E-02, 5.175E-03, 5.175E-03, 1.947E-02 ])
 yIn = nIn / np.sum(nIn)
 for yInInd in range(len(specieNames)):
