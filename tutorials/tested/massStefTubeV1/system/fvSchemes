@@ -73,7 +73,7 @@ laplacianSchemes
 //    laplacian((kappaEff+((((kappaA+(kappaB*T))+(kappaC*pow(T,2)))+(kappaD*pow(T,3)))*epsEff)),T) Gauss downwind MGradT uncorrected; //MK
 //    laplacian((rho*rAU),p)		Gauss linear corrected;
 
-   default                             Gauss linear corrected 0.5;      //orthogonal mesh
+   default                             Gauss linear uncorrected;      //orthogonal mesh
 //    default                             Gauss linear corrected 0.7;       //orthogonal mesh
 //    laplacian((rho*nuEff),U)		Gauss linear corrected 0.5;
 //    laplacian((DEff*CO),(thermo:rho|molM))		Gauss downwind MGradT corrected 0.7;
