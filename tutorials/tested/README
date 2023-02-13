@@ -1,1 +1,4 @@
-Nothing is working 100% perfectly at the moment. But here I would like to have cleaned tested tutorials with some small README for each.
+Folder with prepared tested tutorials.
+    Includes:
+        1) baseCaseMass
+            -- Basecase for the mass formulation of the solver 
