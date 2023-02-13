@@ -130,18 +130,18 @@ forAll(specieNames,lstI)
                 }
 else if(kinSetupSwitch == 3)
                 {                   
-                    volScalarField k1(k0*Foam::exp(-EA/(univR*T)));
+                    volScalarField k1R(k0*Foam::exp(-EA/(univR*T)));
                     dimensionedScalar k2  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k2");
                     dimensionedScalar E2  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("E2");
                     dimensionedScalar KEq  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("KEq");
                     dimensionedScalar cCuCl  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("KEq");
-                    volScalarField k2(k2*Foam::exp(-E2/(univR*T)));
+                    volScalarField k2R(k2*Foam::exp(-E2/(univR*T)));
 
                     const volScalarField& ethylene = mesh().lookupObject<volScalarField>("ethylene"); 
                     const volScalarField& O2 = mesh().lookupObject<volScalarField>("O2"); 
                     
-                    volScalarField citatel( k1 * cCuCl * ethylene * O2 * p / atm );
-                    volScalarField jmenovatel( Foam::pow(ethylene + k1/k2 * O2, 2) * (1 + KEq * p / atm * O2) ); 
+                    volScalarField citatel( k1R * cCuCl * ethylene * O2 * p / atm );
+                    volScalarField jmenovatel( Foam::pow(ethylene + k1R/k2R * O2, 2) * (1 + KEq * p / atm * O2) ); 
                     
                     Rent = - ( sHr * citatel / jmenovatel );
                 }
