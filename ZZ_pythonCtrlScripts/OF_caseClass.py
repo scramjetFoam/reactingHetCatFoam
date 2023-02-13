@@ -33,6 +33,7 @@ import numpy as np
 import os
 import shutil as sh
 from myAddFcs import *
+import difflib
 
 class OpenFOAMCase:
     def __init__(self):
@@ -117,16 +118,19 @@ class OpenFOAMCase:
                 if par in linesInFl[lnI] and (inSubDict == "" or (lnI >= subDictSt and lnI <= subDictEnd)):
                     try:
                         if not ']' in linesInFl[lnI]:
-                            # oldVal = linesInFl[lnI].split(par)[1].replace(' ','').replace('\n','').replace(';','').replace('\t','').split('//')[0]
                             oldVal = linesInFl[lnI].split(par)[1].replace('\n','').replace(';','').split('//')[0]
                         else:
-                            # oldVal = linesInFl[lnI].split(']')[1].replace(' ','').replace('\n','').replace(';','').replace('\t','').split('//')[0]
                             oldVal = linesInFl[lnI].split(']')[1].replace('\n','').replace(';','').split('//')[0]
-                        if not oldVal == '':
+                        
+                        if not oldVal == '' and linesInFl[lnI].find(oldVal) != -1:
                             linesInFl[lnI] = linesInFl[lnI].replace(oldVal,' %s' % val)
                             print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal, val, lnI))
-                        else: 
-                            print("I could not replaced parameter %s on line %d:\n\t'%s'"%(par,lnI,linesInFl[lnI].replace('\n','')))
+                        elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '')) != -1:
+                            linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', ''),' %s' % val)
+                            print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', ''), val, lnI))
+                        elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '').replace('\t', '')) != -1:
+                            linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', '').replace('\t', ''),' %s' % val)
+                            print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', '').replace('\t', ''), val, lnI))
                     except: 
                         print("I could not replaced parameter %s on line %d:\n\t'%s'"%(par,lnI,linesInFl[lnI].replace('\n','')))
             with open(inFl, 'w') as fl:

@@ -44,13 +44,17 @@ baseCaseDir = '../tutorials/tested/baseCaseMassRash'
 outFolder = '../ZZ_cases/testRashV1'
 
 # -- inlet parameters
-specieNames = np.array(["ethylene", "O2", "HCl", "N2", "C2H4Cl2", "H2O"])
-nIn = np.array([ 6.521E-03, 2.588E-03, 1.281E-02, 1.947E-02, 5.175E-03, 5.175E-03 ])
+specieNames = np.array(["ethylene", "O2", "HCl", "C2H4Cl2", "H2O", "N2"])
+namesStr = ''
+namesSolver = ''
+for nameInd in range(len(specieNames)):
+    namesStr += '%s ' % specieNames[nameInd]
+nIn = np.array([ 6.521E-03, 2.588E-03, 1.281E-02, 5.175E-03, 5.175E-03, 1.947E-02 ])
 yIn = nIn / np.sum(nIn)
 for yInInd in range(len(specieNames)):
     print( "Inlet molar fraction of the specie %s is %g" % (specieNames[yInInd], yIn[yInInd]))
 
-MolMass = np.array([ 28.05e-3, 32.0e-3, 36.46e-3, 28.01e-3, 98.96e-3, 18.01e-3])
+MolMass = np.array([ 28.05e-3, 32.0e-3, 36.46e-3, 98.96e-3, 18.01e-3, 28.01e-3])
 MgIn = np.sum( yIn * MolMass )
 print( "Inlet molar mass is %g." %MgIn ) 
 
@@ -71,18 +75,27 @@ EA2 = 5.19e4        # activation energy 2
 KEq = 0.2
 cCuCl = 0.012
 
-Runiv = 8.314       # universal gas constant
+# -- geometry generation parameters
+nCellsBetweenLevels = 2 # 4
+rashLvl = '(1 1)' # (1 2)
+cylLvl = '(1 1)' # (1 1)
+nX = 55 # 110
+nY = 16 # 32
 
-DFreeZ = 1e-5       # Diffusivity in fluid
-kappaEff = 1        # mass transfer coefficient
-eps = 0.5           # material porosity
-EA = 90e3           # activation energy
+# -- rashigs zone parameters
+porEps = 0.42
+tort = 5
+dP = 5e-9
+kappa = 5
 
-# -- geometry
-R = 0.01            # sphere radius
-length1 = 15*R      # inlet <-> sphere centre
-length2 = 45*R      # sphere centre <-> outlet
-width = 15*R        # top|bottom wall <-> sphere centre
+# -- numerics and computing
+nConc = 2
+nTemp = 2
+nProc = 12
+endTime = 10
+
+# ---------------------------------------------------------------------------------------------------------------------
+# -- set the parameters
 
 # -- create new folder from basecase folder
 case = OpenFOAMCase()
@@ -96,18 +109,41 @@ for nameInd in range(len(specieNames)):
     name = specieNames[nameInd]
     case.runCommands( [ 'cp 0.org/bsChemSp 0.org/%sMass' % name] )
     case.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[nameInd]), str(name) ] ] ] )
+case.runCommands( [ 'rm 0.org/bsChemSp' ] )
 case.setParameters( [ 
                         [ '0.org/T', 'internalField', 'uniform %.5g' % TIn, '' ],
                         [ '0.org/U', 'internalField', 'uniform (%.5g 0 0)' % UIn, ''],
                         [ '0.org/p', 'internalField', 'uniform %.5g' % pOut, ''],
                     ] )
 
-# 2) transportProperties parameters
+# 2) geometry genereation parameters
+case.setParameters( [
+                        [ 'system/snappyHexMeshDict', 'nCellsBetweenLevels', '%d' % nCellsBetweenLevels, '' ],
+                        [ 'system/snappyHexMeshDict', 'level', rashLvl, 'rashigs' ],
+                        [ 'system/snappyHexMeshDict', 'level', cylLvl, 'cylinder' ],
+                    ] )
+case.replace (  [ 
+                    [ 'system/blockMeshDict', [ 'nX', 'nY'], [ '%d' % nX, '%d' % nY ] ]
+                ] )
+
+# 3) transportProperties parameters
+# -- chemical species parameters
+
 for nameInd in range(len(specieNames)):
     name = specieNames[nameInd]
     case.setParameters( [ [ 'constant/transportProperties', 'molM', '%.5g' % MolMass[nameInd], name ] ])
+case.setParameters( [
+                        [ 'constant/transportProperties', 'species', '(%s)' % namesStr[:-1], '' ]
+                    ] )
+# -- porousZone parameters
+case.setParameters( [
+                        [ 'constant/transportProperties', 'porEps', '%.5g' % porEps, '' ],
+                        [ 'constant/transportProperties', 'tort', '%.5g' % tort, '' ],
+                        [ 'constant/transportProperties', 'dP', '%.5g' % dP, '' ],
+                        [ 'constant/transportProperties', 'kappa', '%.5g' % kappa, 'coatZone' ],
+                    ] )
 
-# 3) reactionProperties parameters
+# 4) reactionProperties parameters
 case.setParameters( [
                         [ 'constant/reactiveProperties', 'k0', '%.5g' % A1, 'reaction02' ],
                         [ 'constant/reactiveProperties', 'k2', '%.5g' % A2, 'reaction02' ],
@@ -118,37 +154,48 @@ case.setParameters( [
                         [ 'constant/reactiveProperties', 'sHr', '%.5g' % sHr, 'reaction02' ],
                     ] )
 
-# 3) thermophysicalProperties parameters
+# 5) thermophysicalProperties parameters
 case.setParameters( [
                         [ 'constant/thermophysicalProperties', 'molWeight', '%.5g' % MgIn, '' ],
                     ] )
 
-# 4) fvSchemes parameters
+# 6) fvSchemes parameters
 case.setParameters( [
                         [ 'system/fvSchemes', 'default', 'bounded Gauss SFCD' , 'divSchemes' ], 
                     ] )
                 
-# 5) 
+# 7) fvSolution parameters
+case.replace(   [
+                    [ 'system/fvSolution', ['customSolver'], [namesStr[:-1].replace(' ', '|')] ], 
+                ] )
+case.setParameters( [
+                        [ 'system/fvSolution', 'nConcCorrectors', '%d' %nConc , 'SIMPLE' ], 
+                        [ 'system/fvSolution', 'nTempCorrectors', '%d' %nTemp , 'SIMPLE' ], 
+                    ] )
 
-# # -- different cellSize meshes baseCase list
-# meshesCaseLst = []
+# 8) decomposeParDict parameters
+case.setParameters( [
+                        [ 'system/decomposeParDict', 'numberOfSubdomains', '%d' %nProc , '' ], 
+                    ] )
+# 9) residuals
+case.replace(   [
+                    [ 'system/residuals', [ 'flsLst' ], [ namesStr[:-1] ] ], 
+                ] ) 
 
-# # -- prepare prototype mesh for each cellSize
-# if makeMesh:
-#     for cellSize in cellSizeLst:
-#         meshCase = OpenFOAMCase()
-#         meshCase.loadOFCaseFromBaseCase(baseCaseDir)
-#         meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
-#         meshCase.changeOFCaseDir(meshDir)
-#         meshCase.copyBaseCase()
-#         replaceInBlockMesh = ["system/blockMeshDict",['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))]]
-#         replaceInSnappyHexMesh = ["system/snappyHexMeshDict", ['spR'], [str(R)]]             
-#         meshCase.replace([replaceInBlockMesh, replaceInSnappyHexMesh])
-#         meshCase.setParameter(['system/controlDict', 'endTime', str(endTime), ''])
-#         meshCase.setParameter(['system/decomposeParDict', 'numberOfSubdomains', str(nProc), ''])
-#         meshCase.runCommands(['chmod u=rwx All*', './Allmesh'])
-#         meshesCaseLst.append(meshCase)
-#     if not runSim: sys.exit()
+# 10) controlDict
+case.setParameters( [
+                        [ 'system/controlDict', 'application', solver, '' ], 
+                        [ 'system/controlDict', 'endTime', '%d' % endTime, '' ], 
+                    ] ) 
+
+
+
+# -------------------------------------------------------------------------------------------
+# -- prepare mesh and run the simulation
+case.runCommands(   [
+                        'chmod 755 -R ./*',
+                        './Allrun-parallel'
+                    ] )
 
         
      
