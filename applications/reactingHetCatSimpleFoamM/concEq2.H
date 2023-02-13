@@ -70,7 +70,7 @@ forAll(specieNames,lstI)
 
             // -- specie mass diffusion                          
             fvm::laplacian(DEff*rho, currSpMass) 
-            + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
+            + fvm::div(linearInterpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
@@ -89,7 +89,7 @@ forAll(specieNames,lstI)
 
         sumWithoutRef += currSpMass;
 
-        UD -= (DEff/Mg*fvc::grad(currSpMass*Mg));
+        UD -= ( DEff * fvc::grad(currSpMass) + DEff * currSpMass / Mg * fvc::grad(Mg));
     }
     else
     {
@@ -99,7 +99,7 @@ forAll(specieNames,lstI)
     }
 }
 
-volScalarField MgOld = Mg;
+// volScalarField MgOld = Mg;
 
 sumWiMi = 0 * sumWiMi;
 forAll(specieNames,lstI)
@@ -108,7 +108,7 @@ forAll(specieNames,lstI)
 }
 Mg = 1/sumWiMi;
 
-UD = UD * MgOld / Mg;
+// UD = UD * MgOld / Mg;
 
 // -- calculate the molar fractions, update UD from overall diffusive flux
 forAll(specieNames,lstI)
