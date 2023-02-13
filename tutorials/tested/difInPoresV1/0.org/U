@@ -21,7 +21,7 @@ internalField	uniform	(0 0 0.0);
 
 boundaryField
 {
-    inlet
+    inletY
     {
         // type    fixedValue;
 	    // value	uniform (0.000 0 0.0);
@@ -58,15 +58,14 @@ boundaryField
             -I$(LIB_SRC)/sampling/lnInclude
         #};
     }
-    
-    outlet
-    {
-        // type    fixedValue;
-        // type fluxCorrectedVelocity;
-        // type            zeroGradient;
-//         phi             phi;
-//         rho             rho;
 
+    "(inletX|inletZ|outletX|outletZ)"
+    {
+        type            zeroGradient;
+    }
+
+    "(walls|outletY)"
+    {
         type            codedMixed;
         refValue        uniform (0 0 0);
         refGradient     uniform (0 0 0);
@@ -81,21 +80,7 @@ boundaryField
 
             volVectorField UD = (mesh.lookupObject<volVectorField>("UD"));
             surfaceVectorField UDSNGrad = fvc::snGrad(UD);
-            // volVectorField UD = ((mesh.lookupObject<volVectorField>("UD")));
-            // surfaceVectorField snGradUD = fvc::snGrad(UD);
-            // surfaceVectorField UD = (fvc::interpolate(mD/rho));
-            //~ //const volScalarField& lambda((mesh.lookupObject<volScalarField>("lambda")));
-            //~ scalar lambda = 90.0;
-            // const scalarField& lambdaTu = patch().lambda();
-            // scalar lambdaNikl = 90;
-            //~ scalar alpha_L = 150.0;
-            //~ //scalar alpha_L = 10;
-            //~ //dimensionedScalar alpha_L("alpha_L",dimensionSet( 0, -1, 0, 0, 0, 0, 0),150);
-            // this->refValue() = UD.boundaryField()[patch().index()];
             this->refGrad() = UDSNGrad.boundaryField()[patch().index()];
-            //~ //this->valueFraction() = 1.0/(1+lambda/(alpha_L/delta));
-            // this->valueFraction() = 0;
-            //~ this->valueFraction() = 1e-5;
         #};
 
         codeInclude
@@ -109,17 +94,7 @@ boundaryField
             -I$(LIB_SRC)/meshTools/lnInclude \
             -I$(LIB_SRC)/sampling/lnInclude
         #};
-//     }
-    
-//    cylinder 
-//     {
-//         // type    noSlip;
-//         type empty;
-//     }
-//     sides
-//     {
-//         type    slip;
-//     }
+    }
 }
 
 
