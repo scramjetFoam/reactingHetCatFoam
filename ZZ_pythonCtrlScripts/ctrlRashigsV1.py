@@ -56,7 +56,9 @@ for yInInd in range(len(specieNames)):
 
 MolMass = np.array([ 28.05e-3, 32.0e-3, 36.46e-3, 98.96e-3, 18.01e-3, 28.01e-3])
 MgIn = np.sum( yIn * MolMass )
-print( "Inlet molar mass is %g." %MgIn ) 
+print( "Inlet molar mass is %g." %MgIn )
+
+sigmaVs = np.array([ 36.6, 16.3, 23.3, 83.2, 13.1, 18.5 ])
 
 wIn = yIn * MolMass / MgIn
 for yInInd in range(len(specieNames)):
@@ -131,9 +133,12 @@ case.replace (  [
 
 for nameInd in range(len(specieNames)):
     name = specieNames[nameInd]
-    case.setParameters( [ [ 'constant/transportProperties', 'molM', '%.5g' % MolMass[nameInd], name.replace('Mass','') ] ])
+    case.setParameters( [ 
+                            [ 'constant/transportProperties', 'molM', '%.5g' % MolMass[nameInd], name ],
+                            [ 'constant/transportProperties', 'sigmaV', '%.5g' % sigmaVs[nameInd], name ],
+                        ])
 case.setParameters( [
-                        [ 'constant/transportProperties', 'species', '(%s)' % namesStr[:-1], '' ]
+                        [ 'constant/transportProperties', 'species', '(%s)' % namesStr[:-1].replace('Mass',''), '' ]
                     ] )
 # -- porousZone parameters
 case.setParameters( [
