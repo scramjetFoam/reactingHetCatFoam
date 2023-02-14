@@ -70,7 +70,7 @@ forAll(specieNames,lstI)
 
             // -- specie mass diffusion                          
             fvm::laplacian(DEff*rho, currSpMass) 
-            + fvm::div(linearInterpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
+            + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
@@ -89,7 +89,8 @@ forAll(specieNames,lstI)
 
         sumWithoutRef += currSpMass;
 
-        UD -= ( DEff * fvc::grad(currSpMass) + DEff * currSpMass / Mg * fvc::grad(Mg));
+        UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg));
+        // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
     }
     else
     {
