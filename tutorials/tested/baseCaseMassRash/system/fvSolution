@@ -86,8 +86,8 @@ solvers
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors  2;              // n of concentration calculations for each specie
-    nTempCorrectors  2;	            // n of temperature corrections 
+    nConcCorrectors  1;              // n of concentration calculations for each specie
+    nTempCorrectors  3;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 4;     // n of presure corrections (not necessary on this mesh)
     debug 2;    // debug level
     consistent yes;
@@ -108,7 +108,7 @@ relaxationFactors
         p           0.2;
         U           0.4;
         // T           0.5;
-         "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.5;
+         "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.1;
     }
     equations
     {
