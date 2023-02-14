@@ -22,7 +22,8 @@ internalField   uniform 99400;
 
 boundaryField
 {
-    inletY
+    outletY
+    // inletY
     {
         type            zeroGradient;
     }
@@ -32,7 +33,8 @@ boundaryField
         type            zeroGradient;
     }
 
-    outletY
+    // outletY
+    inletY
     {
         type            totalPressure;
 //        rho             rho;
@@ -49,6 +51,7 @@ boundaryField
     {
         type            zeroGradient;
     }
+
 }
 
 // ************************************************************************* //

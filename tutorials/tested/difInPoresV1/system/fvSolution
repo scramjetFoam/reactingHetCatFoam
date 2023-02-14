@@ -73,7 +73,7 @@ solvers
         mergeLevels             1;
     }
     
-    "(CO|O2|CO2|N2O|N2|NO|ethylene|methanol|acetone|prod|methanolMass|acetoneMass|prodMass|N2Mass|rho)"
+    "(CO|O2|CO2|N2O|N2|NO|ethylene|methanol|acetone|prod|methanolMass|acetoneMass|prodMass|O2Mass|N2Mass|rho)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -111,14 +111,14 @@ relaxationFactors
         p           0.05;
         U           0.05;
         // T           0.5;
-        "(ethylene|CO|O2|CO2|methanol|acetone)" 	 0.1;
+        "(ethylene|CO|O2|CO2|methanol|acetone|O2Mass)" 	 0.1;
         //  "(ethylene|prod|CO|O2|CO2)" 	 0.1;
     }
     equations
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(ethylene|CO|O2|CO2|methanolMass|acetoneMass)" 	 0.95;
+        "(ethylene|CO|O2|CO2|methanolMass|acetoneMass|O2Mass)" 	 0.95;
     }
 }
 // ************************************************************************* //

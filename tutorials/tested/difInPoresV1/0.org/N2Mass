@@ -27,14 +27,16 @@ boundaryField
         value           uniform 0.8;
     }
 
-    "(inletX|inletZ|outletX|outletZ)"
+    // "(inletX|inletZ|outletX|outletZ)"
+    "(inletX|inletZ|outletX|outletZ|walls)"
     {
         type            zeroGradient;
     }
-    "(walls|outletY)"
+    // "(walls|outletY)"
+    "(outletY)"
     {
         type            fixedValue;
-        value           uniform 0.0;
+        value           uniform 1.0;
     }
 
 }

@@ -14,76 +14,76 @@ FoamFile
     object      fvModels;
 }
 
-reactionSourceEthyleneIW
-{
-    type            coded;
-    active          yes;
-    name	        reactionSourceCOIW;
-    selectionMode   all;
+// reactionSourceEthyleneIW
+// {
+//     type            coded;
+//     active          yes;
+//     name	        reactionSourceCOIW;
+//     selectionMode   all;
 
-    // field 		        CO;
-    field 		        ethylene;
+//     // field 		        CO;
+//     field 		        ethylene;
 
-    codeInclude
-    #{
-        #include "fvCFD.H"
-    #};
+//     codeInclude
+//     #{
+//         #include "fvCFD.H"
+//     #};
 
-    codeAddRhoSup
-    #{        
-        #include "../../constant/rnTerms/loadCommonData.H"      
+//     codeAddRhoSup
+//     #{        
+//         #include "../../constant/rnTerms/loadCommonData.H"      
         
-        word currSpName("ethylene");
+//         word currSpName("ethylene");
         
-        #include "../../constant/rnTerms/r_powerLawV3.H"                 
-    #};
-}
+//         #include "../../constant/rnTerms/r_powerLawV3.H"                 
+//     #};
+// }
 
-reactionSourceProdIW
-{
-    type            coded;
-    active          yes;
-    name	        reactionSourceCOIW;
-    selectionMode   all;
+// reactionSourceProdIW
+// {
+//     type            coded;
+//     active          yes;
+//     name	        reactionSourceCOIW;
+//     selectionMode   all;
 
-    // field 		        CO;
-    // field 		        ethylene;
-    field 		        prod;
+//     // field 		        CO;
+//     // field 		        ethylene;
+//     field 		        prod;
 
-    codeInclude
-    #{
-        #include "fvCFD.H"
-    #};
+//     codeInclude
+//     #{
+//         #include "fvCFD.H"
+//     #};
 
-    codeAddRhoSup
-    #{        
-        #include "../../constant/rnTerms/loadCommonData.H"      
+//     codeAddRhoSup
+//     #{        
+//         #include "../../constant/rnTerms/loadCommonData.H"      
         
-        word currSpName("prod");
+//         word currSpName("prod");
         
-        #include "../../constant/rnTerms/r_powerLawV3.H"                 
-    #};
-}
+//         #include "../../constant/rnTerms/r_powerLawV3.H"                 
+//     #};
+// }
 
 
-enthalpySourceINWALL
-{
-    type            coded;	
-    active          yes;
-    name	        enthalpySourceINWALL;
-    selectionMode   all;
+// enthalpySourceINWALL
+// {
+//     type            coded;	
+//     active          yes;
+//     name	        enthalpySourceINWALL;
+//     selectionMode   all;
 
-    field 		        "T";
+//     field 		        "T";
     
-    codeInclude
-    #{
-        #include "fvCFD.H"
-    #};
+//     codeInclude
+//     #{
+//         #include "fvCFD.H"
+//     #};
 
-    codeAddRhoSup
-    #{            
-        #include "../../constant/rnTerms/loadCommonData.H"     
+//     codeAddRhoSup
+//     #{            
+//         #include "../../constant/rnTerms/loadCommonData.H"     
                     
-        #include "../../constant/rnTerms/compEnthV2.H"                 
-    #};
-}
+//         #include "../../constant/rnTerms/compEnthV2.H"                 
+    // #};
+// }

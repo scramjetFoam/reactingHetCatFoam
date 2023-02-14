@@ -28,7 +28,7 @@ FoamFile
 reactProps
 {
     // -- list of switches for reactions on/off
-    activeReacts    (0 1);                                          
+    activeReacts    (0 0);                                          
     
     // -- CO oxidation
     reaction00{

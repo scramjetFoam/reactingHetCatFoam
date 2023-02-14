@@ -19,7 +19,7 @@ transportModel  Newtonian;
 
 // -- list of chemical species that are assumed
 // species (ethylene O2);
-species (methanol acetone N2);
+species (O2 N2);
 
 // -- list of porous Zones
 zones ();
@@ -45,98 +45,21 @@ ref
     //specific heat of the substrate in Jkg-1K-1
     // Cp	    Cp 	    [0  2  -2   -1  0 0 0]  520.65;                       
 }
-acetone
-{
-    molM 58.08e-3;
-    sigmaV      16.2;  
-    D  D  [0 2 -1 0 0 0 0] 13.72e-6; 
-    nuVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
-    alphaVec       (0.0 0.0);    
-}
-
-methanol
-{
-    molM 32.04e-3;
-    sigmaV      16.2;  
-    D  D  [0 2 -1 0 0 0 0] 19.91e-6;     
-    nuVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
-    alphaVec       (0.0 1.0);    
-}
 
 N2
 {
-    // -- reference diffusion volume in m3mol-1 for diffusivity computations (see Fuller)
-    sigmaV      16.2;     
-    molM        28.0e-3; 
-    D  D  [0 2 -1 0 0 0 0] 16.91e-6;  
-    nuVec       (0.0 0.0);                                                             
-    alphaVec       (0.0 0.0);                                                             
-}
-
-ethylene
-{
-    sigmaV      41.0;                                                      
-
-    // -- molar mass in kgmol-1
-    molM        40.0e-3;
-    
-    // -- diffusion coef.
-    // D  D  [0 2 -1 0 0 0 0] DSet;
-    // -- stoichiometric coefficients in reactions
-    // minForGrad  1e-36;                                                   //min for gradien
-    nuVec       (0.0 -1.0);                                                     //row of the stoechiometric matrix                                                   
-    alphaVec       (0.0 1.0);                                                     //row of the stoechiometric matrix                                                   
-}
-
-prod
-{
-    sigmaV      41.0;                                                      
-
-    // -- molar mass in kgmol-1
-    molM        0.049;
-    
-    // -- diffusion coef.
-    // D  D  [0 2 -1 0 0 0 0] 1e-6;
-    // -- stoichiometric coefficients in reactions
-    // minForGrad  1e-36;                                                   //min for gradien
-    nuVec       (0.0 0.5714285714285714);                                                     //row of the stoechiometric matrix                                                   
-    alphaVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
-}
-
-CO
-{
-    sigmaV      18.0;                                                   
-
-    // -- molar mass in kgmol-1
+    sigmaV      18.5;
     molM        28.01e-3;
-    
-    // -- diffusion coef.
-    // D  D  [0 2 -1 0 0 0 0] DSet;
-    // -- stoichiometric coefficients in reactions
-    // minForGrad  1e-36;                                                   //min for gradien
-    nuVec       (-1.0 0.0);                                                     //row of the stoechiometric matrix                                                   
-    alphaVec       (1.0 0.0);                                                     //row of the stoechiometric matrix                                                   
+    nuVec       (0.0 0.0);                              
+    // alphaVec       (0.0 0.0);                                
 }
 
 O2
 {
     sigmaV      16.3;                                                   
-
     molM        32.0e-3;
-    
-    nuVec       (0.0 0.0 -0.5);                                                  //row of the stoechiometric matrix                                             
+    nuVec       (0.0 0.0 -0.5);                                           
     alphaVec    (0.0 0.0 0.0);                                             
-}
-
-CO2
-{
-    sigmaV      16.3;                                                   
-
-    molM        28.96e-3;                                              
-    
-    //---
-    nuVec       (0.0 0.0 -0.5);                                                  //row of the stoechiometric matrix                                             
-    alphaVec    (0.0 0.0 0.0);
 }
 
 coatZone    
