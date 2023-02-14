@@ -89,14 +89,14 @@ forAll(specieNames,lstI)
 
         sumWithoutRef += currSpMass;
 
-        UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg));
+        UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
         // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
     }
     else
     {
         currSpMass = 1 - sumWithoutRef;
 
-        UD = UD / currSpMass;
+        UD = UD / currSpMass * molMList[lstI].value();
     }
 }
 
