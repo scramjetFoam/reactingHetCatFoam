@@ -74,5 +74,7 @@ flow1D*
 
 *.pyc
 
+*GPF_F_100x168x100_reactHetCat_comparison_isoDRC_sootPorousSimpleFoam_clean
+
 # python script for recompilation and permission granting
 magic.py

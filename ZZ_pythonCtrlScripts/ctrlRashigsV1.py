@@ -28,6 +28,8 @@ import os
 solverLst = ['reactingHetCatSimpleFoamM','scalarTransportFoamCO']
 solver = solverLst[0]
 
+meshDone = True
+
 # -- script arguments logic
 # args = sys.argv
 # runSim = (True if 'runSim' in args else False)
@@ -41,7 +43,8 @@ solver = solverLst[0]
 
 # -- directory naming
 baseCaseDir = '../tutorials/tested/baseCaseMassRash'
-outFolder = '../ZZ_cases/testRashV1'
+baseCaseDir = '../ZZ_cases/testRashV1'
+outFolder = '../ZZ_cases/testRashV2'
 
 # -- inlet parameters
 specieNames = np.array(["ethylene", "O2", "HCl", "C2H4Cl2", "H2O", "N2"])
@@ -75,7 +78,7 @@ A2 = 2e8            # pre-exponential factor 2
 EA1 = 4.53e4        # activation energy 1
 EA2 = 5.19e4        # activation energy 2
 KEq = 0.2
-cCuCl = 0.012
+cCuCl = 0.12
 
 # -- geometry generation parameters
 nCellsBetweenLevels = 4 # 4
@@ -92,7 +95,7 @@ kappa = 5
 
 # -- numerics and computing
 nConc = 2
-nTemp = 2
+nTemp = 4
 nProc = 12
 endTime = 1000
 wrInt = 50
@@ -108,26 +111,27 @@ case.copyBaseCase()
 
 # -- set parameters:
 # 1) inlet parameters
-for nameInd in range(len(specieNames)):
-    name = specieNames[nameInd]
-    case.runCommands( [ 'cp 0.org/bsChemSp 0.org/%sMass' % name] )
-    case.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[nameInd]), str(name) ] ] ] )
-case.runCommands( [ 'rm 0.org/bsChemSp' ] )
-case.setParameters( [ 
-                        [ '0.org/T', 'internalField', 'uniform %.5g' % TIn, '' ],
-                        [ '0.org/U', 'internalField', 'uniform (%.5g 0 0)' % UIn, ''],
-                        [ '0.org/p', 'internalField', 'uniform %.5g' % pOut, ''],
-                    ] )
+if not meshDone:
+    for nameInd in range(len(specieNames)):
+        name = specieNames[nameInd]
+        case.runCommands( [ 'cp 0.org/bsChemSp 0.org/%sMass' % name] )
+        case.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[nameInd]), str(name) ] ] ] )
+    case.runCommands( [ 'rm 0.org/bsChemSp' ] )
+    case.setParameters( [ 
+                            [ '0.org/T', 'internalField', 'uniform %.5g' % TIn, '' ],
+                            [ '0.org/U', 'internalField', 'uniform (%.5g 0 0)' % UIn, ''],
+                            [ '0.org/p', 'internalField', 'uniform %.5g' % pOut, ''],
+                        ] )
 
 # 2) geometry genereation parameters
-case.setParameters( [
-                        [ 'system/snappyHexMeshDict', 'nCellsBetweenLevels', '%d' % nCellsBetweenLevels, '' ],
-                        [ 'system/snappyHexMeshDict', 'level', rashLvl, 'rashigs' ],
-                        [ 'system/snappyHexMeshDict', 'level', cylLvl, 'cylinder' ],
+    case.setParameters( [
+                            [ 'system/snappyHexMeshDict', 'nCellsBetweenLevels', '%d' % nCellsBetweenLevels, '' ],
+                            [ 'system/snappyHexMeshDict', 'level', rashLvl, 'rashigs' ],
+                            [ 'system/snappyHexMeshDict', 'level', cylLvl, 'cylinder' ],
+                        ] )
+    case.replace (  [ 
+                        [ 'system/blockMeshDict', [ 'nX', 'nY'], [ '%d' % nX, '%d' % nY ] ]
                     ] )
-case.replace (  [ 
-                    [ 'system/blockMeshDict', [ 'nX', 'nY'], [ '%d' % nX, '%d' % nY ] ]
-                ] )
 
 # 3) transportProperties parameters
 # -- chemical species parameters
@@ -171,9 +175,10 @@ case.setParameters( [
                     ] )
                 
 # 7) fvSolution parameters
-case.replace(   [
-                    [ 'system/fvSolution', ['customSolver'], [namesStr[:-1].replace(' ', '|')] ], 
-                ] )
+if not meshDone:
+    case.replace(   [
+                        [ 'system/fvSolution', ['customSolver'], [namesStr[:-1].replace(' ', '|')] ], 
+                    ] )
 case.setParameters( [
                         [ 'system/fvSolution', 'nConcCorrectors', '%d' %nConc , 'SIMPLE' ], 
                         [ 'system/fvSolution', 'nTempCorrectors', '%d' %nTemp , 'SIMPLE' ], 
@@ -184,9 +189,10 @@ case.setParameters( [
                         [ 'system/decomposeParDict', 'numberOfSubdomains', '%d' %nProc , '' ], 
                     ] )
 # 9) residuals
-case.replace(   [
-                    [ 'system/residuals', [ 'flsLst' ], [ 'U p T %s' % namesStr[:-1] ] ], 
-                ] ) 
+if not meshDone:
+    case.replace(   [
+                        [ 'system/residuals', [ 'flsLst' ], [ 'U p T %s' % namesStr[:-1] ] ], 
+                    ] ) 
 
 # 10) controlDict
 case.setParameters( [
@@ -199,10 +205,16 @@ case.setParameters( [
 
 # -------------------------------------------------------------------------------------------
 # -- prepare mesh and run the simulation
-case.runCommands(   [
-                        'chmod 755 -R ./*',
-                        './Allrun-parallel'
-                    ] )
+if not meshDone:
+    case.runCommands(   [
+                            'chmod 755 -R ./*',
+                            './Allrun-parallel'
+                        ] )
+else:
+    case.runCommands(   [
+                        'decomposePar > log.decomposePar',
+                        'foamJob -parallel -screen %s' % solver,
+                        ] )
 
         
      
