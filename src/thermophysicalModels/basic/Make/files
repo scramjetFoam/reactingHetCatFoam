@@ -19,4 +19,4 @@ derivedFvPatchFields/mixedEnergy/mixedEnergyCalculatedTemperatureFvPatchScalarFi
 derivedFvPatchFields/energyJump/energyJump/energyJumpFvPatchScalarField.C
 derivedFvPatchFields/energyJump/energyJumpAMI/energyJumpAMIFvPatchScalarField.C
 
-LIB = $(FOAM_USER_LIBBIN)/libfluidThermophysicalModels
+LIB = $(FOAM_USER_LIBBIN)/libfluidThermophysicalModelsMy

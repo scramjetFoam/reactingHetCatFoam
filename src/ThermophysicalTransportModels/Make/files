@@ -14,4 +14,4 @@ $(BCs)/alphatWallFunctions/alphatJayatillekeWallFunction/alphatJayatillekeWallFu
 
 fluidThermo/fluidThermophysicalTransportModels.C
 
-LIB = $(FOAM_USER_LIBBIN)/libthermophysicalTransportModels
+LIB = $(FOAM_USER_LIBBIN)/libthermophysicalTransportModelsMy
