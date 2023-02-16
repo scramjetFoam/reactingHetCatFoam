@@ -1,0 +1,1 @@
+../solidThermo/solidThermo/heSolidThermo.H

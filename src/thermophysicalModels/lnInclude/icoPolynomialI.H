@@ -1,0 +1,1 @@
+../specie/equationOfState/icoPolynomial/icoPolynomialI.H

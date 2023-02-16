@@ -1,0 +1,1 @@
+../solidThermo/solidSpecie/include/forSolids.H
