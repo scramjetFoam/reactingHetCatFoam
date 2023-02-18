@@ -61,14 +61,16 @@ volScalarField dummyEEqn
 
 Info<< "Reading thermophysical properties\n" << endl;
 
-autoPtr<fluidThermo> pThermo
+autoPtr<fluidThermoMy> pThermo
 (
-    fluidThermo::New(mesh)
+    fluidThermoMy::New(mesh)
 );
 
 
-fluidThermo& thermo = pThermo();
+fluidThermoMy& thermo = pThermo();
 thermo.validate(args.executable(), "h", "e");
+
+thermo.psiMy();
 
 volScalarField& p = thermo.p();
 
