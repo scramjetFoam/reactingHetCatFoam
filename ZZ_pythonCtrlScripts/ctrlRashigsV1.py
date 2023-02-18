@@ -44,7 +44,7 @@ meshDone = True
 # -- directory naming
 baseCaseDir = '../tutorials/tested/baseCaseMassRash'
 baseCaseDir = '../ZZ_cases/testRashV1'
-outFolder = '../ZZ_cases/testRashV2'
+outFolder = '../ZZ_cases/testRashV3'
 
 # -- inlet parameters
 specieNames = np.array(["ethylene", "O2", "HCl", "C2H4Cl2", "H2O", "N2"])
@@ -100,9 +100,9 @@ kappa = 5
 nConc = 1
 nTemp = 2
 nProc = 12
-endTime = 1000
+endTime = 40
 # endTime = 10
-wrInt = 1000
+wrInt = 40
 
 # -- parameters for the whole reactor
 N = 32
@@ -293,9 +293,11 @@ for sim in range(Nzacatek,N):
         dp = float(lines[-1].split("\t")[-1].replace('\n','')) - pOut
     
     case.setParameters( [
-        [ '%d/p' % lT, 'p0', 'uniform %.5g' % pOut - dp, 'outlet'],
-        [ '%d/p' % lT, 'value', 'uniform %.5g' % pOut - dp, 'outlet'],
+        [ '%d/p' % lT, 'p0', 'uniform %.5g' % (pOut - dp), 'outlet'],
+        [ '%d/p' % lT, 'value', 'uniform %.5g' % (pOut - dp), 'outlet'],
     ] )
+
+    pOut = pOut - dp
     
     for field in vectorfields:
         case.runCommands([
