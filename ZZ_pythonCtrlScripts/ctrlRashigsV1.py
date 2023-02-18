@@ -292,6 +292,11 @@ for sim in range(Nzacatek,N):
         print(lines[-1].split("\t")[-1].replace('\n',''))
         dp = float(lines[-1].split("\t")[-1].replace('\n','')) - pOut
     
+    case.setParameters( [
+        [ '%d/p' % lT, 'p0', 'uniform %.5g' % pOut - dp, 'outlet'],
+        [ '%d/p' % lT, 'value', 'uniform %.5g' % pOut - dp, 'outlet'],
+    ] )
+    
     for field in vectorfields:
         case.runCommands([
             'cp postProcessing/sample/%d/outlet_field/vectorField/%s constant/boundaryData/inlet/%d/'%(lT,field,lT) 
