@@ -179,7 +179,7 @@ case.setParameters( [
 
 # 5) thermophysicalProperties parameters
 case.setParameters( [
-    [ 'constant/thermophysicalProperties', 'molWeight', '%.5g' % MgIn, '' ],
+    [ 'constant/thermophysicalProperties', 'molWeight', '%.5g' % (MgIn*1000), '' ],
 ] )
 
 # 6) fvSchemes parameters
