@@ -72,6 +72,10 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl; 
         
         {
+            Info << "\nSolving momentum equation"<<endl;
+             
+            #include "UEqn.H"
+
             scalar nItconc(readScalar(simple.dict().lookup("nConcCorrectors")));
             for (label concIt = 0; concIt < nItconc; concIt++)
             { 
@@ -80,10 +84,6 @@ int main(int argc, char *argv[])
                 #include "concEq2.H"
                 // #include "concEqMass.H"
             }
-
-            Info << "\nSolving momentum equation"<<endl;
-             
-            #include "UEqn.H"
 
             scalar nItTemp(readScalar(simple.dict().lookup("nTempCorrectors")));
 
