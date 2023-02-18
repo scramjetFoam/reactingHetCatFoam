@@ -33,8 +33,8 @@ rm -rf */pointLevel
 
 runParallel renumberMesh -overwrite
 runApplication reconstructParMesh -constant
-runApplication topoSet
-runApplication topoSet -dict system/topoSetDict.1
+# runApplication topoSet
+# runApplication topoSet -dict system/topoSetDict.1
 
 rm -rf processor*
 mv log.decomposePar log.decomposePar1

@@ -59,7 +59,7 @@ O2
 {
     sigmaV      18.0;
     molM        28.01e-3;
-    nuVec       (0.0 0.0 0.5);                              
+    nuVec       (0.0 0.0 -0.5);                              
     // alphaVec    (0.0 0.0);                                     
 }
 

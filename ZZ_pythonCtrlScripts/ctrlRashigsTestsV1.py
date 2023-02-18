@@ -78,7 +78,8 @@ A2 = 2e8            # pre-exponential factor 2
 EA1 = 4.53e4        # activation energy 1
 EA2 = 5.19e4        # activation energy 2
 KEq = 0.2
-cCuCl = 0.12
+# cCuCl = 0.12
+cCuCl = 1
 
 # -- geometry generation parameters
 nCellsBetweenLevels = 4 # 4
@@ -94,7 +95,7 @@ dP = 5e-9
 kappa = 5
 
 # -- numerics and computing
-nConc = 2
+nConc = 1
 nTemp = 0
 # nProc = 12
 nProc = 4
@@ -172,7 +173,7 @@ case.setParameters( [
 
 # 6) fvSchemes parameters
 case.setParameters( [
-                        [ 'system/fvSchemes', 'default', 'bounded Gauss SFCD' , 'divSchemes' ], 
+                        [ 'system/fvSchemes', 'default', 'bounded Gauss upwind phi' , 'divSchemes' ], 
                     ] )
                 
 # 7) fvSolution parameters

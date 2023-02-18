@@ -39,8 +39,20 @@ geometry
     sphere
     {
         type            searchableSphere;
-        centre          (0 0 0);
-        radius          0.005;
+        centre          (-0.025 0 0);
+        radius          0.003;
+    }
+    sphere2
+    {
+        type            searchableSphere;
+        centre          (-0.01 0 0);
+        radius          0.003;
+    }
+    sphere3
+    {
+        type            searchableSphere;
+        centre          (0.0 0 0);
+        radius          0.003;
     }
 //    cylinder
 //    {
@@ -144,9 +156,29 @@ castellatedMeshControls
         {
             // Surface-wise min and max refinement level
             //  level (4 4);
-            level (1 1);
+            level (3 3);
             cellZone coatZone;
             faceZone batt1;
+            // cellZone batt1;
+            cellZoneInside inside;
+        }
+        sphere2
+        {
+            // Surface-wise min and max refinement level
+            //  level (4 4);
+            level (3 3);
+            cellZone coatZone;
+            faceZone batt2;
+            // cellZone batt1;
+            cellZoneInside inside;
+        }
+        sphere3
+        {
+            // Surface-wise min and max refinement level
+            //  level (4 4);
+            level (3 3);
+            cellZone coatZone;
+            faceZone batt3;
             // cellZone batt1;
             cellZoneInside inside;
         }

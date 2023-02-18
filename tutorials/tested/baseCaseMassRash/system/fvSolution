@@ -105,8 +105,8 @@ relaxationFactors
 {
     fields
     {
-        p           0.2;
-        U           0.4;
+        p           0.1;
+        U           0.2;
         // T           0.5;
          "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.1;
     }
@@ -114,7 +114,7 @@ relaxationFactors
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.9;
+        "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.8;
     }
 }
 // ************************************************************************* //

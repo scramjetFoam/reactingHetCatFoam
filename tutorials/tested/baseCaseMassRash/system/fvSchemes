@@ -30,7 +30,7 @@ gradSchemes
 divSchemes
 {
     default                             bounded Gauss SFCD;
-    div(phi,U)                          bounded Gauss linearUpwind grad(U);
+    // div(phi,U)                          bounded Gauss linearUpwind grad(U);
  //   div(phi,U)                          bounded Gauss linearUpwind grad(U);
  //   div(phi,K)                          bounded Gauss linearUpwind grad(U);
  //   div(phi,k)                          bounded Gauss linearUpwind grad(U);
