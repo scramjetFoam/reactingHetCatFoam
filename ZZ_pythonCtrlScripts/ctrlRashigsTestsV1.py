@@ -95,9 +95,10 @@ kappa = 5
 
 # -- numerics and computing
 nConc = 2
-nTemp = 4
-nProc = 12
-endTime = 1000
+nTemp = 0
+# nProc = 12
+nProc = 4
+endTime = 400
 wrInt = 50
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -208,7 +209,8 @@ case.setParameters( [
 if not meshDone:
     case.runCommands(   [
                             'chmod 755 -R ./*',
-                            './Allrun-parallel'
+                            # './Allrun-parallel'
+                            './Allrun-parallel_test'
                         ] )
 else:
     case.runCommands(   [
