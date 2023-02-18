@@ -1,0 +1,1 @@
+../solidThermo/solidSpecie/transport/polynomial/polynomialSolidTransportI.H

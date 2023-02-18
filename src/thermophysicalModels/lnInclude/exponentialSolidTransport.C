@@ -1,0 +1,1 @@
+../solidThermo/solidSpecie/transport/exponential/exponentialSolidTransport.C

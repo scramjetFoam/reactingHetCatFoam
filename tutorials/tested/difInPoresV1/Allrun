@@ -9,10 +9,10 @@ cp -rf 0.org/* 0
 mkdir dynamicCode
 
 # create geometry
-runApplication blockMesh
+# runApplication blockMesh
 
 # create .OpenFOAM file
-paraFoam -touch
+# paraFoam -touch
 
 # runApplication decomposePar
 

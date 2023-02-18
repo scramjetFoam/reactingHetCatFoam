@@ -18,7 +18,7 @@ FoamFile
 application     reactingHetCatSimpleFoamM;
 // application     customSolver;
 
-//startFrom       latestTime;
+startFrom       latestTime;
 startFrom       startTime;
 
 startTime 	    0;
@@ -26,13 +26,13 @@ startTime 	    0;
 stopAt          endTime;
 // stopAt          writeNow;
 
-endTime	       1000;  //endlineLine
+endTime	       2000;  //endlineLine
 
 deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval	       500;
+writeInterval	       200;
 
 writeFormat     ascii;
 

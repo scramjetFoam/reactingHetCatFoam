@@ -30,11 +30,14 @@ gradSchemes
 divSchemes
 {
         //  default                            bounded Gauss upwind phi;
-         default                            Gauss linear;
-    // default                             bounded Gauss vanLeer01;
+         default                            Gauss vanLeer;
+        //  default                            none;
+        //  div((interpolate((((DEff*rho)|Mg)*grad(Mg)))&Sf),methanolMass)     Gauss linear;
+        //  div(phi,methanolMass)              Gauss linear;
+    // default                             bounded Gauss linear;
     // div(sumJMDiff)                      Gauss upwind phi;
     // div(sumJDiff)                      Gauss upwind phi;
-    // // div(phi,U)                          bounded Gauss Minmod;
+    // div(phi, U)                          bounded Gauss linear;
     // // //    div(phi,U)                          bounded Gauss upwind;
     // // //    div(phi,U)                          bounded Gauss linearUpwind grad(U);
     // // //    div(phi,U)                          bounded Gauss QUICK;
@@ -104,11 +107,10 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default                             linear;
+    default                                     linear;
+    // interpolate((((DEff*rho)|Mg)*grad(Mg)))     linear;
+    // interpolate(((DEff*grad((methanolMass*Mg)))|Mg))    linear     
     // default                             none;
-    flux((rho*HbyA))                    linear;
-    flux(HbyA)                          linear;
-    interpolate(rho)                    linear;
     // interpolate(((((jedna*CO)*p)|T)|univR)) downwind MGradT;
     // interpolate((jedna*CO)) downwind MGradT;
     // interpolate(((((DEff*CO)*p)|T)|univR)) downwind MGradT;

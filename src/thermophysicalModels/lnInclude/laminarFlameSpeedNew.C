@@ -1,0 +1,1 @@
+../laminarFlameSpeed/laminarFlameSpeed/laminarFlameSpeedNew.C

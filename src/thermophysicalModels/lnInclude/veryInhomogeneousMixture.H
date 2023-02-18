@@ -1,0 +1,1 @@
+../reactionThermo/mixtures/veryInhomogeneousMixture/veryInhomogeneousMixture.H

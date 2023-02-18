@@ -1,0 +1,1 @@
+../basic/derivedFvPatchFields/mixedEnergy/mixedEnergyCalculatedTemperatureFvPatchScalarField.H
