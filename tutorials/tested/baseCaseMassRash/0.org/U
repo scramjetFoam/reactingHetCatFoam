@@ -29,9 +29,10 @@ boundaryField
     
     outlet
     {
-        type            inletOutlet;
-        value           $internalField;
-        inletValue      uniform (0 0 0);
+        type            zeroGradient;
+        // type            inletOutlet;
+        // value           $internalField;
+        // inletValue      uniform (0 0 0);
     }
     
     "cylinder|walls"
