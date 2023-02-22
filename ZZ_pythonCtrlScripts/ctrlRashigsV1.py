@@ -29,6 +29,7 @@ solverLst = ['reactingHetCatSimpleFoamM','scalarTransportFoamCO']
 solver = solverLst[0]
 
 meshDone = True
+meshDone = False
 
 # -- script arguments logic
 # args = sys.argv
@@ -43,9 +44,9 @@ meshDone = True
 
 # -- directory naming
 baseCaseDir = '../tutorials/tested/baseCaseMassRash'
-baseCaseDir = '../ZZ_cases/testRashV1'
-baseCaseDir = '../ZZ_cases/testRashV4'
-outFolder = '../ZZ_cases/testRashV4'
+# baseCaseDir = '../ZZ_cases/testRashV1'
+# baseCaseDir = '../ZZ_cases/testRashV4'
+outFolder = '../ZZ_cases/V2meshV1'
 # outFolder = '../ZZ_cases/testRashV5'
 # outFolder = '../ZZ_cases/testRashV6'
 # outFolder = '../ZZ_cases/testRashV7'
@@ -92,11 +93,11 @@ KEq = 0.2
 cCuCl = 0.34
 
 # -- geometry generation parameters
-nCellsBetweenLevels = 4 # 4
+nCellsBetweenLevels = 5 # 4
 rashLvl = '(1 2)' # (1 2)
-cylLvl = '(1 1)' # (1 1)
-nX = 110
-nY = 32
+cylLvl = '(1 2)' # (1 1)
+nX = 143
+nY = 42
 
 # -- rashigs zone parameters
 porEps = 0.42
@@ -106,7 +107,7 @@ kappa = 5
 
 # -- numerics and computing
 nConc = 1
-nTemp = 2
+nTemp = 3
 nProc = 12
 # endTime = 3000
 endTime = 1000
@@ -131,8 +132,8 @@ howMuch = [1, 1.11, 1.67, 1.81]
 # -- create new folder from basecase folder
 case = OpenFOAMCase()
 case.loadOFCaseFromBaseCase(baseCaseDir)
-# case.changeOFCaseDir(outFolder)
-# case.copyBaseCase()
+case.changeOFCaseDir(outFolder)
+case.copyBaseCase()
 
 # -- set parameters:
 # 1) inlet parameters
@@ -237,16 +238,16 @@ case.setParameters([
 
 
 # -------------------------------------------------------------------------------------------
-# -- prepare mesh and run the simulation -- one simulation
-# if not meshDone:
-#     case.runCommands(   [
-#                             'chmod 755 -R ./*',
-#                             './Allrun-parallel'
-#                         ] )
+# -- prepare mesh
+if not meshDone:
+    case.runCommands(   [
+                            'chmod 755 -R ./*',
+                            './Allrun-parallel'
+                        ] )
 # else:
 #     case.runCommands(   [
-    #                         'decomposePar > log.decomposePar',
-    #                         'foamJob -parallel -screen %s' % solver,
+#                             'decomposePar > log.decomposePar',
+#                             'foamJob -parallel -screen %s' % solver,
 #                         ] )
 
 # -- the whole reactor

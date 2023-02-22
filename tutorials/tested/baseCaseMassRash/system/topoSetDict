@@ -28,7 +28,7 @@ actions
                                             // test (ignores includeCut,
                                             // outsidePoints)
             outsidePoints   ((0 0 0));    // definition of outside
-            includeCut      false;              // cells cut by surface
+            includeCut      true;              // cells cut by surface
             includeInside   true;              // cells not on outside of surf
             includeOutside  false;              // cells on outside of surf
             nearDistance    -1;                 // cells with centre near surf

@@ -23,7 +23,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default                             Gauss linear;
+    default                             cellLimited Gauss linear 0.2;
     // grad(U)                             cellLimited Gauss linear 0.5;
 }
 
@@ -102,7 +102,7 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default                             limited corrected 1;
+    default                             limited corrected 0.2;
     // default                             uncorrected;                            // orthogonal mesh
 }
 
