@@ -1,11 +1,13 @@
 // -- read the corresponding row of stoechiometric matrix
 List<scalar> nuLst(transportProperties.subDict(currSpName).lookup("nuVec"));
 
+word currSpNameMass = currSpName + "Mass";
 // -- load the current specie
+const volScalarField&  currSpMass = mesh().lookupObject<volScalarField>(currSpNameMass);
 const volScalarField&  currSp = mesh().lookupObject<volScalarField>(currSpName);
 
-scalar molMS(readScalar(transportProperties.subDict(currSpName).lookup("molM")));
-dimensionedScalar molM("molM",dimMass/dimMoles,molMS);
+scalar molM(readScalar(transportProperties.subDict(currSpName).lookup("molM")));
+dimensionedScalar molMDS("molMDS",dimMass/dimMoles,molM);
 
 // -- initialize the fields for reaction term and its derivative w.r.t
 volScalarField R
@@ -19,7 +21,8 @@ volScalarField R
         IOobject::NO_WRITE
     ),
     mesh(),
-    dimensionedScalar("R",dimMoles/dimTime/dimVolume,0.0)
+    // dimensionedScalar("R",dimMoles/dimTime/dimVolume,0.0)
+    dimensionedScalar("R",dimMass/dimTime/dimVolume,0.0)
 );
 volScalarField gradR
 (
@@ -32,7 +35,8 @@ volScalarField gradR
         IOobject::NO_WRITE
     ),
     mesh(),
-    dimensionedScalar("gradR",dimMoles/dimTime/dimVolume,0.0)
+    // dimensionedScalar("gradR",dimMoles/dimTime/dimVolume,0.0)
+    dimensionedScalar("gradR",dimMass/dimTime/dimVolume,0.0)
 );
 
 // -- for all reactions in nuLst (trasportProperties specie defined)
@@ -49,6 +53,8 @@ forAll(nuLst,rnI)
         // -- load the kinetics info about reaction
         dimensionedScalar k0  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k0");
         dimensionedScalar EA  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("EA");
+        
+        // -- NOTETH:: NOT rewritten !
         if (kinSetupSwitch == 1)
         {
             // -- inhibition parameters
@@ -82,18 +88,13 @@ forAll(nuLst,rnI)
             }
         }
         else if(kinSetupSwitch == 2)
-        {
-            // Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = " << EA.value() << endl;
-            
+        {   
             // -- Arhenius law
             volScalarField k(k0*Foam::exp(-EA/(univR*T)));
 
             Info << currSpName << " is active in reaction " << rnI << " "<<rName<<" "<< " => loading kinetics parameters (k0 = "<<k0.value()<<", EA = " << EA.value() << ", min(k) = " << min(k).value() << ", max(k) = " << max(k).value() << ")." << endl;
                     
             //counting exponent for total concetration
-            //NOTE: I start with -1.0 because of units of kinetic constants 
-            //      in transport properties (maybe there can be problem with
-            //      non-integer alpha)
             float cTotExp = 0.0;
             forAll(specieNames,countI){
                 //this can be probably done nicer, but I used the code above  
@@ -103,19 +104,22 @@ forAll(nuLst,rnI)
             
             // calculating real kinetic constant of reaction with arrhenius kinetics and scaling with concentration for right dimension
             //~ dimensionedScalar kReact = k0*Foam::exp(-EA/(univR*cTemp))*Foam::pow(cTot,cTotExp);
-            volScalarField kReact = k*Foam::pow(cTot,cTotExp);
+            volScalarField kReact = k*Foam::pow(cTot,cTotExp)*molMDS;
+            // volScalarField kReact = k*Foam::pow(rhoTu,cTotExp);
             
             volScalarField auxR(0.0*R);
             volScalarField auxGradR(0.0*gradR);
         
-            auxR        += nuLst[rnI]*kReact;
-            auxGradR    += min(0.0,nuLst[rnI])*kReact;
+            auxR        += kReact * nuLst[rnI];
+            auxGradR    += kReact * min(0.0,nuLst[rnI]);
                     
             Info << "reactants in reaction " << rnI << ": ";
             forAll(specieNames,countI)                                      //forAll other species
             {
                 word testedSpName = specieNames[countI];
                 List<scalar> nuLstTested(transportProperties.subDict(testedSpName).lookup("nuVec"));
+
+                word testedSpNameMass = testedSpName + "Mass";
                 
                 if (nuLstTested[rnI] < -SMALL)                              // if testedSpecie is reactant
                 {
@@ -124,16 +128,16 @@ forAll(nuLst,rnI)
                     List<scalar> alphaLst(transportProperties.subDict(testedSpName).lookup("alphaVec"));
                     const volScalarField& testedSp = mesh().lookupObject<volScalarField>(testedSpName); 
                 
-                    auxR *= Foam::pow(testedSp,alphaLst[rnI]);
+                    auxR *= Foam::pow(testedSp, alphaLst[rnI]);
                     
-                    if (testedSpName != currSpName)
-                    {
-                        auxGradR *= Foam::pow(testedSp,alphaLst[rnI]);
-                    }
-                    else
-                    {
-                        auxGradR *= alphaLst[rnI]*Foam::pow(testedSp,alphaLst[rnI]-1.0);
-                    }
+                    // if (testedSpName != currSpName)
+                    // {
+                    //     auxGradR *= Foam::pow(testedSp,alphaLst[rnI]);
+                    // }
+                    // else
+                    // {
+                    //     auxGradR *= alphaLst[rnI]*Foam::pow(testedSp,alphaLst[rnI]-1.0);
+                    // }
                 }
             }
             Info << endl;
@@ -168,8 +172,9 @@ forAll(zoneNames,countI)
     const volScalarField& currZoneVol = mesh().lookupObject<volScalarField>(currentZone); 
     // eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
     // eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
-    eqn += molM*currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
-    eqn += molM*currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
+    eqn += currZoneVol*coatWallFrac[countI]*(R);
+    // eqn += molM*currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
+    // eqn += molM*currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
 
     // eqn += molM*currZoneVol*coatWallFrac[countI]*(R);
 } 

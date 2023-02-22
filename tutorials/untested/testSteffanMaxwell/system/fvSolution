@@ -111,13 +111,13 @@ relaxationFactors
     {
         p           0.05;
         U           0.1;
-        T           0.5;
+        // T           0.5;
         //  "(ethylene|prod|CO|O2|CO2)" 	 0.1;
     }
     equations
     {
         "(p|U)" 0.9;
-        "(T)" 0.98;
+        "(T)" 0.9;
         "(ethylene|CO|O2|CO2|A|B|C)" 	 0.9;
         "(ethylene|CO|O2|CO2|AMass|BMass|CMass)" 	 0.9;
         "(prod)" 	 0.9;

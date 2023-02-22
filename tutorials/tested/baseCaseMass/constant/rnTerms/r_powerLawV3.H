@@ -3,7 +3,11 @@ List<scalar> nuLst(transportProperties.subDict(currSpName).lookup("nuVec"));
 
 word currSpNameMass = currSpName + "Mass";
 // -- load the current specie
-const volScalarField&  currSp = mesh().lookupObject<volScalarField>(currSpNameMass);
+const volScalarField&  currSpMass = mesh().lookupObject<volScalarField>(currSpNameMass);
+const volScalarField&  currSp = mesh().lookupObject<volScalarField>(currSpName);
+
+scalar molM(readScalar(transportProperties.subDict(currSpName).lookup("molM")));
+dimensionedScalar molMDS("molMDS",dimMass/dimMoles,molM);
 
 // -- initialize the fields for reaction term and its derivative w.r.t
 volScalarField R
@@ -100,8 +104,8 @@ forAll(nuLst,rnI)
             
             // calculating real kinetic constant of reaction with arrhenius kinetics and scaling with concentration for right dimension
             //~ dimensionedScalar kReact = k0*Foam::exp(-EA/(univR*cTemp))*Foam::pow(cTot,cTotExp);
-            // volScalarField kReact = k*Foam::pow(cTot,cTotExp)*molM;
-            volScalarField kReact = k*Foam::pow(rhoTu,cTotExp);
+            volScalarField kReact = k*Foam::pow(cTot,cTotExp)*molMDS;
+            // volScalarField kReact = k*Foam::pow(rhoTu,cTotExp);
             
             volScalarField auxR(0.0*R);
             volScalarField auxGradR(0.0*gradR);
@@ -122,18 +126,18 @@ forAll(nuLst,rnI)
                     Info << testedSpName << " ";
                     
                     List<scalar> alphaLst(transportProperties.subDict(testedSpName).lookup("alphaVec"));
-                    const volScalarField& testedSp = mesh().lookupObject<volScalarField>(testedSpNameMass); 
+                    const volScalarField& testedSp = mesh().lookupObject<volScalarField>(testedSpName); 
                 
                     auxR *= Foam::pow(testedSp, alphaLst[rnI]);
                     
-                    if (testedSpName != currSpName)
-                    {
-                        auxGradR *= Foam::pow(testedSp,alphaLst[rnI]);
-                    }
-                    else
-                    {
-                        auxGradR *= alphaLst[rnI]*Foam::pow(testedSp,alphaLst[rnI]-1.0);
-                    }
+                    // if (testedSpName != currSpName)
+                    // {
+                    //     auxGradR *= Foam::pow(testedSp,alphaLst[rnI]);
+                    // }
+                    // else
+                    // {
+                    //     auxGradR *= alphaLst[rnI]*Foam::pow(testedSp,alphaLst[rnI]-1.0);
+                    // }
                 }
             }
             Info << endl;
@@ -166,8 +170,9 @@ forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
     const volScalarField& currZoneVol = mesh().lookupObject<volScalarField>(currentZone); 
-    eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
-    eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
+    // eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
+    // eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
+    eqn += currZoneVol*coatWallFrac[countI]*(R);
     // eqn += molM*currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
     // eqn += molM*currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
 

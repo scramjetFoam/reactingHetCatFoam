@@ -33,7 +33,7 @@ reactionSourceAMassIW
     #{        
         #include "../../constant/rnTerms/loadCommonData.H"      
         
-        word currSpName("AMass");
+        word currSpName("A");
         
         #include "../../constant/rnTerms/r_powerLawV3.H"                 
     #};
@@ -58,7 +58,7 @@ reactionSourceBMassIW
     #{        
         #include "../../constant/rnTerms/loadCommonData.H"      
         
-        word currSpName("BMass");
+        word currSpName("B");
         
         #include "../../constant/rnTerms/r_powerLawV3.H"                 
     #};
@@ -83,7 +83,7 @@ reactionSourceCMassIW
     #{        
         #include "../../constant/rnTerms/loadCommonData.H"      
         
-        word currSpName("CMass");
+        word currSpName("C");
         
         #include "../../constant/rnTerms/r_powerLawV3.H"                 
     #};
