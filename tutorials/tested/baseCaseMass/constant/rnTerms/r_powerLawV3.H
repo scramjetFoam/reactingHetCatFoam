@@ -170,9 +170,9 @@ forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
     const volScalarField& currZoneVol = mesh().lookupObject<volScalarField>(currentZone); 
-    // eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
-    // eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
-    eqn += currZoneVol*coatWallFrac[countI]*(R);
+    eqn += currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSpMass);
+    eqn += currZoneVol*coatWallFrac[countI]*(R - gradR*currSpMass);
+    // eqn += currZoneVol*coatWallFrac[countI]*(R);
     // eqn += molM*currZoneVol*coatWallFrac[countI]*fvm::Sp(gradR,currSp);
     // eqn += molM*currZoneVol*coatWallFrac[countI]*(R - gradR*currSp);
 
