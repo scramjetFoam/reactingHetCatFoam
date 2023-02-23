@@ -24,7 +24,7 @@ solvers
         {
             preconditioner  GAMG;
             tolerance       1e-07;
-            relTol          0.05;
+            relTol          0.01;
             smoother        symGaussSeidel;
             nPreSweeps      0;
             nPostSweeps     2;
@@ -36,31 +36,31 @@ solvers
             nAgglomeratingCells     10;
             mergeLevels             1;
         }
-        tolerance       1e-08;
-        relTol          0.05;
+        tolerance       1e-07;
+        relTol          0.01;
     }
 
     "(U)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-10;
-        relTol          0.05;
+        tolerance       1e-8;
+        relTol          0.01;
     }
 
     "T"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-08;
+        tolerance       1e-06;
         relTol          0.01;
     }
     
     "(h|k|omega|epsilon)"
     {
         solver          GAMG;
-        tolerance       1e-8;
-        relTol          0.05;
+        tolerance       1e-6;
+        relTol          0.01;
         smoother        GaussSeidel;
         nPreSweeps      0;
         nPostSweeps     2;
@@ -73,11 +73,11 @@ solvers
         mergeLevels             1;
     }
     
-    "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)"
+    "(customSolver)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-08;
+        tolerance       1e-6;
         relTol          0.01;
     }  
 
@@ -97,7 +97,7 @@ SIMPLE
         p           1e-7;
         U           1e-5;
         T           1e-9;
-        "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)"    1e-8;
+        "(customSolver)"    1e-8;
     }
 }
 
@@ -108,13 +108,13 @@ relaxationFactors
         p           0.1;
         U           0.2;
         // T           0.5;
-         "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.1;
+        //  "(customSolver)" 	 0.1;
     }
     equations
     {
         "(p|U)" 0.9;
-        "(T)" 0.98;
-        "(ethyleneMass|O2Mass|HClMass|C2H4Cl2Mass|H2OMass|N2Mass)" 	 0.8;
+        "(T)" 0.8;
+        "(customSolver)" 0.8;
     }
 }
 // ************************************************************************* //

@@ -29,6 +29,7 @@ solverLst = ['reactingHetCatSimpleFoamM','scalarTransportFoamCO']
 solver = solverLst[0]
 
 meshDone = True
+meshDone = False
 
 # -- script arguments logic
 # args = sys.argv
@@ -43,8 +44,12 @@ meshDone = True
 
 # -- directory naming
 baseCaseDir = '../tutorials/tested/baseCaseMassRash'
-baseCaseDir = '../ZZ_cases/testRashV1'
-outFolder = '../ZZ_cases/testRashV3'
+# baseCaseDir = '../ZZ_cases/testRashV1'
+# baseCaseDir = '../ZZ_cases/testRashV4'
+outFolder = '../ZZ_cases/V2meshV1'
+# outFolder = '../ZZ_cases/testRashV5'
+# outFolder = '../ZZ_cases/testRashV6'
+# outFolder = '../ZZ_cases/testRashV7'
 
 # -- inlet parameters
 specieNames = np.array(["ethylene", "O2", "HCl", "C2H4Cl2", "H2O", "N2"])
@@ -70,6 +75,10 @@ wIn = yIn * MolMass / MgIn
 for yInInd in range(len(specieNames)):
     print( "Inlet mass fraction of the specie %s is %g" % (specieNames[yInInd], wIn[yInInd]))
 
+CpIn = np.array([61.07, 29.15, 29.64, 87.43, 35.13, 29.49]) # J mol**-1 K**-1
+CpInM = np.sum(CpIn * yIn)  # J mol**-1 K**-1
+CpInMass = CpInM / MgIn
+
 TIn = 200 + 273     # inlet temperature in Kelvins
 UIn = 0.65          # inlet velocity
 pOut = 5.1e5          # outlet pressure
@@ -84,11 +93,11 @@ KEq = 0.2
 cCuCl = 0.34
 
 # -- geometry generation parameters
-nCellsBetweenLevels = 4 # 4
+nCellsBetweenLevels = 5 # 4
 rashLvl = '(1 2)' # (1 2)
-cylLvl = '(1 1)' # (1 1)
-nX = 110
-nY = 32
+cylLvl = '(1 2)' # (1 1)
+nX = 143
+nY = 42
 
 # -- rashigs zone parameters
 porEps = 0.42
@@ -98,11 +107,14 @@ kappa = 5
 
 # -- numerics and computing
 nConc = 1
-nTemp = 2
+nTemp = 3
 nProc = 12
-endTime = 40
+# endTime = 3000
+endTime = 1000
 # endTime = 10
-wrInt = 40
+wrInt = 1000
+divScheme = 'bounded Gauss SFCD'
+# divScheme = 'bounded Gauss upwind phi'
 
 # -- parameters for the whole reactor
 N = 32
@@ -112,6 +124,7 @@ fields = "'(T U p %s)'" % namesStr[:-1]
 # -- update of the kinetics during the whole reactor simulation
 whenChange = [0,7,22, 26]
 howMuch = [1, 1.36, 1.67, 1.81]
+howMuch = [1, 1.11, 1.67, 1.81]
 
 # ---------------------------------------------------------------------------------------------------------------------
 # -- set the parameters
@@ -180,11 +193,13 @@ case.setParameters( [
 # 5) thermophysicalProperties parameters
 case.setParameters( [
     [ 'constant/thermophysicalProperties', 'molWeight', '%.5g' % (MgIn*1000), '' ],
+    [ 'constant/thermophysicalProperties', 'Cp', '%.5g' % (CpInMass), '' ],
 ] )
 
 # 6) fvSchemes parameters
 case.setParameters( [
-    [ 'system/fvSchemes', 'default', 'bounded Gauss SFCD' , 'divSchemes' ], 
+    [ 'system/fvSchemes', 'default', divScheme , 'divSchemes' ], 
+    # [ 'system/fvSchemes', 'default', 'bounded Gauss upwind phi' , 'divSchemes' ], 
 ] )
                 
 # 7) fvSolution parameters
@@ -223,31 +238,37 @@ case.setParameters([
 
 
 # -------------------------------------------------------------------------------------------
-# -- prepare mesh and run the simulation -- one simulation
-# if not meshDone:
-#     case.runCommands(   [
-#                             'chmod 755 -R ./*',
-#                             './Allrun-parallel'
-#                         ] )
+# -- prepare mesh
+if not meshDone:
+    case.runCommands(   [
+                            'chmod 755 -R ./*',
+                            './Allrun-parallel'
+                        ] )
 # else:
 #     case.runCommands(   [
-    #                         'decomposePar > log.decomposePar',
-    #                         'foamJob -parallel -screen %s' % solver,
+#                             'decomposePar > log.decomposePar',
+#                             'foamJob -parallel -screen %s' % solver,
 #                         ] )
 
 # -- the whole reactor
 case.runCommands([
-    'rm -rf processor* constant/boundaryData',
+    'rm -rf processor*',
+    # 'rm -rf processor* constant/boundaryData',
     'decomposePar > log.decomposePar',
     # 'foamJob -parallel -screen %s' % solver,
 ])
+
+if Nzacatek == 0:
+    case.runCommands([
+        'rm -rf processor* constant/boundaryData',
+    ])
 
 if Nzacatek > 0:
     case.updateTimes()
     lT = case.latestTime
     case.setParameters([
-        [ 'system/controlDict', 'endTime', '%d' % lT + endTime, '' ], 
-        [ 'system/controlDict', 'writeInterval', '%d' % lT + endTime, '' ], 
+        [ 'system/controlDict', 'endTime', '%d' % (lT + endTime), '' ], 
+        [ 'system/controlDict', 'writeInterval', '%d' % (lT + endTime), '' ], 
     ]) 
 else:
     case.setParameters([
@@ -278,7 +299,7 @@ for sim in range(Nzacatek,N):
     case.runCommands([
         'mkdir constant/boundaryData/inlet/%d' % lT,
         'cp postProcessing/sample/%d/outlet_field/points constant/boundaryData/inlet/' % lT,
-        'rm -f constant/boundaryData/inlet/%d/*' % lT,
+        # 'rm -f constant/boundaryData/inlet/%d/*' % lT,
     ])
     for field in scalarfields:
         case.runCommands([
@@ -292,12 +313,43 @@ for sim in range(Nzacatek,N):
         print(lines[-1].split("\t")[-1].replace('\n',''))
         dp = float(lines[-1].split("\t")[-1].replace('\n','')) - pOut
     
-    case.setParameters( [
-        [ '%d/p' % lT, 'p0', 'uniform %.5g' % (pOut - dp), 'outlet'],
-        [ '%d/p' % lT, 'value', 'uniform %.5g' % (pOut - dp), 'outlet'],
-    ] )
+    # case.setParameters( [
+    #     [ '%d/p' % lT, 'p0', 'uniform %.5g' % (pOut - dp), 'outlet'],
+    #     [ '%d/p' % lT, 'value', 'uniform %.5g' % (pOut - dp), 'outlet'],
+    # ] )
 
-    pOut = pOut - dp
+    # pOut = pOut - dp
+    print('POut = %g' % pOut)
+
+    # with open('%s/%d/p' % (case.dir, lT), 'r') as fl:
+    #     lineBC = fl.readlines()
+    #     indInlet = -1
+    #     indZavorka = -1
+    #     uz = 0
+    #     for i in range(len(lineBC)):
+    #         if 'outlet' in lineBC[i]:
+    #             indInlet = i
+    #             uz = 1
+    #         if uz == 1 and '}' in lineBC[i]:
+    #             if sim == 0:
+    #                 indZavorka = i
+    #                 uz = 0
+    #             else:
+    #                 uz = 2
+    #         elif uz == 2 and '}' in lineBC[i]:
+    #             if sim != 0:
+    #                 indZavorka = i
+    #             uz = 0
+    #     newBC = []
+    #     print('inlet at', indInlet,indZavorka)
+    #     for i in range(indInlet+2):
+    #         newBC.append(lineBC[i])
+    #     newBC.append("\ntype\ttotalPressure;\np0\tuniform %g;\nvalue\tuniform %g;\nU\tU;\nphi\tphi;\n" % (pOut, pOut))
+    #     for i in range(indZavorka,len(lineBC)):
+    #         newBC.append(lineBC[i])
+    #     with open('%s/%d/p' % (case.dir, lT), 'w') as fl:
+    #         for i in range(len(newBC)):
+    #             fl.writelines(newBC[i])
     
     for field in vectorfields:
         case.runCommands([
