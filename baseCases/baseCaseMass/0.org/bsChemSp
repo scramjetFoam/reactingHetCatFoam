@@ -10,40 +10,29 @@ FoamFile
     version     1.0;
     format      ascii;
     class       volScalarField;
-    object      N2;
+    object      nameSet;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform wN2Set;
+internalField   uniform wChSpSet;
 
 boundaryField
 {
     inlet
     {
         type            fixedValue;
-        value           uniform wN2Set;
+        value           uniform wChSpSet;
     }
     outlet
     {
         type            zeroGradient;
     }
-    sides
+    "cylinder|walls"
     {
         type            zeroGradient;
     }
-    sphere
-    {
-        type            fixedValue;
-        value           uniform 0.1;
-    }
-        sphere_slave
-    {
-        type            fixedValue;
-        value           uniform 0.1;
-    }
-    
 }
 
 // ************************************************************************* //
