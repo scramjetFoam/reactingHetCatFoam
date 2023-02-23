@@ -142,7 +142,17 @@ if makeMesh:
         meshCase.replace([replaceInBlockMesh, replaceInSnappyHexMesh])
         meshCase.setParameters([['system/controlDict', 'endTime', str(endTime), '']])
         meshCase.setParameters([['system/decomposeParDict', 'numberOfSubdomains', str(nProc), '']])
-        # meshCase.runCommands(['chmod u=rwx All*', './Allmesh'])
+        meshCase.runCommands(
+            [
+                'rm -rf 0',
+                'mkdir 0', 
+                'cp -rf 0.org/* 0', 
+                'mkdir dynamicCode',
+                'runApplication blockMesh',
+                'paraFoam -touch',
+                'runApplication snappyHexMesh -overwrite',
+            ]
+        )
         meshesCaseLst.append(meshCase)
     if not runSim: sys.exit()
 
