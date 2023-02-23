@@ -73,7 +73,7 @@ solvers
         mergeLevels             1;
     }
     
-    "(CO|COMass|prodMass|O2|CO2|N2O|N2|NO)"
+    "(customSolver)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -86,9 +86,9 @@ solvers
 SIMPLE
 {
     nUCorrectors 0;            
-    nConcCorrectors 2;              // n of concentration calculations for each specie
-    nTempCorrectors nTCorr;	            // n of temperature corrections 
-    nNonOrthogonalCorrectors 4;     // n of presure corrections (not necessary on this mesh)
+    nConcCorrectors 1;              // n of concentration calculations for each specie
+    nTempCorrectors 1;	            // n of temperature corrections 
+    nNonOrthogonalCorrectors 2;     // n of presure corrections (not necessary on this mesh)
     debug 2;    // debug level
     consistent yes;
     
@@ -97,7 +97,7 @@ SIMPLE
         p           1e-7;
         U           1e-5;
         T           1e-9;
-        "(CO|NO|O2|N2O|CO2)"    1e-8;
+        "(customSolver)"    1e-8;
     }
 }
 
@@ -108,13 +108,13 @@ relaxationFactors
         p           0.2;
         U           0.4;
         // T           0.5;
-         "(COMass|prodMass|O2|CO2)" 	 0.9;
+         "(customSolver)" 	 0.9;
     }
     equations
     {
         "(p|U)" 0.9;
         "(T)" 0.98;
-        "(CO|O2|CO2|COMass|prodMass)" 	 0.9;
+        "(customSolver)" 	 0.9;
     }
 }
 // ************************************************************************* //

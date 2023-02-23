@@ -25,9 +25,7 @@ residuals
             U
             p
 	        T
-	        CO
-            O2
-            CO2
+	        customSolver
         );
     }
 
