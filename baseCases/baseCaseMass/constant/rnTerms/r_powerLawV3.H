@@ -147,6 +147,7 @@ forAll(nuLst,rnI)
         }
         else if (kinSetupSwitch == 3)
         {
+            dimensionedScalar atm("atm", dimPressure, 101325); //gas constant    //atmospheric pressure
             volScalarField k1R(k0*Foam::exp(-EA/(univR*T)));
             dimensionedScalar k2  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k2");
             dimensionedScalar E2  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("E2");

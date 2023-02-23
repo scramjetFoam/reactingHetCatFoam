@@ -71,10 +71,10 @@ width = 15*R        # top|bottom wall <-> sphere centre
 ReLst = [10, 40, 80, 160]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-cellSizeLst = [0.4*R]                           # FV cell Size
+cellSizeLst = [1*R]                           # FV cell Size
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 endTime = 500
-nProc = 32
+nProc = 2
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
@@ -136,10 +136,21 @@ if makeMesh:
                 ]
             )
 
-        # -- others is same
-        replaceInBlockMesh = ["system/blockMeshDict",['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))]]
-        replaceInSnappyHexMesh = ["system/snappyHexMeshDict", ['spR'], [str(R)]]             
-        meshCase.replace([replaceInBlockMesh, replaceInSnappyHexMesh])
+        # -- replace in blockMeshDict    
+        meshCase.replace(
+            [
+                [
+                    "system/blockMeshDict",
+                    ['length1', 'length2', 'width','nDiscX','nDiscYZ'],
+                    [str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))]
+                ], 
+                [
+                    "system/snappyHexMeshDict", 
+                    ['spR'], 
+                    [str(R)]
+                ]
+            ]
+        )
         meshCase.setParameters([['system/controlDict', 'endTime', str(endTime), '']])
         meshCase.setParameters([['system/decomposeParDict', 'numberOfSubdomains', str(nProc), '']])
         meshCase.runCommands(
@@ -148,15 +159,15 @@ if makeMesh:
                 'mkdir 0', 
                 'cp -rf 0.org/* 0', 
                 'mkdir dynamicCode',
-                'runApplication blockMesh',
+                'blockMesh > log.blockMesh',
                 'paraFoam -touch',
-                'runApplication snappyHexMesh -overwrite',
+                'snappyHexMesh -overwrite > log.snappyHexMesh',
+                'rm -rf */cellLevel',
+                'rm -rf */pointLevel',
             ]
         )
         meshesCaseLst.append(meshCase)
     if not runSim: sys.exit()
-
-sys.exit()
 
 # -- numpy array for results:
 if errMesh:
@@ -184,15 +195,33 @@ for case in cases:
         caseHere.loadOFCaseFromBaseCase(meshDir)
         caseHere.changeOFCaseDir(caseDir)
         caseHere.copyBaseCase()
-        caseHere.replace([['0.org/T',['isoT'],[str(T)]],
-                          ['0.org/U', ['inv'],[str(inv)]],
-                          ['system/controlDict',['customSolver'],[solver]],
-                          ['system/fvSolution',['nTCorr'],[str(numOfTCorr)]],
-                          ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)]],
-                          ['constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]]
-                        ])
+        caseHere.replace(
+            [
+                ['0.org/T',['isoT'],[str(T)]],
+                ['0.org/U', ['inv'],[str(inv)]],
+                ['system/controlDict',['customSolver'],[solver]],
+                ['system/fvSolution',['nTCorr'],[str(numOfTCorr)]],
+                ['system/fvSolution',['customSolver'],['customSolver|%s' %species.replace(' ','Mass|')]],
+                ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)]],
+                ['constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]]
+            ]
+        )
         # -- run simulation
-        caseHere.runCommands(['chmod u=rwx Allrun-parallel', './Allrun-parallel'])
+        # caseHere.runCommands(['chmod u=rwx Allrun-parallel', './Allrun-parallel'])
+        caseHere.runCommands(
+            [
+                'rm -rf 0',
+                'mkdir 0',
+                'cp -rf 0.org/* 0',
+                'decomposePar > log.decomposePar',
+                'foamJob -parallel renumberMesh -overwrite > log.renumberMesh', 
+                'foamJob -parallel -screen %s > log.%s' % (solver, solver),
+                'foamJob -parallel -screen %s > log.%s' % (solver, solver),
+                'reconstructPar -latestTime > log.reconstructPar',
+                'intSrcSphereM > log.intSrcSphereM',
+                'postProcess -func integrace -latestTime > log.integrace',
+            ]
+        )
     else: 
         caseHere = OpenFOAMCase()
         caseHere.loadOFCaseFromBaseCase(caseDir)
