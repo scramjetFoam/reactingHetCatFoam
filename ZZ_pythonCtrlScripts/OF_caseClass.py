@@ -10,11 +10,20 @@
 # --            -- copyBaseCase()
 # --        4) specify what you want to modify in openFoam source files:
 # --            options:            
-# --                a) replace(in, what, by)
+# --                a) replace([[in inFl (file), [whats (string)], [bys (string)]],...])
 # --                        inFl -- openFoam source file you want to change
-# --                        what -- what you want to replace (string)
-# --                        by -- new value (string)
-# --        5) run commands in OpenFOAMCase.dir
+# --                        whats -- list of what you want to replace (string)
+# --                        bys -- list of new values (string)
+# --                b) setParameters([[in inFl (file), par (string), val (string), inSubDict (string)],...])
+# --                        inFl -- openFoam source file you want to change
+# --                        par -- parameter to change (string)
+# --                        val -- new value of the parameter (string)
+# --                        inSubDict -- subdictionary of the dictionary (string), if not used give ''
+# --                c) addToDictionary([[in inFl (file), strToAdd (string), inSubDict (string)],...])
+# --                        inFl -- openFoam source file you want to change
+# --                        strToAdd -- string to add to dictionary
+# --                        inSubDict -- subdictionary of the dictionary (string), if not used give ''
+# --        6) run commands in OpenFOAMCase.dir
 # --            -- runCommands(commands)
 
 # --    additional functions:
@@ -97,6 +106,57 @@ class OpenFOAMCase:
             with open(inFl, 'r') as fl:
                 linesInFl = fl.readlines()
             
+        # -- if inSubDict speciefied find where it is
+        if not inSubDict == "":
+            subDictSt, subDictEnd = -1, -1
+            for lnI in range(len(linesInFl)):
+                if inSubDict in linesInFl[lnI] and not '(' in linesInFl[lnI]:
+                    subDictSt = lnI
+                if (subDictSt != -1 and subDictEnd == -1 and "}" in linesInFl[lnI]):
+                    subDictEnd = lnI
+            if subDictSt == -1:
+                print("I could not find subDict %s in file %s."%(inSubDict,inFl))
+        for lnI in range(len(linesInFl)):
+            if par in linesInFl[lnI] and (inSubDict == "" or (lnI >= subDictSt and lnI <= subDictEnd)):
+                try:
+                    if not ']' in linesInFl[lnI]:
+                        oldVal = linesInFl[lnI].split(par)[1].replace('\n','').replace(';','').split('//')[0]
+                    else:
+                        oldVal = linesInFl[lnI].split(']')[1].replace('\n','').replace(';','').split('//')[0]
+                    
+                    if not oldVal == '' and linesInFl[lnI].find(oldVal) != -1:
+                        linesInFl[lnI] = linesInFl[lnI].replace(oldVal,' %s' % val)
+                        print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal, val, lnI))
+                    elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '')) != -1:
+                        linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', ''),' %s' % val)
+                        print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', ''), val, lnI))
+                    elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '').replace('\t', '')) != -1:
+                        linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', '').replace('\t', ''),' %s' % val)
+                        print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', '').replace('\t', ''), val, lnI))
+                except: 
+                    print("I could not replaced parameter %s on line %d:\n\t'%s'"%(par,lnI,linesInFl[lnI].replace('\n','')))
+        with open(inFl, 'w') as fl:
+            for lnI in range(len(linesInFl)):
+                fl.writelines(linesInFl[lnI])
+
+        # -- move back where I start
+        os.chdir(self.whereIStart)
+
+
+    
+    def addToDictionary(self, inParVals):
+        """addToDictionary option -- inParVals = [[in inFl (file), strToAdd (string), inSubDict (string)]]"""
+        """inSubDict option enables to find parameter in subDictionary, if "" then does nothing """
+        # -- move to OpenFOAMCase directory 
+        os.chdir(self.dir)
+        
+        # -- make the replaces
+        for inParVal in inParVals:
+            inFl, strToAdd, inSubDict = inParVal
+            with open(inFl, 'r') as fl:
+                linesInFl = fl.readlines()
+            
+            newLinesInFl = []
             # -- if inSubDict speciefied find where it is
             if not inSubDict == "":
                 subDictSt, subDictEnd = -1, -1
@@ -107,31 +167,28 @@ class OpenFOAMCase:
                         subDictEnd = lnI
                 if subDictSt == -1:
                     print("I could not find subDict %s in file %s."%(inSubDict,inFl))
-            for lnI in range(len(linesInFl)):
-                if par in linesInFl[lnI] and (inSubDict == "" or (lnI >= subDictSt and lnI <= subDictEnd)):
-                    try:
-                        if not ']' in linesInFl[lnI]:
-                            oldVal = linesInFl[lnI].split(par)[1].replace('\n','').replace(';','').split('//')[0]
-                        else:
-                            oldVal = linesInFl[lnI].split(']')[1].replace('\n','').replace(';','').split('//')[0]
-                        
-                        if not oldVal == '' and linesInFl[lnI].find(oldVal) != -1:
-                            linesInFl[lnI] = linesInFl[lnI].replace(oldVal,' %s' % val)
-                            print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal, val, lnI))
-                        elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '')) != -1:
-                            linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', ''),' %s' % val)
-                            print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', ''), val, lnI))
-                        elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '').replace('\t', '')) != -1:
-                            linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', '').replace('\t', ''),' %s' % val)
-                            print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', '').replace('\t', ''), val, lnI))
-                    except: 
-                        print("I could not replaced parameter %s on line %d:\n\t'%s'"%(par,lnI,linesInFl[lnI].replace('\n','')))
-            with open(inFl, 'w') as fl:
+                
                 for lnI in range(len(linesInFl)):
-                    fl.writelines(linesInFl[lnI])
-
+                    if lnI < subDictEnd:
+                        newLinesInFl.append(linesInFl[lnI])
+                    elif lnI == (subDictEnd):
+                        newLinesInFl.append('\t%s' % strToAdd)
+                        print('In %s, I have added line %s to subdictionary %s on line %d' % (inFl, strToAdd, inSubDict, lnI))
+                        newLinesInFl.append(linesInFl[lnI])
+                    else:
+                        newLinesInFl.append(linesInFl[lnI])
+            else:
+                newLinesInFl = linesInFl
+                newLinesInFl.append('\n%s' % strToAdd)
+                print('In %s, I have added line %s at the end.' % (inFl, strToAdd))
+            with open(inFl, 'w') as fl:
+                for lnI in range(len(newLinesInFl)):
+                    fl.writelines(newLinesInFl[lnI])
+        
         # -- move back where I start
         os.chdir(self.whereIStart)
+
+
     
     def runCommands(self,commands):
         """run commands in OpenFOAMCase dir"""

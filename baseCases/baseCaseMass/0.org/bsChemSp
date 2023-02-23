@@ -23,13 +23,13 @@ boundaryField
     inlet
     {
         type            fixedValue;
-        value           uniform wChSpSet;
+        value           $internalField;
     }
     outlet
     {
         type            zeroGradient;
     }
-    "cylinder|walls"
+    sides
     {
         type            zeroGradient;
     }

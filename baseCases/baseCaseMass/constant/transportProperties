@@ -17,12 +17,8 @@ FoamFile
 
 transportModel  Newtonian;
 
-// -- list of chemical species that are assumed
-species (CO prod N2);
-
 // -- list of porous Zones
 zones (reactingCellZone);
-
 
 // ************************************************************************* //
 // -- information about individual chemical species
@@ -41,36 +37,6 @@ ref
 
     //specific heat of the substrate in Jkg-1K-1
     // Cp	    Cp 	    [0  2  -2   -1  0 0 0]  520.65;                       
-}
-
-CO
-{
-    
-    sigmaV      18.0;   // -- diffusion volume in Fuller                                                   
-    molM        28.01e-3;   // -- molar mass in kgmol-1
-    D  D        [0 2 -1 0 0 0 0] DSet;  // -- diffusion coef. (option to set it directly)
-    // -- stoichiometric coefficients in reactions
-    nuVec       (0 -1.0);   //row of the stoechiometric matrix                                                   
-    alphaVec       (0.0 1.0);   //row of the exponents alpha in kinetics                           
-}
-
-// -- for the description of the dictionary, see above
-prod
-{
-    sigmaV      18.0;
-    molM        28.01e-3;
-    D  D        [0 2 -1 0 0 0 0] DSet;
-    nuVec       (0.0 1.0);                              
-    alphaVec    (0.0 0.0);                                     
-}
-
-N2
-{
-    sigmaV      18.0;
-    molM        28.01e-3;
-    D  D  [0 2 -1 0 0 0 0] DSet;
-    nuVec       (0.0 0.0);                              
-    alphaVec       (0.0 0.0);                                
 }
 
 // ************************************************************************* //

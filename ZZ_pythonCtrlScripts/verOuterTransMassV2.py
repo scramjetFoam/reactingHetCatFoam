@@ -43,14 +43,14 @@ errMesh = (True if 'errMesh' in args else False)
 # -- baseCase directory 
 verTestDir = "../tutorials/verification/flowAroundSphereMass"
 # -- directory naming
-baseCaseDir = '%s/baseCase'%verTestDir
-outFolder = '%s/ZZ_cases'%verTestDir
-ZZZ_path = '%s/ZZZ_res'%verTestDir
+baseCaseDir = '../baseCases/baseCaseMass/'
+outFolder = '../ZZ_cases/'
+ZZZ_path = '../ZZZ_res'
 ZZZ_file = '/flow.csv'
 ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
 
 # -- case parameters
-yInf = 0.01         # molar fraction farfar from sphere
+yInf = 0.01         # molar fraction of CO farfar from sphere
 p = 101325          # presure
 Runiv = 8.314       # universal gas constant
 sHr = -283e3        # standard reaction enthalpy (physical 283e3)	
@@ -76,6 +76,19 @@ tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 endTime = 500
 nProc = 32
 
+# -- chemical species
+specieNames = np.array(["CO", "prod", "N2"])
+species = ''
+for specieName in specieNames:
+    species += specieName + ' '
+molMass = np.array([ 28e-3, 28e-3, 28e-3])
+sigmaVs = np.array([ 18.0, 18.0, 18.0])
+nuVec = np.array([-1,1,0])
+alphaVec = np.array([1, 0, 0])
+yIn = np.array([yInf, 0, 1-yInf])
+MgIn = np.sum(yIn * molMass)
+wIn = yIn * molMass / MgIn
+
 # -- baseCase object
 # bsCase = OpenFOAMCase()
 # bsCase.loadOFCaseFromBaseCase(baseCaseDir)
@@ -91,14 +104,49 @@ if makeMesh:
         meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
         meshCase.changeOFCaseDir(meshDir)
         meshCase.copyBaseCase()
+
+        # -- setup verification case from the base case
+        # -- creation and updates of the boundary conditions
+        for chSpI in range(len(specieNames)):
+            name = specieNames[chSpI]
+            meshCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
+            meshCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[chSpI]), str(name) ] ] ] )
+        meshCase.runCommands(['rm 0.org/bsChemSp'])
+
+        # -- transport properties updates
+        meshCase.addToDictionary( 
+            [
+                [ 'constant/transportProperties', 'species (%s);\n' % species, ''],
+            ]
+        )
+        for nameInd in range(len(specieNames)):
+            name = specieNames[nameInd]
+            meshCase.addToDictionary( 
+                [
+                    [ 'constant/transportProperties', '%s\n{\n}\n' % name, ''],
+                ]
+            )
+            meshCase.addToDictionary( 
+                [ 
+                    [ 'constant/transportProperties', 'D  D\t[0 2 -1 0 0 0 0] DSet;\n', name ],
+                    [ 'constant/transportProperties', 'sigmaV\t%g;\n' % sigmaVs[nameInd], name ],
+                    [ 'constant/transportProperties', 'molM\t%g;\n' % molMass[nameInd], name ],
+                    [ 'constant/transportProperties', 'nuVec\t(0 %g);\n' % nuVec[nameInd], name ],
+                    [ 'constant/transportProperties', 'alphaVec\t(0 %g);\n' % alphaVec[nameInd], name ],
+                ]
+            )
+
+        # -- others is same
         replaceInBlockMesh = ["system/blockMeshDict",['length1', 'length2', 'width','nDiscX','nDiscYZ'],[str(length1),str(length2),str(width),str(int((length1+length2)/cellSize)),str(int(2*width/cellSize))]]
         replaceInSnappyHexMesh = ["system/snappyHexMeshDict", ['spR'], [str(R)]]             
         meshCase.replace([replaceInBlockMesh, replaceInSnappyHexMesh])
-        meshCase.setParameter(['system/controlDict', 'endTime', str(endTime), ''])
-        meshCase.setParameter(['system/decomposeParDict', 'numberOfSubdomains', str(nProc), ''])
-        meshCase.runCommands(['chmod u=rwx All*', './Allmesh'])
+        meshCase.setParameters([['system/controlDict', 'endTime', str(endTime), '']])
+        meshCase.setParameters([['system/decomposeParDict', 'numberOfSubdomains', str(nProc), '']])
+        # meshCase.runCommands(['chmod u=rwx All*', './Allmesh'])
         meshesCaseLst.append(meshCase)
     if not runSim: sys.exit()
+
+sys.exit()
 
 # -- numpy array for results:
 if errMesh:
@@ -127,8 +175,6 @@ for case in cases:
         caseHere.changeOFCaseDir(caseDir)
         caseHere.copyBaseCase()
         caseHere.replace([['0.org/T',['isoT'],[str(T)]],
-                          ['0.org/COMass',['wCOSet'],[str(yInf)]],
-                          ['0.org/N2Mass',['wN2Set'],[str(1-yInf)]],
                           ['0.org/U', ['inv'],[str(inv)]],
                           ['system/controlDict',['customSolver'],[solver]],
                           ['system/fvSolution',['nTCorr'],[str(numOfTCorr)]],
