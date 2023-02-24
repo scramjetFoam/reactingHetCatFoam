@@ -4,9 +4,6 @@
 # --        1) load OpenFOAMCase from baseCase or from the different OpenFOAMCase
 # --            -- loadOFCaseFromBaseCase(baseDir)
 # --                    baseDir -- base case directory
-# --            -- loadOFCaseFromOFCase(parent)
-# --                    parent -- OpenFOAMCase you want to load from
-# --                NOTE: does not work so far
 # --        2) (optional) change OpenFOAMCase.dir (where the changes will be made), default -- baseDir
 # --            -- changeOFCaseDir(dir)
 # --        3) (optional) copy OpenFOAMCase.basedir to OpenFOAMCase.dir
@@ -33,7 +30,7 @@ import numpy as np
 import os
 import shutil as sh
 from myAddFcs import *
-import difflib
+
 
 class OpenFOAMCase:
     def __init__(self):
@@ -48,10 +45,6 @@ class OpenFOAMCase:
         self.baseDir = baseDir
         # -- OpenFOAMCase directory is initialized as its baseDir, can be changed by changeOFCaseDir(dir)
         self.dir = baseDir
-    
-    def loadOFCaseFromOFCase(self, parent):
-        """load OpenFOAMCase from the different OpenFOAMCase"""
-        print("OpenFOAMCase has been loaded from parent OpenFOAMCase.")
     
     def changeOFCaseDir(self,dir):
         """change OpenFOAMCase directory"""
@@ -69,7 +62,7 @@ class OpenFOAMCase:
         print("OpenFOAMCase.baseDir has been copied to OpenFOAMCase.dir:\n\t %s --> %s"%(self.baseDir,self.dir))
 
     def replace(self, replaces):
-        """replace option -- replace = [in inFl (file), what (string), by (string)]"""
+        """replace option -- replaces = [[in inFl (file), [whats (string)], [bys (string)]]]"""
         # -- move to OpenFOAMCase directory 
         os.chdir(self.dir)
 
@@ -93,7 +86,7 @@ class OpenFOAMCase:
         os.chdir(self.whereIStart)
     
     def setParameters(self, inParVals):
-        """setParameter option -- inParVal = [in inFl (file), par (string), val (string), inSubDict (string)]"""
+        """setParameter option -- inParVals = [[in inFl (file), par (string), val (string), inSubDict (string)]]"""
         """inSubDict option enables to find parameter in subDictionary, if "" then does nothing """
         # -- move to OpenFOAMCase directory 
         os.chdir(self.dir)
