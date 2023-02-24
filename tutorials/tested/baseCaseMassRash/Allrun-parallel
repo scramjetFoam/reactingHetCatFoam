@@ -34,17 +34,18 @@ rm -rf */pointLevel
 runParallel renumberMesh -overwrite
 runApplication reconstructParMesh -constant
 runApplication topoSet
+mv log.topoSet log.topoSet1
 runApplication topoSet -dict system/topoSetDict.1
 
-rm -rf processor*
-mv log.decomposePar log.decomposePar1
-runApplication decomposePar
+# rm -rf processor*
+# mv log.decomposePar log.decomposePar1
+# runApplication decomposePar
 
-application=`getApplication`
-runParallel $application
-mv log.$application log2.$application
-runParallel $application
-runApplication reconstructPar -latestTime
+# application=`getApplication`
+# runParallel $application
+# mv log.$application log2.$application
+# runParallel $application
+# runApplication reconstructPar -latestTime
 
 # runApplication intSrcSphereM
 # postProcess -func integrace -latestTime > log.integrace

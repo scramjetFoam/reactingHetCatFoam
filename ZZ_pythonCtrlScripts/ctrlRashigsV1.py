@@ -29,7 +29,7 @@ solverLst = ['reactingHetCatSimpleFoamM','scalarTransportFoamCO']
 solver = solverLst[0]
 
 meshDone = True
-meshDone = False
+# meshDone = False
 
 # -- script arguments logic
 # args = sys.argv
@@ -46,7 +46,8 @@ meshDone = False
 baseCaseDir = '../tutorials/tested/baseCaseMassRash'
 # baseCaseDir = '../ZZ_cases/testRashV1'
 # baseCaseDir = '../ZZ_cases/testRashV4'
-outFolder = '../ZZ_cases/V2meshV1'
+baseCaseDir = '../ZZ_cases/V2meshV1'
+outFolder = '../ZZ_cases/V2meshV3_moreIt'
 # outFolder = '../ZZ_cases/testRashV5'
 # outFolder = '../ZZ_cases/testRashV6'
 # outFolder = '../ZZ_cases/testRashV7'
@@ -108,11 +109,12 @@ kappa = 5
 # -- numerics and computing
 nConc = 1
 nTemp = 3
-nProc = 12
-# endTime = 3000
-endTime = 1000
+nProc = 32
+endTime = 3000
+# endTime = 1000
 # endTime = 10
-wrInt = 1000
+wrInt = 3000
+# wrInt = 1000
 divScheme = 'bounded Gauss SFCD'
 # divScheme = 'bounded Gauss upwind phi'
 
@@ -249,19 +251,17 @@ if not meshDone:
 #                             'decomposePar > log.decomposePar',
 #                             'foamJob -parallel -screen %s' % solver,
 #                         ] )
-
+if Nzacatek == 0:
+    case.runCommands([
+        'rm -rf constant/boundaryData',
+    ])
 # -- the whole reactor
 case.runCommands([
+    # 'rm -rf processor*',
     'rm -rf processor*',
-    # 'rm -rf processor* constant/boundaryData',
     'decomposePar > log.decomposePar',
     # 'foamJob -parallel -screen %s' % solver,
 ])
-
-if Nzacatek == 0:
-    case.runCommands([
-        'rm -rf processor* constant/boundaryData',
-    ])
 
 if Nzacatek > 0:
     case.updateTimes()
