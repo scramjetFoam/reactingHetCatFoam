@@ -34,13 +34,17 @@
 # --    TODO:
 # --        1) connect with Lucka blockMeshDict class
 
-# -- imports 
+# -- standard imports 
 import numpy as np
 import os
 import shutil as sh
-from myAddFcs import *
 import re
 
+# -- custom function
+from myAddFcs import *
+
+# -- NOTETH: I have added this for Adas averaging, dont want to rewrite this, so I will try to use it only
+from OpenFoamData import OpenFoamData
 
 class OpenFOAMCase:
     def __init__(self):
@@ -166,8 +170,6 @@ class OpenFOAMCase:
         # -- move back where I start
         os.chdir(self.whereIStart)
 
-
-    
     def runCommands(self,commands):
         """run commands in OpenFOAMCase dir"""
         # -- move to OpenFOAMCase directory 
@@ -197,5 +199,14 @@ class OpenFOAMCase:
 
         # -- move back where I start
         os.chdir(self.whereIStart)  
+    
 
+    # ########################################################################################################   
+    # NOTETH: I have added this just for Ada don't know how well it will really work
+    def saveFieldsAsNpArrays(self, fields, stTime, endTime, outDir):
+        """load the studied OpenFOAM fields to numpy and save it"""
+        oFData = OpenFoamData(self.baseDir, stTime, endTime, 'case', fields, outDir)
+        oFData.loadTimeLst()
+        oFData.loadYsFromOFData()
+        oFData.saveYsFromNPField()
     
