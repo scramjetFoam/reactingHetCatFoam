@@ -19,6 +19,17 @@ testCase.copyBaseCase()
 testCase.setParameters(
     [
         ['system/controlDict', 'endTime', str(3), ''],
+        ['system/fvSchemes', 'default', 'Gauss SFCD', 'divSchemes'],
+    ]
+)
+testCase.replace(
+    [
+        ['constant/physicalProperties', ['0.01'], ['0.02']]
+    ]
+)
+testCase.addToDictionary(
+    [
+        ['system/fvSchemes','div(phi,U) Gauss upwind phi;', 'divSchemes']
     ]
 )
 testCase.runCommands(
