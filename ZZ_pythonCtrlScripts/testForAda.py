@@ -29,7 +29,7 @@ testCase.replace(
 )
 testCase.addToDictionary(
     [
-        ['system/fvSchemes','div(phi,U) Gauss upwind phi;', 'divSchemes']
+        ['system/fvSchemes','div(phi,U) Gauss upwind phi;\n', 'divSchemes']
     ]
 )
 testCase.runCommands(
@@ -43,6 +43,8 @@ oFData = OpenFoamData(caseOutFolder, 1, 3, 'case', fieldsOfInt, (numpyOutDir))
 oFData.loadTimeLst()
 oFData.loadYsFromOFData()
 oFData.saveYsFromNPField()
+
+# oFData.loadYsFromNPField()
 
 oFData.calcAvgY()
 
