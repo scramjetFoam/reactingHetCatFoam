@@ -223,7 +223,7 @@ class OpenFoamData:
                 with open('%s/%g/%s'%(caseDir, self.timeLst[0], templateFieldName), 'r') as file:
                     data = file.readlines()
                     idStr = ['location', 'object']
-                    pVals = [outDir,fieldName]
+                    pVals = [outDir.split('/')[-2],fieldName]
                     
                     for j in range(len(idStr)):
                         for k in range(len(data)):
