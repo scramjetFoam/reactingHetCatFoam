@@ -102,69 +102,25 @@ class OpenFOAMCase:
         os.chdir(self.dir)
 
         # -- make the replaces
-        # for inParVal in inParVals:
-        #     inFl, par, val, inSubDict = inParVal
-        #     with open(inFl, 'r') as fl:
-        #         linesInFl = fl.readlines()
-            
-        # -- if inSubDict speciefied find where it is
-        # if not inSubDict == "":
-        #     subDictSt, subDictEnd = -1, -1
-        #     for lnI in range(len(linesInFl)):
-        #         if inSubDict in linesInFl[lnI] and not '(' in linesInFl[lnI]:
-        #             subDictSt = lnI
-        #         if (subDictSt != -1 and subDictEnd == -1 and "}" in linesInFl[lnI]):
-        #             subDictEnd = lnI
-        #     if subDictSt == -1:
-        #         print("I could not find subDict %s in file %s."%(inSubDict,inFl))
-        # for lnI in range(len(linesInFl)):
-        #     if par in linesInFl[lnI] and (inSubDict == "" or (lnI >= subDictSt and lnI <= subDictEnd)):
-        #         try:
-        #             if not ']' in linesInFl[lnI]:
-        #                 oldVal = linesInFl[lnI].split(par)[1].replace('\n','').replace(';','').split('//')[0]
-        #             else:
-        #                 oldVal = linesInFl[lnI].split(']')[1].replace('\n','').replace(';','').split('//')[0]
-                    
-        #             if not oldVal == '' and linesInFl[lnI].find(oldVal) != -1:
-        #                 linesInFl[lnI] = linesInFl[lnI].replace(oldVal,' %s' % val)
-        #                 print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal, val, lnI))
-        #             elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '')) != -1:
-        #                 linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', ''),' %s' % val)
-        #                 print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', ''), val, lnI))
-        #             elif not oldVal == '' and linesInFl[lnI].find(oldVal.replace(' ', '').replace('\t', '')) != -1:
-        #                 linesInFl[lnI] = linesInFl[lnI].replace(oldVal.replace(' ', '').replace('\t', ''),' %s' % val)
-        #                 print("In %s, I have set parameter %s in subDictionary '%s' from value %s to value %s on line %d." % (inFl, par, inSubDict,oldVal.replace(' ', '').replace('\t', ''), val, lnI))
-        #         except: 
-        #             print("I could not replaced parameter %s on line %d:\n\t'%s'"%(par,lnI,linesInFl[lnI].replace('\n','')))
-        # with open(inFl, 'w') as fl:
-        #     for lnI in range(len(linesInFl)):
-        #         fl.writelines(linesInFl[lnI])
-
-        # -- rewriting same using regular expressions
         for inParVal in inParVals:
             inFl, par, val, inSubDict = inParVal
             print('In %s, trying to change parameter %s in subDict %s:' % (inFl, par, inSubDict))
             with open(inFl, 'r') as fl:
                 content = fl.read()
-                contentN = re.sub(r'(%s)(\s+|\s+%s\s+[^\]]*]\s+)(\S+;)' % (par,par), r'\1 \2 %s;' % (val), content)
-                matches = re.finditer(r'(%s)(\s+|\s+%s\s+[^\]]*]\s+)(\S+;)' % (par,par), content)
+                contentN = re.sub(r'(%s)(\s+%s\s+[^\]]*]\s+|\s+)([\S ]+;)' % (par,par), r'\1 \2 %s;' % (val), content)
+                matches = re.finditer(r'(%s)(\s+%s\s+[^\]]*]\s+|\s+)([\S ]+;)' % (par,par), content)
             if not inSubDict == "":
                 match1 = re.search(r'%s\s*{([^}^{]*)[}{]' % inSubDict, content)
-                contentMatchN = re.sub(r'(%s)(\s+|\s+%s\s+[^\]]*]\s+)(\S+;)' % (par,par), r'\1 \2 %s;' % (val), match1.group(0))
-                matches = re.finditer(r'(%s)(\s+|\s+%s\s+[^\]]*]\s+)(\S+;)' % (par,par), match1.group(0))
+                contentMatchN = re.sub(r'(%s)(\s+%s\s+[^\]]*]\s+|\s+)([\S ]+;)' % (par,par), r'\1 \2 %s;' % (val), match1.group(0))
+                matches = re.finditer(r'(%s)(\s+%s\s+[^\]]*]\s+|\s+)([\S ]+;)' % (par,par), match1.group(0))
                 contentN = re.sub(r'%s\s*{([^}^{]*)[}{]' % inSubDict, contentMatchN, content)
             for match in (matches):
                 print('\tIn %s, I have change val of %s parameter from %s to %s in subDict %s.' % (inFl, par, match.group(3), val, inSubDict))
-                # print(match)
             with open(inFl, 'w') as fl:
                 fl.write(contentN)
-            # print(content)
-
 
         # -- move back where I start
         os.chdir(self.whereIStart)
-
-
     
     def addToDictionary(self, inParVals):
         """addToDictionary option -- inParVals = [[in inFl (file), strToAdd (string), inSubDict (string)]]"""

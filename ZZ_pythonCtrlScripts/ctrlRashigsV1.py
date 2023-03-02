@@ -48,6 +48,7 @@ baseCaseDir = '../tutorials/tested/baseCaseMassRash'
 # baseCaseDir = '../ZZ_cases/testRashV4'
 baseCaseDir = '../ZZ_cases/V2meshV1'
 outFolder = '../ZZ_cases/V2meshV3_moreIt'
+outFolder = '../ZZ_cases/V2meshV4_testNewRepl'
 # outFolder = '../ZZ_cases/testRashV5'
 # outFolder = '../ZZ_cases/testRashV6'
 # outFolder = '../ZZ_cases/testRashV7'
@@ -238,7 +239,7 @@ case.setParameters([
 ] )
 
 
-
+sys.exit()
 # -------------------------------------------------------------------------------------------
 # -- prepare mesh
 if not meshDone:
