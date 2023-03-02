@@ -67,20 +67,22 @@ length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
-ReLst = [10, 40, 80, 160]                       # Reynolds number
+# ReLst = [10, 40, 80, 160]                       # Reynolds number
+ReLst = [10]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-cellSizeLst = [1*R]                           # FV cell Size
+cellSizeLst = [0.4*R]                           # FV cell Size
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
 
 # == ARCHIVED SETTINGS: 
 # -- 17. 1. 2023: mesh independence tests
-thieleLst = [2,6]
-ReLst = [80]
+# thieleLst = [2,6]
+thieleLst = [6]
+# ReLst = [80]
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]
 # cellSizeLst = [0.8*R, 0.4*R, 0.2*R]  # khyrm@WSL
 # cellSizeLst = [0.8*R, 0.7*R, 0.6*R, 0.5*R, 0.4*R, 0.3*R, 0.2*R]  # khyrm@multipede
-cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
+# cellSizeLst = [0.8*R, 0.4*R, 0.2*R, 0.1*R]
 tortLst = [1]
 
 # -- prepare prototype mesh for each cellSize
