@@ -54,7 +54,7 @@ forAll(nuLst,rnI)
         dimensionedScalar k0  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k0");
         dimensionedScalar EA  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("EA");
         
-        // -- NOTETH:: NOT rewritten !
+        // -- NOTETH:: NOT rewritten for mass formulation!
         if (kinSetupSwitch == 1)
         {
             // -- inhibition parameters
@@ -111,7 +111,7 @@ forAll(nuLst,rnI)
             volScalarField auxGradR(0.0*gradR);
         
             auxR        += kReact * nuLst[rnI];
-            auxGradR    += kReact * min(0.0,nuLst[rnI]);
+            // auxGradR    += kReact * min(0.0,nuLst[rnI]);
                     
             Info << "reactants in reaction " << rnI << ": ";
             forAll(specieNames,countI)                                      //forAll other species
