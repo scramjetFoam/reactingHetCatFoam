@@ -36,19 +36,19 @@ forAll(specieNames,lstI)
             DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
         }
 
+        // -- if diffusion coeficient is set in transportProperties dont compute it
+        if (transportProperties.subDict(currSpName).found("D"))
+        {
+            dimensionedScalar D(transportProperties.subDict(currSpName).lookup("D"));//R constant
+            DifMix = 0*DifMix + D;
+        }
+
         // -- effective diffusion coeficient
         DEff = freeChannel*DifMix;         // free-channel
         forAll(zoneLst,countI)
         {
             DEff += zoneLst[countI]*(eps[countI]/(tort[countI]*(1.0/DifMix+1.0/DKn)));  // porous media
         } 
-
-        // -- if diffusion coeficient is set in transportProperties dont compute it
-        if (transportProperties.subDict(currSpName).found("D"))
-        {
-            dimensionedScalar D(transportProperties.subDict(currSpName).lookup("D"));//R constant
-            DEff = 0*DEff + D;
-        }
 
         // -- inform about calculated properties
         if (debug > 0){
