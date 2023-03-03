@@ -110,16 +110,16 @@ def flow_csv(ZZZ_path,ZZZ_filepath,thiele,tort,Re,eta_sim,eta_corr):
     """Write data from 'flowAroundSphere' for plotting  to a csv file"""
     if not os.path.exists(ZZZ_path): os.mkdir(ZZZ_path)
     # NOTE MK: if the redundancy test below doesn't work, just delete it
-    test_vars = [round(thiele,3),round(tort,3),round(Re,3)]
-    if os.path.isfile(ZZZ_filepath):
-        with open(ZZZ_filepath,'r') as f1:
-            lines = f1.readlines()
-        for line in lines:
-            line_vars = [round(float(line.split(',')[i]),3) for i in range(3)]
-            # print('test', test_vars)
-            # print('line', line_vars)
-            if test_vars == line_vars: 
-                return -1
+    # test_vars = [round(thiele,3),round(tort,3),round(Re,3)]
+    # if os.path.isfile(ZZZ_filepath):
+    #     with open(ZZZ_filepath,'r') as f1:
+    #         lines = f1.readlines()
+    #     for line in lines:
+    #         line_vars = [round(float(line.split(',')[i]),3) for i in range(3)]
+    #         # print('test', test_vars)
+    #         # print('line', line_vars)
+    #         if test_vars == line_vars: 
+    #             return -1
     
     with open(ZZZ_filepath,'a') as f2: 
         f2.writelines('%g,%g,%g,%g,%g\n'%(thiele,tort,Re,eta_sim,eta_corr))
@@ -172,7 +172,7 @@ def eta_plt(ZZZ_filepath, thiele, tort):
     print(filtered[:,1])
     filtered = filtered[filtered[:,1]==tort]
     plt.plot(filtered[:,2],filtered[:,3], 'x', label='eta_sim')
-    with open('ZZZ_res/etacsv/etaCorr_phi_%g_tort_%2.1f.csv'%(thiele,tort), 'r') as f1:    
+    with open('../ZZZ_res/etacsv/etaCorr_phi_%g_tort_%2.1f.csv'%(thiele,tort), 'r') as f1:    
         lines = f1.readlines()
     corrRes = [corr.replace('\n','').split(',') for corr in lines[1:]]
     Re_corrLst = [float(corr[0]) for corr in corrRes]
@@ -182,6 +182,8 @@ def eta_plt(ZZZ_filepath, thiele, tort):
     plt.xlabel('Re')
     plt.ylabel('eta')
     plt.legend()
+    if not os.path.isdir('../ZZZ_res/plots'): os.mkdir('../ZZZ_res/plots')
+    plt.savefig('../ZZZ_res/plots/thiele_%g_tort_%g.png' % (thiele, tort))
     plt.show()
 
 # == regression for error mesh dependence

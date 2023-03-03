@@ -69,13 +69,13 @@ width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
 ReLst = [10, 40, 80, 160]                       # Reynolds number
-# ReLst = [10]                       # Reynolds number
+ReLst = [10]                       # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-# thieleLst = [6]                              # Thiele modulus
+thieleLst = [6]                              # Thiele modulus
 cellSizeLst = [0.4*R]                           # FV cell Size
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
-# tortLst = [1]                  # tortuosity
+tortLst = [1]                  # tortuosity
 endTime = 500
 numOfCCorr = 2
 nProc = 12
@@ -105,7 +105,7 @@ if makeMesh:
     for cellSize in cellSizeLst:
         meshCase = OpenFOAMCase()
         meshCase.loadOFCaseFromBaseCase(baseCaseDir)
-        meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
+        meshDir = '%s/protoMesh2/%g'%(outFolder,cellSize)
         meshCase.changeOFCaseDir(meshDir)
         meshCase.copyBaseCase()
 
@@ -115,6 +115,11 @@ if makeMesh:
             name = specieNames[chSpI]
             meshCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
             meshCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[chSpI]), str(name) ] ] ] )
+            meshCase.addToDictionary( 
+                [
+                    [ '0.org/%sMass' % name, '\n\tsides\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField'],
+                ]
+            )
         meshCase.runCommands(['rm 0.org/bsChemSp'])
 
         # -- transport properties updates
