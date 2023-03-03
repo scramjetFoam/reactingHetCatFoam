@@ -140,9 +140,13 @@ class OpenFOAMCase:
             if not inSubDict == "":
                 subDictSt, subDictEnd = -1, -1
                 for lnI in range(len(linesInFl)):
+                    if inSubDict != -1 and "{" in linesInFl[lnI]:
+                        subDictEnd += 1
+                    if inSubDict != -1 and "}" in linesInFl[lnI]:
+                        subDictEnd -= 1
                     if inSubDict in linesInFl[lnI] and not '(' in linesInFl[lnI]:
                         subDictSt = lnI
-                    if (subDictSt != -1 and subDictEnd == -1 and "}" in linesInFl[lnI]):
+                    elif (subDictSt != -1 and subDictEnd == -1):
                         subDictEnd = lnI
                 if subDictSt == -1:
                     print("I could not find subDict %s in file %s."%(inSubDict,inFl))
