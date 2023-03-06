@@ -54,7 +54,7 @@ forAll(nuLst,rnI)
         dimensionedScalar k0  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("k0");
         dimensionedScalar EA  = reactiveProperties.subDict("reactProps").subDict(rName).lookup("EA");
         
-        // -- NOTETH:: NOT rewritten for mass formulation!
+        // -- NOTETH:: NOT only without linearization
         if (kinSetupSwitch == 1)
         {
             // -- inhibition parameters
@@ -72,20 +72,20 @@ forAll(nuLst,rnI)
             const volScalarField& O2 = mesh().lookupObject<volScalarField>("O2");
         
             // -- calculate the reaction term
-            R += k*nuLst[rnI]*CO*O2*Foam::pow(1+Kin*CO,-2);
+            R += molMDS*k*nuLst[rnI]*CO*O2*Foam::pow(1+Kin*CO,-2);
 
             // -- calculate the gradient for source linearization
-            if (currSpName == "CO"){
-                gradR += nuLst[rnI]*(k*O2*(1-Kin*CO)*Foam::pow(1+Kin*CO,-3));
-            }
-            else if (currSpName == "O2")
-            {
-                gradR += nuLst[rnI]*(k*CO*Foam::pow(1+Kin*CO,-2));
-            }
-            else
-            {
-                gradR += 0.0*nuLst[rnI]*(k*(CO)*(O2));
-            }
+            // if (currSpName == "CO"){
+            //     gradR += nuLst[rnI]*(k*O2*(1-Kin*CO)*Foam::pow(1+Kin*CO,-3));
+            // }
+            // else if (currSpName == "O2")
+            // {
+            //     gradR += nuLst[rnI]*(k*CO*Foam::pow(1+Kin*CO,-2));
+            // }
+            // else
+            // {
+            //     gradR += 0.0*nuLst[rnI]*(k*(CO)*(O2));
+            // }
         }
         else if(kinSetupSwitch == 2)
         {   

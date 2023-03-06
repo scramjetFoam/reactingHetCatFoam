@@ -31,7 +31,8 @@ reactProps
     activeReacts    (0 1);                                          
     
     // -- CO oxidation
-    reaction00{
+    reaction00
+    {
         kinSetupSwitch 1;                       // -- special kinetics for CO oxidation
         k0  k0  [0 -3 -1 0 1 0 0]   7.84e16;
         sHr sHr [1 2 -2 0 -1 0 0]   -283e3;	
@@ -41,7 +42,8 @@ reactProps
     }
 
     // -- first order CO reaction
-    reaction01{
+    reaction01
+    {
         kinSetupSwitch 2;                       // -- general power law kinetics
         k0  k0  [0 0 -1 0 0 0 0]   k0Set;
         sHr sHr [1 2 -2 0 -1 0 0]   sHrSet;	
