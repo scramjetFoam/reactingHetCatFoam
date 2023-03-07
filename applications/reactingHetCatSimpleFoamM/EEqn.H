@@ -56,9 +56,9 @@
 
     fvConstraints.constrain(T);
 
-    // thermo.he() = T * thermo.Cp();
+    thermo.he() = T * thermo.Cp();
 
-    currT = T;
+    // currT = T;
 
     // thermo.correct();
 

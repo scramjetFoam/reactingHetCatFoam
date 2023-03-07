@@ -6,7 +6,7 @@
 
     // const volScalarField& psi = rho/p;
     // volScalarField psi = rho/p;
-    volScalarField psi = Mg/univR/currT;
+    volScalarField psi = Mg/univR/thermo.T();
     // volScalarField psi = Mg/univR/T;
     // volScalarField psiConst = Mgconst/univR/T;
     // volScalarField psi = Mg/univR/T;
@@ -106,9 +106,7 @@
     }
 
     rho = p * psi;
-    thermo.he() = currT * thermo.Cp();
-    thermo.rho() = rho;
+    thermo.he() = thermo.T() * thermo.Cp();
     thermo.correct();
-    thermo.rho() = rho;
     rho.relax();
 }

@@ -89,18 +89,18 @@ volScalarField rho
 
 // -- current T field 
 // Info<< "Reading field TSolid\n" << endl;
-volScalarField currT
-(
-    IOobject
-    (
-        "currT",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    thermo.T()*0
-);
+// volScalarField currT
+// (
+//     IOobject
+//     (
+//         "currT",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     thermo.T()*0
+// );
 
 
 

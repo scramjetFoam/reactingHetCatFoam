@@ -18,9 +18,10 @@ sigmaVs = np.array([ 18.0, 16.3, 26.9, 16.2])
 nuVec = np.array([-1, -0.5, 1, 0])
 alphaVec = np.array([0, 0, 0, 0])
 yIn = np.array([0.002, 0.001, 0, 1-0.002-0.001])
-yInit = np.array([0,0,0,1])
+
 MgIn = np.sum(yIn * molMass)
 wIn = yIn * molMass / MgIn
+wInit = wIn
 
 reacZonesProp = np.array(
     [
@@ -37,7 +38,7 @@ reactZones = ['wall', 'reactionZone']
 for chSpI in range(len(specieNames)):
     name = specieNames[chSpI]
     baseCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
-    baseCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet', 'wChSpSetInit'], [ '%.5g' % (wIn[chSpI]), str(name),  str(yInit)] ] ] )
+    baseCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet', 'wChSpSetInit'], [ '%.5g' % (wIn[chSpI]), str(name),  str(wInit)] ] ] )
     baseCase.addToDictionary( 
         [
             [ '0.org/%sMass' % name, '\n\t"(outlet|walls|inletCyl|cylinder)"\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField'],
@@ -96,7 +97,7 @@ baseCase.setParameters(
         ['constant/transportProperties', 'zones', reacZones, ''],
         ['system/fvSolution', 'nConcCorrectors', str(0), ''],
         ['system/fvSolution', 'nTempCorrectors', str(0), ''],
-        ['system/fvSolution', 'nTogCorrectors', str(30), ''],
+        ['system/fvSolution', 'nTogCorrectors', str(5), ''],
         # ['system/fvSolution', 'nTempCorrectors', str(7), ''],
     ]
 )
@@ -143,10 +144,10 @@ baseCase.setParameters(
         ['constant/reactiveProperties', 'k0', str(5e18), 'reaction00'],
         ['constant/reactiveProperties', 'kin', str(280), 'reaction00'],
         ['constant/reactiveProperties', 'activeReacts', '(1 0)', ''],
-        ['system/fvSchemes', 'default', 'bounded Gauss vanLeer01', 'divSchemes'],
+        ['system/fvSchemes', 'default', 'bounded Gauss SFCD', 'divSchemes'],
         ['system/fvSchemes', 'default', 'cellLimited Gauss linear 0.5', 'gradSchemes'],
-        ['system/controlDict', 'endTime', '200', ''],
-        ['system/controlDict', 'writeInterval', '100', ''],
+        ['system/controlDict', 'endTime', '500', ''],
+        ['system/controlDict', 'writeInterval', '250', ''],
     ]
 )
 baseCase.addToDictionary(
@@ -159,6 +160,7 @@ baseCase.runCommands(
     [
         'cp ../10_baseCaseVSpaciV6/system/snappyHexMeshDict ./system',
         'cp ../10_baseCaseVSpaciV6/Allrun-parallel ./',
+        'cp ../10_baseCaseVSpaciV6/Allrun-parallel3 ./',
         'cp ../10_baseCaseVSpaciV6/stitchMeshSc.sh ./',
         'cp ../10_baseCaseVSpaciV6/system/sample ./system',
         'cp ../10_baseCaseVSpaciV6/system/topoSetDict ./system',
