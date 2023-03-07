@@ -18,6 +18,7 @@ sigmaVs = np.array([ 18.0, 16.3, 26.9, 16.2])
 nuVec = np.array([-1, -0.5, 1, 0])
 alphaVec = np.array([0, 0, 0, 0])
 yIn = np.array([0.002, 0.001, 0, 1-0.002-0.001])
+yInit = np.array([0,0,0,1])
 MgIn = np.sum(yIn * molMass)
 wIn = yIn * molMass / MgIn
 
@@ -36,7 +37,7 @@ reactZones = ['wall', 'reactionZone']
 for chSpI in range(len(specieNames)):
     name = specieNames[chSpI]
     baseCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
-    baseCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[chSpI]), str(name) ] ] ] )
+    baseCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet', 'wChSpSetInit'], [ '%.5g' % (wIn[chSpI]), str(name),  str(yInit)] ] ] )
     baseCase.addToDictionary( 
         [
             [ '0.org/%sMass' % name, '\n\t"(outlet|walls|inletCyl|cylinder)"\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField'],
@@ -95,7 +96,7 @@ baseCase.setParameters(
         ['constant/transportProperties', 'zones', reacZones, ''],
         ['system/fvSolution', 'nConcCorrectors', str(0), ''],
         ['system/fvSolution', 'nTempCorrectors', str(0), ''],
-        ['system/fvSolution', 'nTogCorrectors', str(2), ''],
+        ['system/fvSolution', 'nTogCorrectors', str(30), ''],
         # ['system/fvSolution', 'nTempCorrectors', str(7), ''],
     ]
 )

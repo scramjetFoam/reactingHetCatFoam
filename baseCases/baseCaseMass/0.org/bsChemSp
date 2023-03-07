@@ -16,14 +16,14 @@ FoamFile
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform wChSpSet;
+internalField   uniform wChSpSetInit;
 
 boundaryField
 {
     inlet
     {
         type            fixedValue;
-        value           $internalField;
+        value           uniform wChSpSet;
     }
     outlet
     {
