@@ -98,6 +98,10 @@ forAll(specieNames,lstI)
 
         UD = UD / currSpMass * molMList[lstI].value();
     }
+    forAll(currSpMass,cellI)
+    { 
+        currSpMass[cellI] = max(min(currSpMass[cellI],1),0); 
+    }
 }
 
 // volScalarField MgOld = Mg;
