@@ -70,7 +70,7 @@ reactionSourceO2IW
     name	        reactionSourceO2IW;
     selectionMode   all;
 
-    field 		        O2;
+    field 		        O2Mass;
 
     codeInclude
     #{
@@ -94,7 +94,7 @@ reactionSourceCO2IW
     name	        reactionSourceCO2IW;
     selectionMode   all;
 
-    field 		        "CO2";
+    field 		        CO2Mass;
 
     codeInclude
     #{
