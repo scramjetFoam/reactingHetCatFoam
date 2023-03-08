@@ -194,15 +194,17 @@ int main(int argc, char *argv[])
         {
             currPos = planeCenter + i*stepSize*cutDir;                  //update the current position
             point planeLocation(currPos);                               //prepare the point with current position
-            plane smpPl1(planeLocation,cutDir);                       //auxiliary plane
-            word nazev= "smpl";
-            Foam::sampledSurfaces::plane smpPl(nazev,mesh,smpPl1);                       //auxiliary plane
+            plane extPlane(planeLocation,cutDir);                       //auxiliary plane
+            extPlane.update();
+            // word nazev= "smpl";
+            Foam::cuttingPlane smpPl(extPlane);                       //auxiliary plane
             // sampledPlane smpPl("smpPl",mesh,extPlane);                  //this might not work
+            // cuttingPlane smpPl(mesh,extPlane);                  //this might not work
             // ("smpPl",mesh,extPlane);                  //this might not work
             
-            smpPl.update();
+            // smpPl.update();
             
-            Info << smpPl.faces() << endl;
+            Info << extPlane.cells() << endl;
             //~ Info << smpPl.meshCells() << endl;
             
 	        scalar mdot(0);
