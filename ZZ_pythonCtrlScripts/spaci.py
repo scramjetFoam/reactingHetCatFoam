@@ -78,7 +78,7 @@ baseCase.addToDictionary(
 
 baseCase.setParameters(
     [
-        [ 'system/decomposeParDict', 'numberOfSubdomains', '16' , '' ], 
+        [ 'system/decomposeParDict', 'numberOfSubdomains', '8' , '' ], 
     ] 
 )
 
@@ -97,7 +97,9 @@ baseCase.setParameters(
         ['constant/transportProperties', 'zones', reacZones, ''],
         ['system/fvSolution', 'nConcCorrectors', str(0), ''],
         ['system/fvSolution', 'nTempCorrectors', str(0), ''],
-        ['system/fvSolution', 'nTogCorrectors', str(5), ''],
+        ['system/fvSolution', 'nTogCorrectors', str(7), ''],
+        ['system/fvSolution', 'p', '0.2', 'fields'],
+        ['system/fvSolution', 'U', '0.3', 'fields'],
         # ['system/fvSolution', 'nTempCorrectors', str(7), ''],
     ]
 )
@@ -141,18 +143,19 @@ baseCase.replace(
 
 baseCase.setParameters(
     [
-        ['constant/reactiveProperties', 'k0', str(5e18), 'reaction00'],
+        ['constant/reactiveProperties', 'k0', str(4.1e18), 'reaction00'],
         ['constant/reactiveProperties', 'kin', str(280), 'reaction00'],
         ['constant/reactiveProperties', 'activeReacts', '(1 0)', ''],
         ['system/fvSchemes', 'default', 'bounded Gauss SFCD', 'divSchemes'],
         ['system/fvSchemes', 'default', 'cellLimited Gauss linear 0.5', 'gradSchemes'],
-        ['system/controlDict', 'endTime', '500', ''],
+        ['system/controlDict', 'endTime', '250', ''],
         ['system/controlDict', 'writeInterval', '250', ''],
     ]
 )
 baseCase.addToDictionary(
     [
-        ['system/fvSchemes', '\tdiv((phi*interpolate(Cp)),T)  bounded Gauss linearUpwind grad(T);\n', 'divSchemes']
+        ['system/fvSchemes', '\tdiv((phi*interpolate(Cp)),T)  bounded Gauss vanLeer;\n', 'divSchemes'],
+        ['system/fvSolution', '\tT\t0.99995;\n', 'equations']
     ]
 )
 
@@ -166,6 +169,8 @@ baseCase.runCommands(
         'cp ../10_baseCaseVSpaciV6/system/topoSetDict ./system',
         'cp ../10_baseCaseVSpaciV6/system/topoSetDict.2 ./system',
         'cp ../10_baseCaseVSpaciV6/system/topoSetDict.3 ./system',
+        'cp ../10_baseCaseVSpaciV6/system/topoSetDict.4 ./system',
+        'cp ../10_baseCaseVSpaciV6/system/sample.4 ./system/sample',
         'cp ../10_baseCaseVSpaciV6/system/createPatchDict ./system',
         'cp ../10_baseCaseVSpaciV6/system/createPatchDict.2 ./system',
         'chmod 775 ./* -R'
@@ -178,3 +183,24 @@ baseCase.replace(
         ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(1),str(1),str(0)]],
     ]
 )
+
+slces = np.linspace(0,7.0e-3*2+76.2e-3,100)[1:-1]
+
+for i in range(len(slces)):
+    baseCase.addToDictionary(
+        [
+            ['system/sample',
+             'ch%dPlane\n{\n\ttype\tplane;\n\tplaneType pointAndNormal;\n\tpointAndNormalDict\n\t{\n\t\tpoint (0.002185 0.002185 %g);\n\t\t normal\t(0 0 1);\n\t}\n\tzone\tch1CZS;\n}\n' % (i, slces[i]),
+             'surfaces'
+            ]
+        ]
+    ,brack='()')
+
+# baseCase.addToDictionary(
+#     [
+#         ['system/sample',
+#             'chSPlane\n{\n\ttype\tplane;\n\tplaneType pointAndNormal;\n\tpointAndNormalDict\n\t{\n\t\tpoint (0.002185 0.002185 %g);\n\t\t normal\t(0 0 1);\n\t}\n\tzone\tch1CZS;\n}\n' % (i, slces[i]),
+#             'surfaces'
+#         ]
+#     ]
+# ,brack='()')
