@@ -82,9 +82,7 @@ nProc = 12
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
-species = ''
-for specieName in specieNames:
-    species += specieName + ' '
+species = ' '.join(specieNames) 
 molMass = np.array([ 28e-3, 28e-3, 28e-3])
 sigmaVs = np.array([ 18.0, 18.0, 18.0])
 nuVec = np.array([-1,1,0])
