@@ -42,7 +42,7 @@ getCsv = (True if 'getCsv' in args else False)
 errMesh = (True if 'errMesh' in args else False)
 
 # -- directory naming
-baseDir = '../../../baseCases/baseCaseMass'
+baseDir = '../../../baseCases/baseCaseMassVM'
 outFolder = 'ZZ_cases'
 if isothermal: outFolder += '_isoT'
 ZZZ_path = 'ZZZ_res'
@@ -89,8 +89,8 @@ wIn = yIn * molMass / MgIn
 thieleLst = [4.0]
 # cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
 # cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
-cellSizeLst = [1.6*R, 0.8*R]
-# cellSizeLst = [1.6*R]
+# cellSizeLst = [1.6*R, 0.8*R]
+cellSizeLst = [1.6*R]
 
 # -- prepare prototype mesh for each cellSize
 meshesCaseLst = []
