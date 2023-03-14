@@ -70,21 +70,22 @@ width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
 ReLst = [10, 40, 80, 160]                       # Reynolds number
-ReLst = [10]                                    # Reynolds number
+# ReLst = [10]                                    # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-thieleLst = [6]                                 # Thiele modulus
-# cellSizeLst = [0.4*R]                         # FV cell Size
-cellSizeLst = [0.8*R]
+# thieleLst = [6]                                 # Thiele modulus
+cellSizeLst = [0.4*R]                         # FV cell Size
+# cellSizeLst = [0.8*R]
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
-tortLst = [1]                  # tortuosity
+
 endTime = 500
 numOfCCorr = 2
 nProc = 6
 
 # -- TESTING
-tortLst = [0.5]  
-thieleLst = [2]
+# tortLst = [0.5]  
+# thieleLst = [2]
+tortLst = [1] # tortuosity
 # ----------
 
 # -- chemical species

@@ -66,7 +66,7 @@ nProc = 12
 # ReLst = [10]
 # tortLst = [0.5]  
 # thieleLst = [2]
-# cellSizeLst = [0.8*R, 0.4*R, 0.2*R]
+# cellSizeLst = [0.4*R]
 # ----------
 
 # -- chemical species
@@ -174,24 +174,24 @@ for case in cases:
             'cp -rf 0.org/* 0', 
             'mkdir dynamicCode',
             'blockMesh > log.blockMesh',
-            'paraFoam -touch',
+            # 'paraFoam -touch',
             'decomposePar > log1.decomposePar',
-            'snappyHexMesh -overwrite > log.snappyHexMesh',
+            'foamJob -parallel -screen snappyHexMesh -overwrite > log.snappyHexMesh',
             'reconstructParMesh -constant -time 0 > log1.regconstructParMesh',
-            'rm -rf */cellLevel',
-            'rm -rf */pointLevel',
+            # 'rm -rf */cellLevel',
+            # 'rm -rf */pointLevel',
         ])
     if runSim:
         caseHere.runCommands([
-            'rm -rf 0',
-            'mkdir 0',
-            'cp -rf 0.org/* 0',
+            # 'rm -rf 0',
+            # 'mkdir 0',
+            # 'cp -rf 0.org/* 0',
             'decomposePar -force > log2.decomposePar',
-            'foamJob -parallel renumberMesh -overwrite > log.renumberMesh', 
+            'foamJob -parallel -screen renumberMesh -overwrite > log.renumberMesh', 
             'foamJob -parallel -screen %s > log.%s' % (solver, solver),
         ])
-        if not path.isdir('processor0/100'): ceseHere.runCommands(['foamJob -parallel -screen %s > log.%s' % (solver, solver)])
-        ceseHere.runCommands([
+        if not os.path.isdir('processor0/100'): caseHere.runCommands(['foamJob -parallel -screen %s > log2.%s' % (solver, solver)])
+        caseHere.runCommands([
             'reconstructPar -latestTime > log2.reconstructPar',
             'intSrcSphereM > log.intSrcSphereM',
             'postProcess -func integrace -latestTime > log.integrace',
