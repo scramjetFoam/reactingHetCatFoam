@@ -87,5 +87,6 @@ for case in cases:
     os.chdir(caseDir)
     os.system('chmod u=rwx All*')
     os.system('python3 Allrun.py')
+    os.system('rm -rf processor*')
 
     os.chdir('../../')

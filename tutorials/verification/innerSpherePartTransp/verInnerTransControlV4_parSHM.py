@@ -18,8 +18,8 @@ from OF_caseClass import OpenFOAMCase
 from auxiliarFuncs import *
 
 # -- obtained from shootChandraVM.py
-nProcs = 60  # number of processors
-# nProcs = 2
+# nProcs = 60  # number of processors
+nProcs = 12
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -57,7 +57,7 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters [ORIGINAL]
-thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
+thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4, 50]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
@@ -66,10 +66,10 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 # -- mesh tests
 # thieleLst = [0.5, 4.0]
 # thieleLst = [0.5]
-thieleLst = [4.0]
+# thieleLst = [4.0]
 # cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
 # cellSizeLst = [1.6*R, 0.8*R]
-cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
+# cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
 
 # T0 = 800 # for mult. st. states, set to False to ignore
 T0 = False
@@ -79,12 +79,16 @@ cases = [(T,thiele,cellSize,beta,gamma) for T in TLst for thiele in thieleLst fo
 for case in cases:
     # -- parameters
     T,thiele,cellSize,beta,gamma = case
+    T0 = T
+    if thiele == 50:
+        thiele = thiele/100
+        T0 = 800
     EA = gamma*Runiv*T
     DFree = DFreeZ
     DEff = DFree/tort*0.5
     sHr = -beta/yInf/p*Runiv*T/DEff*kappaEff*T
     k0 = (thiele/R)**2 * DEff/(np.exp(-gamma))
-    if not T0: T0 = T
+    if not T0: T0 = T 
 
     caseName = 'intraTrans_phi_%g_beta_%g_cellSize_%g_T_%g'%(thiele,beta,cellSize,T)
     caseDir = '%s/%s/'%(outFolder,caseName)
