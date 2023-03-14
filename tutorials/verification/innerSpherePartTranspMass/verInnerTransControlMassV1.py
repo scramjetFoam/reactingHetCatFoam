@@ -14,20 +14,19 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('../../../ZZ_pythonCtrlScripts')
 from OF_caseClass import OpenFOAMCase
-from auxiliarFuncs import *
+from auxiliarFuncsMassV1 import *
 
 # -- obtained from shootChandraVM.py
 # nonisoT_etaAnal = 42.094    # phi = 0.5
 nonisoT_etaAnal =  7.516    # phi = 4.0
-nProcs = 8  # number of processors
 
 # -- set solver to be used
-solverLst = ['reactingHetCatSimpleFoam']
+solverLst = ['reactingHetCatSimpleFoamM']
 solver = solverLst[0]
 
 # -- simulation parameters
 endTime = 500
-nProc = 12
+nProc = 6
 numOfCCorr = 1
 # -- set number of the enthalpy corrections
 numOfTCorr = 1
@@ -42,7 +41,7 @@ getCsv = (True if 'getCsv' in args else False)
 errMesh = (True if 'errMesh' in args else False)
 
 # -- directory naming
-baseDir = '../../../baseCases/baseCaseMassVM'
+baseDir = '../baseCaseMass_local_intraTransp'
 outFolder = 'ZZ_cases'
 if isothermal: outFolder += '_isoT'
 ZZZ_path = 'ZZZ_res'
@@ -71,7 +70,8 @@ thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+# cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+cellSizeLst = [0.8*R]
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
@@ -90,7 +90,6 @@ thieleLst = [4.0]
 # cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
 # cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
 # cellSizeLst = [1.6*R, 0.8*R]
-cellSizeLst = [1.6*R]
 
 # -- prepare prototype mesh for each cellSize
 meshesCaseLst = []
@@ -107,7 +106,7 @@ if makeMesh:
         for chSpI in range(len(specieNames)):
             name = specieNames[chSpI]
             meshCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
-            meshCase.replace( [ [ "0.org/%sMass" % ( name ), ['wChSpSetInit', 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[chSpI]), '%.5g' % (wIn[chSpI]), str(name) ] ] ] )
+            meshCase.replace([["0.org/%sMass"% (name), ['wChSpSetInit','wChSpSet','nameSet'], ['%.5g'%(wIn[chSpI]), '%.5g'%(wIn[chSpI]), str(name)]]])
             meshCase.addToDictionary([['0.org/%sMass' % name, '\n\tsides\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField']])
         meshCase.runCommands(['rm 0.org/bsChemSp'])
         
@@ -130,13 +129,16 @@ if makeMesh:
             ['system/blockMeshDict', ['length1', 'length2', 'width', 'width'], [str(domainSize), str(domainSize), str(domainSize), str(domainSize)]],
             ['system/blockMeshDict', ['nDiscX', 'nDiscYZ'], [str(int(domainSize/cellSize*2)), str(int(domainSize/cellSize*2))]]
         ])
-
-
         # -- update others
         meshCase.replace([
-            ["system/decomposeParDict",['np'],[str(nProcs)]],
+            ["system/decomposeParDict",['np'],[str(nProc)]],
             ["system/snappyHexMeshDict",['spR'],[str(R)]]
         ])
+        meshCase.replace([
+            ['0.org/U',['inv'],[str(0)]]
+        ])
+        # -- setup verification case from the base case
+        # -- creation and updates of the boundary conditions
         meshCase.setParameters([
             ['system/controlDict', 'endTime', str(endTime), ''],
             ['system/decomposeParDict', 'numberOfSubdomains', str(nProc), ''],
@@ -196,9 +198,9 @@ for case in cases:
         caseHere.copyBaseCase()
         caseHere.replace([
             ['0.org/T',['initT','boundT'],[str(T0),str(T)]],
-            ['0.org/CO',['yCOSet'],[str(yInf)]],
+            # ['0.org/CO',['yCOSet'],[str(yInf)]],
             ['system/controlDict',['customSolver'],[solver]],
-            ['system/fvSolution',['nTCorr'],[str(numOfTCorr)]],
+            ['system/fvSolution',['customSolver'],['customSolver|%s' %species.replace(' ','Mass|')]],
             ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)]],
             ['constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]]
         ])
@@ -206,7 +208,7 @@ for case in cases:
             'rm -rf 0',
             'mkdir 0',
             'cp -rf 0.org/* 0',
-            'decomposePar > log2.decomposePar',
+            'decomposePar -force > log2.decomposePar',
             'foamJob -parallel renumberMesh -overwrite > log.renumberMesh', 
             'foamJob -parallel -screen %s > log1.%s' % (solver, solver),
         ])
@@ -219,7 +221,7 @@ for case in cases:
 
         caseHere.runCommands([
             'reconstructPar -latestTime > log2.reconstructPar',
-            'intSrcSphere > log.intSrcSphere',
+            'intSrcSphereM > log.intSrcSphereM',
             # 'postProcess -func integrace -latestTime > log.integrace',
             "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))' > log.postProcess"
         ])
