@@ -70,8 +70,8 @@ thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-# cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-cellSizeLst = [0.8*R]
+cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+# cellSizeLst = [0.8*R]
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
@@ -86,7 +86,7 @@ wIn = yIn * molMass / MgIn
 
 # -- mesh tests
 # thieleLst = [0.5]
-thieleLst = [4.0]
+# thieleLst = [4.0]
 # cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
 # cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
 # cellSizeLst = [1.6*R, 0.8*R]
@@ -209,7 +209,7 @@ for case in cases:
             'mkdir 0',
             'cp -rf 0.org/* 0',
             'decomposePar -force > log2.decomposePar',
-            'foamJob -parallel renumberMesh -overwrite > log.renumberMesh', 
+            'foamJob -parallel -screen renumberMesh -overwrite > log.renumberMesh', 
             'foamJob -parallel -screen %s > log1.%s' % (solver, solver),
         ])
 
