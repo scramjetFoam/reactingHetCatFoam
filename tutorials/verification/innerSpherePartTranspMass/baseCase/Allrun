@@ -1,0 +1,22 @@
+#!/bin/sh
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm -rf 0
+mkdir 0
+cp -rf 0.org/* 0
+
+# generate geometry
+runApplication blockMesh
+runApplication snappyHexMesh -overwrite
+runApplication topoSet
+
+# create .OpenFOAM file
+paraFoam -touch
+
+# run the solver
+application=`getApplication`
+runApplication $application
+
+# postprocessing
+runApplication postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))'
+runApplication intSrcSphere

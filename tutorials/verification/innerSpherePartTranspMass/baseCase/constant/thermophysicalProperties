@@ -39,7 +39,7 @@ mixture
         // Cp              520.6768799;
         Cp              1070.23;            // -- J/kg/K
         Hf              0;
-        Tref              0;
+        Tref            0;
     }
     transport
     {

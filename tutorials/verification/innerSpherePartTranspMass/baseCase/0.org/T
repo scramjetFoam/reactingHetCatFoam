@@ -7,17 +7,31 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
+    version     1.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      decomposeParDict;
+    class       volScalarField;
+    location    "0";
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains	12;
+dimensions      [0 0 0 1 0 0 0];
 
-method          scotch;
+// internalField   uniform isoT;
+internalField   uniform initT; 
 
-
-// ************************************************************************* //
+boundaryField
+{
+    infinity
+    {
+        type            fixedValue;
+        // value           uniform isoT;
+        value           uniform boundT;
+    }
+    sphere
+    {
+        type            fixedValue;
+        // value           uniform isoT;
+        value           uniform boundT;
+    }
+}

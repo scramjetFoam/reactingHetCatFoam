@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     1.0;
+    format      ascii;
+    class       volScalarField;
+    object      nameSet;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform wChSpSetInit;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform wChSpSet;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

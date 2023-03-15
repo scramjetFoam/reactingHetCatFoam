@@ -46,12 +46,11 @@ length2 = 45*R      # sphere centre <-> outlet
 width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
-# thieleLst = [2,6]       # Thiele modulus
-thieleLst = [2,6]
-ReLst = [80]            # Reynolds number
+ReLst = [10, 40, 80, 160]            # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst] # inlet velocity
-# cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]  # FV cell Size
-cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
+thieleLst = [2,6]       # Thiele modulus
+cellSizeLst = [0.4*R]  # FV cell Size
+# cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
 tortLst = [1]           # tortuosity
 
 # -- create cases for:
@@ -88,5 +87,6 @@ for case in cases:
     os.chdir(caseDir)
     os.system('chmod u=rwx All*')
     os.system('python3 Allrun.py')
+    os.system('rm -rf processor*')
 
     os.chdir('../../')

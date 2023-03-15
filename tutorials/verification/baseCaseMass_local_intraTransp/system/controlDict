@@ -15,8 +15,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-//application     reactingHetCatSimpleFoam;
-application     customSolver;
+application     reactingHetCatSimpleFoamM;
+// application     customSolver;
 
 startFrom       latestTime;
 
@@ -24,7 +24,7 @@ startTime 	    0;
 
 stopAt          endTime;
 
-endTime	        500;
+endTime	        200;
 
 deltaT          1;
 

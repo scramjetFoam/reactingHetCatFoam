@@ -7,17 +7,35 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      decomposeParDict;
+    object      topoSetDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains	12;
-
-method          scotch;
-
+actions
+(
+    {
+        name reactingCells;
+        type cellSet;
+        action new;
+        source boxToCell;
+        sourceInfo
+        {
+            box (-100 -100 -100) (100 100 100);
+        }
+    }
+    {
+        name    reactingCellZone;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set reactingCells;
+        }
+    } 
+);
 
 // ************************************************************************* //

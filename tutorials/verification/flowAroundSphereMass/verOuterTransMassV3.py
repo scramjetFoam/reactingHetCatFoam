@@ -7,21 +7,15 @@
 #       -- "getCsv": generate csv files for TeX plots 
 #       -- "errMesh": evaluate error mesh dependency 
 #           (for otherwise identical parameters) 
-# -- NOTE V3 changelog: 
-#       -- thieleLst + tortLst --> k0
-#       -- ReLst + R --> invLst
-#       -- flow.csv stores Thiele modulus
-#       -- removed eta_anal
-#       -- uses auxiliarFuncsV3
-#       -- added error mesh dependency tests
 
 # -- using OF_caseClass for the description see OF_caseClass.py
 # -- imports 
 
-from OF_caseClass import OpenFOAMCase
 import sys
 import numpy as np
 import os
+sys.path.append('../../../ZZ_pythonCtrlScripts')
+from OF_caseClass import OpenFOAMCase
 from auxiliarFuncsV3 import *
 
 # -- set solver to be used
@@ -43,10 +37,10 @@ errMesh = (True if 'errMesh' in args else False)
 # -- baseCase directory 
 verTestDir = "../tutorials/verification/flowAroundSphereMass"
 # -- directory naming
-baseCaseDir = '../baseCases/baseCaseMass/'
-outFolder = '../ZZ_cases/'
-ZZZ_path = '../ZZZ_res'
-ZZZ_file = '/flow.csv'
+baseCaseDir = '../baseCaseMass_local'
+outFolder = 'ZZ_cases/'
+ZZZ_path = 'ZZZ_res'
+ZZZ_file = 'flow.csv'
 ZZZ_filepath = ZZZ_path+'/'+ZZZ_file
 
 # -- case parameters
@@ -69,22 +63,29 @@ width = 15*R        # top|bottom wall <-> sphere centre
 
 # -- list parameters [ORIGINAL]
 ReLst = [10, 40, 80, 160]                       # Reynolds number
-ReLst = [10]                       # Reynolds number
+# ReLst = [10]                                    # Reynolds number
 invLst = [round(Re*nu/2/R,4) for Re in ReLst]   # inlet velocity
 thieleLst = [2, 6]                              # Thiele modulus
-thieleLst = [6]                              # Thiele modulus
-cellSizeLst = [0.4*R]                           # FV cell Size
+# thieleLst = [6]                                 # Thiele modulus
+cellSizeLst = [0.4*R]                         # FV cell Size
+# cellSizeLst = [0.8*R]
 tortLst = [0.5, 1.0, 2.5, 5.0]                  # tortuosity
-tortLst = [1]                  # tortuosity
+
 endTime = 500
 numOfCCorr = 2
-nProc = 12
+nProc = 6
+
+# -- TESTING
+# tortLst = [0.5]  
+# thieleLst = [2]
+tortLst = [1] # tortuosity
+# ----------
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
 species = ' '.join(specieNames) 
-molMass = np.array([ 28e-3, 28e-3, 28e-3])
-sigmaVs = np.array([ 18.0, 18.0, 18.0])
+molMass = np.array([28e-3, 28e-3, 28e-3])
+sigmaVs = np.array([18.0, 18.0, 18.0])
 nuVec = np.array([-1,1,0])
 alphaVec = np.array([1, 0, 0])
 yIn = np.array([yInf, 0, 1-yInf])
@@ -112,30 +113,22 @@ if makeMesh:
         for chSpI in range(len(specieNames)):
             name = specieNames[chSpI]
             meshCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
-            meshCase.replace( [ [ "0.org/%sMass" % ( name ), [ 'wChSpSet', 'nameSet' ], [ '%.5g' % (wIn[chSpI]), str(name) ] ] ] )
-            meshCase.addToDictionary( 
-                [
-                    [ '0.org/%sMass' % name, '\n\tsides\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField'],
-                ]
-            )
+            meshCase.replace([["0.org/%sMass"% (name), ['wChSpSetInit', 'wChSpSet', 'nameSet'], ['%.5g'%(wIn[chSpI]), '%.5g'%(wIn[chSpI]), str(name)]]])
+            meshCase.addToDictionary([['0.org/%sMass' % name, '\n\tsides\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField']])
         meshCase.runCommands(['rm 0.org/bsChemSp'])
 
         # -- transport properties updates
-        meshCase.addToDictionary( 
-            [
-                [ 'constant/transportProperties', 'species (%s);\n' % species, ''],
-            ]
-        )
+        meshCase.addToDictionary([['constant/transportProperties', 'species (%s);\n' % species, '']])
         for nameInd in range(len(specieNames)):
             name = specieNames[nameInd]
             meshCase.addToDictionary( 
                 [
-                    [ 'constant/transportProperties', '%s\n{\n}\n' % name, ''],
-                    [ 'constant/transportProperties', 'D  D\t[0 2 -1 0 0 0 0] DSet;\n', name ],
-                    [ 'constant/transportProperties', 'sigmaV\t%g;\n' % sigmaVs[nameInd], name ],
-                    [ 'constant/transportProperties', 'molM\t%g;\n' % molMass[nameInd], name ],
-                    [ 'constant/transportProperties', 'nuVec\t(0 %g);\n' % nuVec[nameInd], name ],
-                    [ 'constant/transportProperties', 'alphaVec\t(0 %g);\n' % alphaVec[nameInd], name ],
+                    ['constant/transportProperties', '%s\n{\n}\n' % name, ''],
+                    ['constant/transportProperties', 'D  D\t[0 2 -1 0 0 0 0] DSet;\n', name],
+                    ['constant/transportProperties', 'sigmaV\t%g;\n' % sigmaVs[nameInd], name],
+                    ['constant/transportProperties', 'molM\t%g;\n' % molMass[nameInd], name],
+                    ['constant/transportProperties', 'nuVec\t(0 %g);\n' % nuVec[nameInd], name],
+                    ['constant/transportProperties', 'alphaVec\t(0 %g);\n' % alphaVec[nameInd], name],
                 ]
             )
 
@@ -154,16 +147,15 @@ if makeMesh:
                 ]
             ]
         )
-        meshCase.setParameters(
-            [
-                ['system/controlDict', 'endTime', str(endTime), ''],
-                ['system/decomposeParDict', 'numberOfSubdomains', str(nProc), ''],
-                ['system/fvSolution', 'nConcCorrectors', str(numOfCCorr), ''],
-                ['system/fvSolution', 'nTempCorrectors', str(numOfTCorr), ''],
-                ['system/fvSolution', 'p', str(0.18), 'fields'],
-                ['constant/transportProperties', 'D', str(DFreeZ), 'CO'],
-            ]
-        )
+        meshCase.setParameters([
+            ['system/controlDict', 'endTime', str(endTime), ''],
+            # ['system/decomposeParDict', 'numberOfSubdomains', str(nProc), ''],
+            ['system/fvSolution', 'nConcCorrectors', str(numOfCCorr), ''],
+            ['system/fvSolution', 'nTempCorrectors', str(numOfTCorr), ''],
+            ['system/fvSolution', 'p', str(0.18), 'fields'],
+            # [, 'D', str(DFreeZ), 'CO'],
+        ])
+
         meshCase.runCommands(
             [
                 'rm -rf 0',
@@ -173,6 +165,7 @@ if makeMesh:
                 'blockMesh > log.blockMesh',
                 'paraFoam -touch',
                 'snappyHexMesh -overwrite > log.snappyHexMesh',
+                # 'snappyHexMesh -dict ../../baseCase/system/snappyHexMeshDict -overwrite > log.snappyHexMesh',
                 'rm -rf */cellLevel',
                 'rm -rf */pointLevel',
             ]
@@ -213,9 +206,12 @@ for case in cases:
                 ['system/controlDict',['customSolver'],[solver]],
                 ['system/fvSolution',['customSolver'],['customSolver|%s' %species.replace(' ','Mass|')]],
                 ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)]],
-                ['constant/transportProperties',['kappaEffSet','tortSet'],[str(kappaEff),str(tort)]]
+                ['constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]]
             ]
         )
+        caseHere.setParameters([
+            ['system/decomposeParDict', 'numberOfSubdomains', str(nProc), '']
+        ])
         # -- run simulation
         # caseHere.runCommands(['chmod u=rwx Allrun-parallel', './Allrun-parallel'])
         caseHere.runCommands(
@@ -224,12 +220,13 @@ for case in cases:
                 'mkdir 0',
                 'cp -rf 0.org/* 0',
                 'decomposePar > log.decomposePar',
-                'foamJob -parallel renumberMesh -overwrite > log.renumberMesh', 
+                # 'foamJob -parallel renumberMesh -overwrite > log.renumberMesh', 
                 'foamJob -parallel -screen %s > log.%s' % (solver, solver),
                 'foamJob -parallel -screen %s > log.%s' % (solver, solver),
                 'reconstructPar -latestTime > log.reconstructPar',
                 'intSrcSphereM > log.intSrcSphereM',
                 'postProcess -func integrace -latestTime > log.integrace',
+                'rm -rf processor*'
             ]
         )
     else: 
