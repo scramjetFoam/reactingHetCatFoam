@@ -2,12 +2,12 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  10
+    \\  /    A nd           | Version:  6
      \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     1.0;
+    version     2.0;
     format      ascii;
     class       dictionary;
     object      snappyHexMeshDict;
@@ -36,12 +36,6 @@ geometry
         type            searchableSphere;
         centre          (0 0 0);
         radius          spR;
-    }
-	refBox
-    {
-        type searchableBox;
-        min (-0.05 -0.04 -0.04);
-        max (0.18 0.04 0.04);
     }
 };
 
@@ -117,11 +111,10 @@ castellatedMeshControls
         sphere
         {
             // Surface-wise min and max refinement level
-             level (4 4);
-            // level (1 1);
+            level (5 5);
             cellZone reactingCellZone;
-            faceZone batt1;
-            // cellZone batt1;
+            // faceZone batt1;
+            // // cellZone batt1;
             cellZoneInside inside;
         }
     }
@@ -151,18 +144,6 @@ castellatedMeshControls
             level 3;
             // levels ((1e-5 2));
             // cellZone rashigs;
-        }
-		sphere
-        {
-            mode distance;
-            // //~ level 1;
-            levels  ((0.01 3));
-            // cellZone rashigs;
-        }
-        refBox
-        {
-            mode inside;
-            levels ((1E4 2));
         }
     }
 
@@ -234,7 +215,7 @@ addLayersControls
     // Per final patch (so not geometry!) the layer information
     layers
     {
-        sphere
+        rashigs
         {
             nSurfaceLayers 2;
         }
