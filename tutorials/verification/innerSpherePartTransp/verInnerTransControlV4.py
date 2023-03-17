@@ -72,11 +72,12 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 
 # -- mesh tests
 # thieleLst = [0.5]
-thieleLst = [4.0]
-cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
-# cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
-# cellSizeLst = [1.6*R, 0.8*R]
-# cellSizeLst = [1.6*R]
+# thieleLst = [4.0]
+# cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
+thieleLst = [0.5]
+cellSizeLst = [0.35*R]
+
+
 
 # -- prepare prototype mesh for each cellSize
 meshesCaseLst = []

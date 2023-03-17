@@ -26,7 +26,7 @@ solver = solverLst[0]
 
 # -- simulation parameters
 endTime = 500
-nProc = 6
+nProc = 12
 numOfCCorr = 1
 # -- set number of the enthalpy corrections
 numOfTCorr = 1
@@ -66,12 +66,13 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters [ORIGINAL]
-thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
+thieleLst = [0.2, 0.4, 0.5, 0.75, 1.0, 2.0, 4.0]
+thieleLst = [0.5]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-# cellSizeLst = [0.8*R]
+# cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+cellSizeLst = [0.35*R]
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
@@ -106,8 +107,13 @@ if makeMesh:
         for chSpI in range(len(specieNames)):
             name = specieNames[chSpI]
             meshCase.runCommands(['cp 0.org/bsChemSp 0.org/%sMass' % name])
+            meshCase.addToDictionary([['0.org/%sMass' % name, '\n\t"(sphere|infinity)"\n\t{\n\t\ttype\t\t\tfixedValue;\n\t\tvalue\t\t\tuniform wChSpSet;\n\t}\n', 'boundaryField']])
             meshCase.replace([["0.org/%sMass"% (name), ['wChSpSetInit','wChSpSet','nameSet'], ['%.5g'%(wIn[chSpI]), '%.5g'%(wIn[chSpI]), str(name)]]])
-            meshCase.addToDictionary([['0.org/%sMass' % name, '\n\tsides\n\t{\n\t\ttype zeroGradient;\n\t}\n\n', 'boundaryField']])
+        meshCase.addToDictionary([['0.org/U', '\n\t"(sphere|infinity)"\n\t{\n\t\ttype\t\t\tfixedValue;\n\t\tvalue\t\t\tuniform (0 0 0.0);\n\t}\n', 'boundaryField']])
+        meshCase.addToDictionary([['0.org/T', '\n\t"(sphere|infinity)"\n\t{\n\t\ttype\t\t\tfixedValue;\n\t\tvalue\t\t\tuniform boundT;\n\t}\n', 'boundaryField']])
+        meshCase.addToDictionary([['0.org/p', '\n\tinfinity\n\t{\n\t\ttype\t\t\ttotalPressure;\n\t\tp0\t\t\t\tuniform 101325;\n\t\tvalue\t\t\tuniform 101325;\n\n\t\tU\t\t\t\tU;\n\t\tphi\t\t\t\tphi;\n\t}\n', 'boundaryField']])
+        
+            
         meshCase.runCommands(['rm 0.org/bsChemSp'])
         
         # -- update transport properties
@@ -223,7 +229,8 @@ for case in cases:
             'reconstructPar -latestTime > log2.reconstructPar',
             'intSrcSphereM > log.intSrcSphereM',
             # 'postProcess -func integrace -latestTime > log.integrace',
-            "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))' > log.postProcess"
+            "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))' > log.postProcess",
+            'rm -rf processor*'
         ])
 
     else: 

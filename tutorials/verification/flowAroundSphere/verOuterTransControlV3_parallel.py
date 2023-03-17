@@ -51,7 +51,8 @@ invLst = [round(Re*nu/2/R,4) for Re in ReLst] # inlet velocity
 thieleLst = [2,6]       # Thiele modulus
 cellSizeLst = [0.4*R]  # FV cell Size
 # cellSizeLst = [0.4*R, 0.2*R, 0.1*R]
-tortLst = [1]           # tortuosity
+# tortLst = [1]           # tortuosity
+tortLst = [0.5, 2.5, 5.0]  
 
 # -- create cases for:
 cases = [(inv,cellSize,tort,thiele) for inv in invLst for cellSize in cellSizeLst for tort in tortLst for thiele in thieleLst]
