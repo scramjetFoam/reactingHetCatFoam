@@ -50,6 +50,8 @@ wordList zoneNames
     transportProperties.lookup("zones")
 );
 
+scalar n = specieNames.size();
+scalar dimMat = n-1;
 
 Info<< "Loaded species are\n" << specieNames << endl;
 Info<< "Loaded zones are\n" << zoneNames << endl;

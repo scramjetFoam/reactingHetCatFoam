@@ -5,6 +5,106 @@ sumWithoutRef = 0 * sumWithoutRef;
 // -- update sum of the diffusive velocity for boundary condition (all but the reference)
 UD = UD * 0;
 
+
+// -- update Stefan-Maxwell diffusion coeficients
+// -- for all cells
+forAll(rho,cellI)
+{
+    // Info << "Start preparing inv(B)" << endl;
+    // -- in each cell prepare matrix to invert
+    scalarSquareMatrix B(dimMat);
+
+    // NOTETH :: important!!! ---> porosity, tortuosity and knudsen not included yet
+
+    // -- creation of the B matrix -- see 1993_TaylorKrisna_MultiComp...
+    for (int i = 0; i < dimMat; i++)
+    {
+        for (int j = 0; j < dimMat; j++)
+        {
+            // -- diagonal
+            if (j == i)
+            {
+                scalar suma = 0;
+                for (int k = 0; k < n; k++)
+                {
+                    if (k != i)
+                    {
+                        suma += (MFrList[k][cellI]/(DijList[i*n+k]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI])).value();
+                    }
+                }
+                B(i,i) = (MFrList[i][cellI]/(DijList[i*n+(n-1)]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI])).value() + suma;
+            }
+
+            // -- uppper triangular
+            else if (j > i)
+            {
+                B(i,j) = - (MFrList[i][cellI] * (1/(DijList[i*n+j]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI]) - 1/(DijList[i*n+(n-1)]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI]))).value();
+            }
+
+            // -- lower triangular
+            else
+            {
+                B(i,j) = B(j,i);
+            }
+        }
+    } 
+
+    // -- inversion of the matrix -- maybe too much complicated -- rethink later
+    scalarSquareMatrix Binv = scalarSquareMatrix(SVDinv(B));
+    // Info << "B" << B << "Binv" << Binv <<endl;
+    // Info << Binv(1,1) <<endl;
+
+    // scalarSquareMatrix Binv;
+    // B.decompose();
+    // B.inv(Binv);
+
+    for (int i = 0; i < dimMat; i++)
+    {
+        for (int j = 0; j < dimMat; j++)
+        {
+            if (j >= i)
+            {
+                BinvList[i*dimMat+j][cellI] = Binv (i,j);
+            }
+        }
+    }
+}
+
+// -- print invB matrix
+Info << "min(invBMat)" <<endl;
+for (int i  = 0; i < dimMat; i++)
+{
+    for (int j = 0; j < dimMat; j++)
+    {
+        if (j >= i)
+        {
+            Info << " " << min(BinvList[i*dimMat+j]).value();
+        }
+        else
+        {
+             Info << " " << min(BinvList[j*dimMat+i]).value();
+        }
+    }
+    Info <<endl;
+}
+
+Info << "max(invBMat)" <<endl;
+for (int i  = 0; i < dimMat; i++)
+{
+    for (int j = 0; j < dimMat; j++)
+    {
+        if (j >= i)
+        {
+            Info << " " << max(BinvList[i*dimMat+j]).value();
+        }
+        else
+        {
+             Info << " " << max(BinvList[j*dimMat+i]).value();
+        }
+    }
+    Info <<endl;
+}
+
 // -- solve the concentration equation for all but one chemical species
 forAll(specieNames,lstI)
 {

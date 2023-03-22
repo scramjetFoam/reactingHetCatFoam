@@ -126,5 +126,60 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 #include "createFvModels.H"
 #include "createFvConstraints.H"
 
+// -- matrix with the binary Fick diffusion coefficients
+Info << "Creating matrix with binary diffusivities without temperature and pressure dependence" << endl;
+PtrList<dimensionedScalar> DijList((n*n));
+for(int i = 0; i < n; i++)
+{
+    for (int j = 0; j < n; j++)
+    {
+        Info << "Seting matrix index (" << i << ", " << j << ")." <<endl;
+        word nazevTu = "Dij" + word(i) + word(j);
+        int index = (i*(n) + j);
+        DijList.set
+        (
+            index,
+            new dimensionedScalar(
+                nazevTu,
+                Foam::pow(dimLength,2)/dimTime/Foam::pow(dimTemperature,1.75)*dimPressure,
+                ((0.014)/(Foam::sqrt(2.0/(1e-3/molMList[i] + 1e-3/molMList[j]))*Foam::pow(Foam::pow(volDiffLst[i],1.0/3.0)+Foam::pow(volDiffLst[j],1.0/3.0),2))).value()
+            )
+        );
+    }
+}
 
+// -- matrix with the inverse of the B matrix for S-M computations
+Info << "Preparing matrix to store inv of B matrix" << endl;
+PtrList<volScalarField> BinvList(dimMat*dimMat);
+for(int i = 0; i < dimMat; i++)
+{
+    for (int j = 0; j < dimMat; j++)
+    {
+        if (j >= i)
+        {
+            Info << "Seting matrix index (" << i << ", " << j << ")." <<endl;
+            word nazevTu = "Binv" + word(i) + word(j);
+            int index = (i*(dimMat) + j);
+            BinvList.set
+            (
+                index,
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        nazevTu,
+                        runTime.timeName(),
+                        mesh,
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh,
+                    // NOTE: check dimensions
+                    dimensionedScalar (nazevTu,dimLength*dimLength/dimTime, 0)
+                    // dimensionedVector ("jiDiff",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
+                )
+            );
+        }
+    }
+}
 
