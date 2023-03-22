@@ -91,7 +91,7 @@ for (int i  = 0; i < dimMat; i++)
     Info <<endl;
 }
 
-Info << "min(invBMat)" <<endl;
+Info << "max(invBMat)" <<endl;
 for (int i  = 0; i < dimMat; i++)
 {
     for (int j = 0; j < dimMat; j++)
