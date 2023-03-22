@@ -123,42 +123,52 @@ forAll(specieNames,lstI)
         // -- difussivity of the specie in the reference gas see 22_Hlavaty_MSc
 
         // -- Diffusion coeficient of the mixture -- default reference gas diffusion + add temperature and pressure dependence (see Fuller)
-        volScalarField DifMix
-        (
-            DABLst[lstI]*Foam::pow(thermo.T(),1.75)/thermo.p()
-        );
+        // volScalarField DifMix
+        // (
+        //     DABLst[lstI]*Foam::pow(thermo.T(),1.75)/thermo.p()
+        // );
 
-        // -- calculate the Knudsen difussivity
-        DKn = 0*DifMix;                    
-        DKn += freeChannel*DifMix;         // free-channel (not used, but cant be 0)
-        forAll(zoneLst,countI)
-        {
-            DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
-        }
+        // // -- calculate the Knudsen difussivity
+        // DKn = 0*DifMix;                    
+        // DKn += freeChannel*DifMix;         // free-channel (not used, but cant be 0)
+        // forAll(zoneLst,countI)
+        // {
+        //     DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
+        // }
 
-        // -- if diffusion coeficient is set in transportProperties dont compute it
-        if (transportProperties.subDict(currSpName).found("D"))
-        {
-            dimensionedScalar D(transportProperties.subDict(currSpName).lookup("D"));//R constant
-            DifMix = 0*DifMix + D;
-        }
+        // // -- if diffusion coeficient is set in transportProperties dont compute it
+        // if (transportProperties.subDict(currSpName).found("D"))
+        // {
+        //     dimensionedScalar D(transportProperties.subDict(currSpName).lookup("D"));//R constant
+        //     DifMix = 0*DifMix + D;
+        // }
 
-        // -- effective diffusion coeficient
-        DEff = freeChannel*DifMix;         // free-channel
-        forAll(zoneLst,countI)
-        {
-            DEff += zoneLst[countI]*(eps[countI]/(tort[countI]*(1.0/DifMix+1.0/DKn)));  // porous media
-        } 
+        // // -- effective diffusion coeficient
+        // DEff = freeChannel*DifMix;         // free-channel
+        // forAll(zoneLst,countI)
+        // {
+        //     DEff += zoneLst[countI]*(eps[countI]/(tort[countI]*(1.0/DifMix+1.0/DKn)));  // porous media
+        // } 
 
         // -- inform about calculated properties
         if (debug > 0){
             Info << "Min rho: " << min(rho).value() << ", max rho: " << max(rho).value() << endl;
-            Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
-            Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
+            // Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
+            // Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
         }
         else if (debug == 2)
         {
             Info << "Min Mg: " << min(Mg).value() << ", max Mg: " << max(Mg).value() <<" Mgconst "<<molMList[0]<< endl;
+        }
+
+        // -- calculate contribution of other gases to the equation
+        volVectorField explJi (rho / Mg * BinvList[0] * fvc::grad(MFrList[0]) * 0);
+        for (int j = 0; j < dimMat; j++)
+        {
+            if (j != lstI)
+            {
+                explJi += rho / Mg * BinvList[lstI*dimMat+j] * fvc::grad(MFrList[j]);
+            }
         }
 
         fvScalarMatrix concEq
@@ -169,13 +179,22 @@ forAll(specieNames,lstI)
             ==
 
             // -- specie mass diffusion                          
-            fvm::laplacian(DEff*rho, currSpMass) 
-            + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
+            // fvm::laplacian(DEff*rho, currSpMass) 
+            // + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)  
+            // -- Stefan Maxwell diffusion
+            fvm::laplacian(rho*BinvList[lstI*dimMat+lstI], currSpMass)
+            + fvm::div(fvc::interpolate(rho*BinvList[lstI*dimMat+lstI]/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)
+            + fvc::div(fvc::interpolate(explJi) & mesh.Sf())   
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
         );
-            
+
+        // for (int j = 0; j < dimMat; j++)
+        // {
+        //     concEq -= adawda;
+        // }
+
         // fvOptions.constrain(concEq);
         fvConstraints.constrain(concEq);
 
