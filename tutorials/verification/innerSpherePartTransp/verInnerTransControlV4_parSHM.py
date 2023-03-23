@@ -19,7 +19,7 @@ from auxiliarFuncs import *
 
 # -- obtained from shootChandraVM.py
 # nProcs = 60  # number of processors
-nProcs = 12
+nProcs = 60
 
 # -- set solver to be used
 solverLst = ['reactingHetCatSimpleFoam']
@@ -57,13 +57,12 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters [ORIGINAL]
-# thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4, 50]
-thieleLst = [0.5]
+thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4, 50]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
 # cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-cellSizeLst = [0.35*R]
+cellSizeLst = [0.2*R]
 
 # -- mesh tests
 # thieleLst = [0.5, 4.0]
@@ -154,5 +153,6 @@ for case in cases:
             'reconstructPar -latestTime > log2.reconstructPar',
             'intSrcSphere > log.intSrcSphere',
             # 'postProcess -func integrace -latestTime > log.integrace',
-            "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))' > log.postProcess"
+            "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))' > log.postProcess",
+            'rm -rf processor*'
         ])

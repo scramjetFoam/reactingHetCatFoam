@@ -67,12 +67,13 @@ DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters [ORIGINAL]
 thieleLst = [0.2, 0.4, 0.5, 0.75, 1.0, 2.0, 4.0]
-thieleLst = [0.5]
+# thieleLst = [0.4, 0.5, 0.75, 1.0, 2.0, 4.0]
+# thieleLst = [0.5]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
 # cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
-cellSizeLst = [0.35*R]
+cellSizeLst = [0.2*R]
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
@@ -229,7 +230,7 @@ for case in cases:
             'reconstructPar -latestTime > log2.reconstructPar',
             'intSrcSphereM > log.intSrcSphereM',
             # 'postProcess -func integrace -latestTime > log.integrace',
-            "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(CO))' > log.postProcess",
+            "postProcess -func 'graphCellFace(start = (0 0 0), end = (1 0 0), fields=(COMass))' > log.postProcess",
             'rm -rf processor*'
         ])
 

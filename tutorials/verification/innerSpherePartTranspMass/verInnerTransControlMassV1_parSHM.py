@@ -21,7 +21,7 @@ solver = solverLst[0]
 
 # -- simulation parameters
 endTime = 500
-nProc = 32
+nProc = 8
 numOfCCorr = 1
 # -- set number of the enthalpy corrections
 numOfTCorr = 1
@@ -54,14 +54,16 @@ DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters [ORIGINAL]
 thieleLst = [0.2, 0.4, 0.5, 0.75, 1.0, 2.0, 4.0]
+# thieleLst = [0.4, 0.5, 0.75, 1.0, 2.0, 4.0]
+thieleLst = [0.2]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
-cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
+# cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sphere: (5 5)
 
 # -- thiele lst
-thieleLst = [0.5]
-cellSizeLst = [0.35*R]
+# thieleLst = [0.5]
+cellSizeLst = [0.2*R]
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])

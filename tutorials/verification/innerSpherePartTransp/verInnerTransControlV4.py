@@ -64,7 +64,7 @@ kappaEff = 2            # mass transfer coefficient
 DFreeZ = 1e-5           # set diffusivity in fluid
 
 # -- list parameters [ORIGINAL]
-thieleLst = [0.2, 0.4, 0.5, 0.75, 1, 2, 4]
+thieleLst = [0.2, 0.4, 0.5, 0.75, 1.0, 2.0, 4.0]
 TLst = [300]
 gammaLst = [20]
 betaLst = [0.6]
@@ -74,8 +74,8 @@ cellSizeLst = [0.4*R]  # NOTE: The mesh will be much more refined inside the sph
 # thieleLst = [0.5]
 # thieleLst = [4.0]
 # cellSizeLst = [1.6*R, 0.8*R, 0.4*R, 0.2*R, 0.1*R]
-thieleLst = [0.5]
-cellSizeLst = [0.35*R]
+# thieleLst = [0.5]
+cellSizeLst = [0.2*R]
 
 
 
