@@ -1,5 +1,5 @@
 # -- Script to do verification simulation of isothermal reaction inside sphere
-
+# -- NOTE: I think this might somehow be older than V2.
 # -- NOTE:
 # (1) isothermal study (numOfTCorr = 0)
 #     -> effectivness comparison (analytical x simulation)

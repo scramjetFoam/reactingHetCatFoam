@@ -76,6 +76,16 @@ int main(int argc, char *argv[])
              
             #include "UEqn.H"
 
+            scalar nItTog(readScalar(simple.dict().lookup("nTogCorrectors")));
+            for (label concITog = 0; concITog < nItTog; concITog++)
+            { 
+                Info << "\nSolving continuity equation for each specie + enthalpy balance, iteration "<< concITog+1 << "/" << nItTog << endl;
+                // #include "concEq.H"
+                #include "concEq2.H"
+                #include "EEqn.H"
+                // #include "concEqMass.H"
+            }
+            
             scalar nItconc(readScalar(simple.dict().lookup("nConcCorrectors")));
             for (label concIt = 0; concIt < nItconc; concIt++)
             { 

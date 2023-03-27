@@ -123,7 +123,7 @@ class OpenFOAMCase:
         # -- move back where I start
         os.chdir(self.whereIStart)
     
-    def addToDictionary(self, inParVals):
+    def addToDictionary(self, inParVals, brack = '{}'):
         """addToDictionary option -- inParVals = [[in inFl (file), strToAdd (string), inSubDict (string)]]"""
         """inSubDict option enables to find parameter in subDictionary, if "" then does nothing """
         # -- move to OpenFOAMCase directory 
@@ -140,9 +140,9 @@ class OpenFOAMCase:
             if not inSubDict == "":
                 subDictSt, subDictEnd = -1, -1
                 for lnI in range(len(linesInFl)):
-                    if inSubDict != -1 and "{" in linesInFl[lnI]:
+                    if subDictSt != -1 and brack[0] in linesInFl[lnI]:
                         subDictEnd += 1
-                    if inSubDict != -1 and "}" in linesInFl[lnI]:
+                    if subDictSt != -1 and brack[1] in linesInFl[lnI]:
                         subDictEnd -= 1
                     if inSubDict in linesInFl[lnI] and not '(' in linesInFl[lnI]:
                         subDictSt = lnI

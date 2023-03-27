@@ -39,7 +39,7 @@
     fvScalarMatrix EEqn
     (
         // -- convection
-        fvm::div(phi*linearInterpolate(thermo.Cp()), T)
+        fvm::div(phi * linearInterpolate(molMRef / Mg * thermo.Cp()), T)
         ==
         // -- diffusion
         fvm::laplacian(kappaPM, T)
@@ -52,15 +52,18 @@
     fvConstraints.constrain(EEqn);
 
     EEqn.solve();
+    Info << "Min (T): " << min(T).value() << ", max (T): " << max(T).value() << "." << endl;
 
     fvConstraints.constrain(T);
 
     thermo.he() = T * thermo.Cp();
 
-    thermo.correct();
+    // currT = T;
+
+    // thermo.correct();
 
     // rho = p/univR/thermo.T()*Mg;
-    thermo.rho() = rho;
+    // thermo.rho() = rho;
 
     Info << "Min (thermo.T): " << min(thermo.T()).value() << ", max (thermo.T): " << max(thermo.T()).value() << "." << endl;
 }

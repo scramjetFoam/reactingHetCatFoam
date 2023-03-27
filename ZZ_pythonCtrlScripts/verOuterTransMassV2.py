@@ -82,9 +82,7 @@ nProc = 12
 
 # -- chemical species
 specieNames = np.array(["CO", "prod", "N2"])
-species = ''
-for specieName in specieNames:
-    species += specieName + ' '
+species = ' '.join(specieNames) 
 molMass = np.array([ 28e-3, 28e-3, 28e-3])
 sigmaVs = np.array([ 18.0, 18.0, 18.0])
 nuVec = np.array([-1,1,0])
@@ -105,7 +103,7 @@ if makeMesh:
     for cellSize in cellSizeLst:
         meshCase = OpenFOAMCase()
         meshCase.loadOFCaseFromBaseCase(baseCaseDir)
-        meshDir = '%s/protoMesh2/%g'%(outFolder,cellSize)
+        meshDir = '%s/protoMesh/%g'%(outFolder,cellSize)
         meshCase.changeOFCaseDir(meshDir)
         meshCase.copyBaseCase()
 
@@ -133,10 +131,6 @@ if makeMesh:
             meshCase.addToDictionary( 
                 [
                     [ 'constant/transportProperties', '%s\n{\n}\n' % name, ''],
-                ]
-            )
-            meshCase.addToDictionary( 
-                [ 
                     [ 'constant/transportProperties', 'D  D\t[0 2 -1 0 0 0 0] DSet;\n', name ],
                     [ 'constant/transportProperties', 'sigmaV\t%g;\n' % sigmaVs[nameInd], name ],
                     [ 'constant/transportProperties', 'molM\t%g;\n' % molMass[nameInd], name ],
@@ -219,7 +213,7 @@ for case in cases:
                 ['system/controlDict',['customSolver'],[solver]],
                 ['system/fvSolution',['customSolver'],['customSolver|%s' %species.replace(' ','Mass|')]],
                 ['constant/reactiveProperties',['k0Set','EASet','sHrSet'],[str(k0),str(EA),str(sHr)]],
-                ['constant/transportProperties',['kappaEffSet','tortSet','DSet'],[str(kappaEff),str(tort),str(DFreeZ)]]
+                ['constant/transportProperties',['kappaEffSet','tortSet'],[str(kappaEff),str(tort)]]
             ]
         )
         # -- run simulation

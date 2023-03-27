@@ -7,10 +7,11 @@
     // const volScalarField& psi = rho/p;
     // volScalarField psi = rho/p;
     volScalarField psi = Mg/univR/thermo.T();
-    // volScalarField psiConst = Mgconst/univR/thermo.T();
-    // volScalarField psi = Mg/univR/thermo.T();
+    // volScalarField psi = Mg/univR/T;
+    // volScalarField psiConst = Mgconst/univR/T;
+    // volScalarField psi = Mg/univR/T;
 
-    // rhoConst = Mgconst/univR/thermo.T();
+    // rhoConst = Mgconst/univR/T;
 
     tmp<volVectorField> tHbyA;
     if (pressureImplicitPorosity)
@@ -105,6 +106,7 @@
     }
 
     rho = p * psi;
-    thermo.rho() = rho;
+    thermo.he() = thermo.T() * thermo.Cp();
+    thermo.correct();
     rho.relax();
 }

@@ -136,4 +136,7 @@ forAll(specieNames,lstI)
         )
     );
 }   
+
+scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
+dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
         

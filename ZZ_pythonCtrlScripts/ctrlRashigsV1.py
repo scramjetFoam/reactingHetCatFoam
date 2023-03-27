@@ -49,6 +49,8 @@ baseCaseDir = '../tutorials/tested/baseCaseMassRash'
 baseCaseDir = '../ZZ_cases/V2meshV1'
 outFolder = '../ZZ_cases/V2meshV3_moreIt'
 outFolder = '../ZZ_cases/V2meshV4_testNewRepl'
+outFolder = '../ZZ_cases/V2meshV5_EqRelaxUpdate'
+outFolder = '../ZZ_cases/V2meshV6_highHTcoeff'
 # outFolder = '../ZZ_cases/testRashV5'
 # outFolder = '../ZZ_cases/testRashV6'
 # outFolder = '../ZZ_cases/testRashV7'
@@ -108,14 +110,16 @@ dP = 5e-9
 kappa = 5
 
 # -- numerics and computing
-nConc = 1
-nTemp = 3
-nProc = 32
-endTime = 3000
-# endTime = 1000
+nConc = 0
+nTemp = 0
+nBoth = 5
+nProc = 16
+eqTRelx = "0.9999"
+# endTime = 3000
+endTime = 250  
 # endTime = 10
-wrInt = 3000
-# wrInt = 1000
+# wrInt = 3000
+wrInt = 250
 divScheme = 'bounded Gauss SFCD'
 # divScheme = 'bounded Gauss upwind phi'
 
@@ -213,6 +217,8 @@ if not meshDone:
 case.setParameters([
     [ 'system/fvSolution', 'nConcCorrectors', '%d' %nConc , 'SIMPLE' ], 
     [ 'system/fvSolution', 'nTempCorrectors', '%d' %nTemp , 'SIMPLE' ], 
+    [ 'system/fvSolution', 'nTogCorrectors', '%d' %nBoth , 'SIMPLE' ], 
+    [ 'system/fvSolution', 'T', eqTRelx , 'equations' ], 
 ] )
 
 # 8) decomposeParDict parameters
@@ -239,7 +245,7 @@ case.setParameters([
 ] )
 
 
-sys.exit()
+# sys.exit()
 # -------------------------------------------------------------------------------------------
 # -- prepare mesh
 if not meshDone:
