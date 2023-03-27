@@ -5,7 +5,6 @@ sumWithoutRef = 0 * sumWithoutRef;
 // -- update sum of the diffusive velocity for boundary condition (all but the reference)
 UD = UD * 0;
 
-
 // -- update Stefan-Maxwell diffusion coeficients
 // -- for all cells
 forAll(rho,cellI)
@@ -13,6 +12,12 @@ forAll(rho,cellI)
     // Info << "Start preparing inv(B)" << endl;
     // -- in each cell prepare matrix to invert
     scalarSquareMatrix B(dimMat);
+    // Info << B<<endl;
+    // B(0,0) =3;
+    // B(1,0) =1;
+    // B(0,1) =2;
+    // Info << "B" << B <<endl;
+
 
     // NOTETH :: important!!! ---> porosity, tortuosity and knudsen not included yet
 
@@ -29,28 +34,38 @@ forAll(rho,cellI)
                 {
                     if (k != i)
                     {
-                        suma += (MFrList[k][cellI]/(DijList[i*n+k]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI])).value();
+                        // suma += (MFrList[k][cellI]/(DijList[i*(n)+k]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI])).value();
+                        // suma += (MFrList[k][cellI]/DEffFnc(eps,tort,zoneLst,freeChannel,DijList,thermo,molMList,dp,volDiffLst,specieNames, transportProperties,univR,index,i)[cellI]).value();
+                        DEffFnc(eps,tort,zoneLst,freeChannel,DEff,DKn,DijList,thermo,molMList,dp,volDiffLst,specieNames,transportProperties,univR,i,k,n);
+                        suma += (MFrList[k][cellI]/DEff[cellI]);
+                        // suma += (MFrList[k][cellI]).value();
+                        // suma += DEffFnc(eps,tort,zoneLst,freeChannel,DijList,thermo,molMList,dp,volDiffLst, specieNames,transportProperties,univR,index,i)[cellI].value();
                     }
                 }
-                B(i,i) = (MFrList[i][cellI]/(DijList[i*n+(n-1)]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI])).value() + suma;
+                DEffFnc(eps,tort,zoneLst,freeChannel,DEff,DKn,DijList,thermo,molMList,dp,volDiffLst,specieNames,transportProperties,univR,i,n-1,n);
+                B(i,i) = (MFrList[i][cellI]/(DEff[cellI])) + suma;
             }
 
-            // -- uppper triangular
-            else if (j > i)
-            {
-                B(i,j) = - (MFrList[i][cellI] * (1/(DijList[i*n+j]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI]) - 1/(DijList[i*n+(n-1)]*Foam::pow(thermo.T()[cellI],1.75)/thermo.p()[cellI]))).value();
-            }
-
-            // -- lower triangular
+            // -- non-diagonal
             else
             {
-                B(i,j) = B(j,i);
+                // B(i,j) = B(j,i);
+                // B(i,j)
+                // int index = i*(n)+j; 
+                DEffFnc(eps,tort,zoneLst,freeChannel,DEff,DKn,DijList,thermo,molMList,dp,volDiffLst,specieNames,transportProperties,univR,i,j,n);
+                B(i,j) = -(MFrList[i][cellI] * (1.0/(DEff[cellI])));
+                // index = i*(n)+(n-1); 
+                DEffFnc(eps,tort,zoneLst,freeChannel,DEff,DKn,DijList,thermo,molMList,dp,volDiffLst,specieNames,transportProperties,univR,i,n-1,n);
+                B(i,j) += MFrList[i][cellI] * 1.0/(DEff[cellI]);
             }
+            // Info <<i << " " <<j << " " << n << " " << B(i,j) << endl;
         }
     } 
+    // Info<<B<<endl;
 
     // -- inversion of the matrix -- maybe too much complicated -- rethink later
     scalarSquareMatrix Binv = scalarSquareMatrix(SVDinv(B));
+
     // Info << "B" << B << "Binv" << Binv <<endl;
     // Info << Binv(1,1) <<endl;
 
@@ -62,13 +77,25 @@ forAll(rho,cellI)
     {
         for (int j = 0; j < dimMat; j++)
         {
-            if (j >= i)
-            {
-                BinvList[i*dimMat+j][cellI] = Binv (i,j);
-            }
+            // if (j >= i)
+            // {
+                // if (Binv(i,j) < 1e-10){
+                //     Info <<Binv<< i<<j<<endl;
+                // }
+                BinvList[i*(dimMat)+j][cellI] = Binv (i,j);
+            // }
         }
     }
 }
+
+for (int i = 0; i < dimMat; i++)
+{
+    for (int j = 0; j < dimMat; j++)
+    {
+        BinvList[i*(dimMat)+j].correctBoundaryConditions();
+    }
+}
+
 
 // -- print invB matrix
 Info << "min(invBMat)" <<endl;
@@ -76,14 +103,14 @@ for (int i  = 0; i < dimMat; i++)
 {
     for (int j = 0; j < dimMat; j++)
     {
-        if (j >= i)
-        {
-            Info << " " << min(BinvList[i*dimMat+j]).value();
-        }
-        else
-        {
-             Info << " " << min(BinvList[j*dimMat+i]).value();
-        }
+        // if (j >= i)
+        // {
+            Info << " " << min(BinvList[i*(dimMat)+j]).value();
+        // }
+        // else
+        // {
+        //      Info << " " << min(BinvList[j*(dimMat)+i]).value();
+        // }
     }
     Info <<endl;
 }
@@ -93,14 +120,14 @@ for (int i  = 0; i < dimMat; i++)
 {
     for (int j = 0; j < dimMat; j++)
     {
-        if (j >= i)
-        {
-            Info << " " << max(BinvList[i*dimMat+j]).value();
-        }
-        else
-        {
-             Info << " " << max(BinvList[j*dimMat+i]).value();
-        }
+        // if (j >= i)
+        // {
+            Info << " " << max(BinvList[i*(dimMat)+j]).value();
+        // }
+        // else
+        // {
+        //      Info << " " << max(BinvList[j*(dimMat)+i]).value();
+        // }
     }
     Info <<endl;
 }
@@ -154,6 +181,7 @@ forAll(specieNames,lstI)
         if (debug > 0){
             Info << "Min rho: " << min(rho).value() << ", max rho: " << max(rho).value() << endl;
             // Info << "Min DEff[" << specieNames[lstI] << "]: " << min(DEff).value() << ", max DEff["<<specieNames[lstI]<<"]: "<< max(DEff).value() << endl;
+            Info << "Min binv[" << specieNames[lstI] << "]: " << min(BinvList[lstI*dimMat+lstI]).value() << ", max binv["<<specieNames[lstI]<<"]: "<< max(BinvList[lstI*dimMat+lstI]).value() << endl;
             // Info << "Min DFree[" << specieNames[lstI] << "]: " << min(DifMix).value() << ", max DFree["<<specieNames[lstI]<<"]: "<< max(DifMix).value() << endl;
         }
         else if (debug == 2)
@@ -162,13 +190,19 @@ forAll(specieNames,lstI)
         }
 
         // -- calculate contribution of other gases to the equation
-        volVectorField explJi (rho / Mg * BinvList[0] * fvc::grad(MFrList[0]) * 0);
+        volVectorField explJi (molMList[lstI] * rho / Mg * BinvList[0] * fvc::grad(MFrList[0]) * 0);
         for (int j = 0; j < dimMat; j++)
         {
             if (j != lstI)
             {
-                explJi += rho / Mg * BinvList[lstI*dimMat+j] * fvc::grad(MFrList[j]);
+                Info<<"Adding contribution from " << specieNames[j] << endl;
+                explJi += molMList[lstI] * rho / Mg * BinvList[lstI*(dimMat)+j] * fvc::grad(MFrList[j]);
             }
+            // else if (j < lstI)
+            // {
+            //     Info<<"Adding contribution from " << specieNames[j] << endl;
+            //     explJi += molMList[lstI] * rho / Mg * BinvList[j*(dimMat)+lstI] * fvc::grad(MFrList[j]);
+            // }
         }
 
         fvScalarMatrix concEq
@@ -182,9 +216,9 @@ forAll(specieNames,lstI)
             // fvm::laplacian(DEff*rho, currSpMass) 
             // + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)  
             // -- Stefan Maxwell diffusion
-            fvm::laplacian(rho*BinvList[lstI*dimMat+lstI], currSpMass)
-            + fvm::div(fvc::interpolate(rho*BinvList[lstI*dimMat+lstI]/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)
-            + fvc::div(fvc::interpolate(explJi) & mesh.Sf())   
+            fvm::laplacian(rho*BinvList[lstI*(dimMat)+lstI], currSpMass)
+            + fvm::div(fvc::interpolate(rho * BinvList[lstI*(dimMat)+lstI] / Mg * fvc::grad(Mg)) & mesh.Sf(), currSpMass)
+            + fvc::div(explJi)   
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
@@ -209,7 +243,11 @@ forAll(specieNames,lstI)
         sumWithoutRef += currSpMass;
 
         // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
-        UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi) / molMList[lstI].value();
+        // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) ) / molMList[lstI].value();
+        UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho) / molMList[lstI].value();
+
+        // JiList[lstI] = ( rho * U * currSpMass + rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi ) / molMList[lstI];
+        JiList[lstI] = ( rho * U * currSpMass - rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) - explJi ) / molMList[lstI];
         // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
     }
     else

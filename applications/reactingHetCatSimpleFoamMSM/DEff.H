@@ -1,47 +1,58 @@
-// -- function to compure Steffan Maxwell diffusion coefficients 
+// -- function to compure Fick effective diffusion coefficients 
 
-PtrList<dimensionedScalar> DABLstEff_Fick(
-                                            PtrList<dimensionedScalar>& yi,
-                                            volScalarField& eps,
-                                            fluidThermo& thermo,
-                                            PtrList<dimensionedScalar>& molMList,
-                                            PtrList<dimensionedScalar>& volDiffLst,
-                                            wordList& specieNames,
-                                            int& lstI,
-                                            volScalarField& DKn,
-                                        )
+void DEffFnc
+(
+    PtrList<dimensionedScalar>& eps,
+    PtrList<dimensionedScalar>& tort,
+    PtrList<volScalarField>& zoneLst,
+    volScalarField& freeChannel,
+    volScalarField& DEff,
+    volScalarField& DKn,
+    PtrList<dimensionedScalar>& DijList,
+    fluidThermo& thermo,
+    PtrList<dimensionedScalar>& molMList,
+    PtrList<dimensionedScalar>& dp,
+    PtrList<dimensionedScalar>& volDiffLst,
+    wordList& specieNames,
+    IOdictionary& transportProperties,
+    dimensionedScalar& univR,
+    int i,
+    int j,
+    int n
+)
 {
-    PtrList<dimensionedScalar> DABLst(specieNames.size());
-    forAll(DABLst,lstII)
-    {
-        // -- diffusion coefficients according to Fuller without temperature and pressure dependence
-        DABLst.set
-        (
-            lstII,
-            new dimensionedScalar(
-                "DAB",
-                Foam::pow(dimLength,2)/dimTime/Foam::pow(dimTemperature,1.75)*dimPressure,
-                ((0.014)/(Foam::sqrt(2.0/(1e-3/molMList[lstII] + 1e-3/molMList[lstI]))*Foam::pow(Foam::pow(volDiffLst[lstI],1.0/3.0)+Foam::pow(volDiffLst[lstII],1.0/3.0),2))).value()
-            )
-        );
-    }   
-    // -- Diffusion coeficient of the mixture -- default reference gas diffusion (last specie) + add temperature and pressure dependence (see Fuller)
     volScalarField DifMix
     (
-        DABLst[DABLst.size()-1]*Foam::pow(thermo.T(),1.75)/thermo.p()
+        DijList[i*(n)+j]*Foam::pow(thermo.T(),1.75)/thermo.p()
     );
-
+    // -- calculate the Knudsen difussivity
+    DKn = 0*DifMix;                    
     DKn += freeChannel*DifMix;         // free-channel (not used, but cant be 0)
     forAll(zoneLst,countI)
     {
-        DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[lstI])))*dp[countI];
+        DKn += zoneLst[countI]*(1.0/3.0*sqrt((thermo.T()*8*univR)/(3.141592653*molMList[i])))*dp[countI];
     }
 
+    word DTu = "D" + (name(i)) + (name(j));
+    // Info << DTu <<endl;
+
+    // -- if diffusion coeficient is set in transportProperties dont compute it
+    if (transportProperties.subDict(specieNames[0]).found(DTu))
+    {
+        // Info << "Taking diff here." << endl;
+        dimensionedScalar D(transportProperties.subDict(specieNames[0]).lookup(DTu));//R constant
+        DifMix = 0*DifMix + D;
+    }
+    // else{
+    //     Info << "Diff not taken"<<endl;
+    // }
+
+    // -- effective diffusion coeficient
     DEff = freeChannel*DifMix;         // free-channel
+    // volScalarField DEff = epsEff/tortEff*DifMix;         // free-channel
     forAll(zoneLst,countI)
     {
         DEff += zoneLst[countI]*(eps[countI]/(tort[countI]*(1.0/DifMix+1.0/DKn)));  // porous media
     } 
-
-    return DEff;
+    // return DEff;
 }

@@ -128,13 +128,13 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 
 // -- matrix with the binary Fick diffusion coefficients
 Info << "Creating matrix with binary diffusivities without temperature and pressure dependence" << endl;
-PtrList<dimensionedScalar> DijList((n*n));
+PtrList<dimensionedScalar> DijList(((n)*(n)));
 for(int i = 0; i < n; i++)
 {
     for (int j = 0; j < n; j++)
     {
         Info << "Seting matrix index (" << i << ", " << j << ")." <<endl;
-        word nazevTu = "Dij" + word(i) + word(j);
+        word nazevTu = "D" + name(i) + name(j);
         int index = (i*(n) + j);
         DijList.set
         (
@@ -148,17 +148,43 @@ for(int i = 0; i < n; i++)
     }
 }
 
+Info << "Creating matrix of diffusive fluxes." << endl;
+PtrList<volVectorField> JiList(n-1);
+for(int i = 0; i < n-1; i++)
+{
+    Info << "Seting diffusive flux of " << specieNames[i] << endl;
+    word nazevTu = "J" + specieNames[i];
+    JiList.set
+    (
+        i,
+        new volVectorField
+        (
+            IOobject
+            (
+                nazevTu,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            // NOTE: check dimensions
+            dimensionedVector (nazevTu,dimMoles/dimTime/dimLength/dimLength, vector(0,0,0))
+        )
+    );
+}
+
 // -- matrix with the inverse of the B matrix for S-M computations
 Info << "Preparing matrix to store inv of B matrix" << endl;
-PtrList<volScalarField> BinvList(dimMat*dimMat);
+PtrList<volScalarField> BinvList((dimMat)*(dimMat));
 for(int i = 0; i < dimMat; i++)
 {
     for (int j = 0; j < dimMat; j++)
     {
-        if (j >= i)
-        {
+        // if (j >= i)
+        // {
             Info << "Seting matrix index (" << i << ", " << j << ")." <<endl;
-            word nazevTu = "Binv" + word(i) + word(j);
+            word nazevTu = "Binv" + name(i) + name(j);
             int index = (i*(dimMat) + j);
             BinvList.set
             (
@@ -175,11 +201,12 @@ for(int i = 0; i < dimMat; i++)
                     ),
                     mesh,
                     // NOTE: check dimensions
-                    dimensionedScalar (nazevTu,dimLength*dimLength/dimTime, 0)
+                    dimensionedScalar (nazevTu,dimLength*dimLength/dimTime, 0),
+                    "zeroGradient"
                     // dimensionedVector ("jiDiff",dimLength/dimTime*dimMass/dimVolume, vector(0.0,0.0,0.0))
                 )
             );
-        }
+        // }
     }
 }
 

@@ -40,6 +40,8 @@ Description
 #include "fvModels.H"
 #include "fvConstraints.H"
 #include "IOporosityModelList.H"
+#include "DEff.H"
+
 // #include "DEff.H"
 // #include "Switch.H"
 // #include "MaxwellStefanMy/MaxwellStefan.H"
@@ -61,6 +63,8 @@ int main(int argc, char *argv[])
     #include "createZones.H"
     // #include "createFvOptions.H"
     #include "initContinuityErrs.H"
+    
+    
 
     turbulence->validate();
 
