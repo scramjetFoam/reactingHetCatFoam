@@ -108,17 +108,17 @@ relaxationFactors
 {
     fields
     {
-        p           0.02;
-        U           0.02;
+        p           0.1;
+        U           0.2;
         // T           0.5;
-        // "(ethylene|CO|O2|CO2|methanol|acetone)" 	 0.9;
+        "(ethylene|CO|O2|CO2|methanol|acetone)" 	 0.5;
         //  "(ethylene|prod|CO|O2|CO2)" 	 0.1;
     }
     equations
     {
-        "(p|U)" 0.95;
+        "(p|U)" 0.9;
         "(T)" 0.98;
-        "(ethylene|CO|O2|CO2|methanolMass|acetoneMass)" 	 0.9999;
+        "(ethylene|CO|O2|CO2|methanolMass|acetoneMass)" 	 0.999;
     }
 }
 // ************************************************************************* //
