@@ -30,7 +30,7 @@ gradSchemes
 divSchemes
 {
         //  default                            bounded Gauss upwind phi;
-         default                            Gauss vanLeer;
+         default                            Gauss linear;
         //  default                            none;
         //  div((interpolate((((DEff*rho)|Mg)*grad(Mg)))&Sf),methanolMass)     Gauss linear;
         //  div(phi,methanolMass)              Gauss linear;

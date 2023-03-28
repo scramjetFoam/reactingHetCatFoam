@@ -71,7 +71,7 @@ blocks
 //    hex (0 1 2 3 4 5 6 7) (165 50 50) simpleGrading (1 1 1)
 //    hex (0 1 2 3 4 5 6 7) (200 60 60) simpleGrading (1 1 1)
 //    hex (0 1 2 3 4 5 6 7) (40 60 60) simpleGrading (1 1 1)
-  hex (0 1 2 3 4 5 6 7) coatZone (500 1 1) simpleGrading (1 1 1)
+  hex (0 1 2 3 4 5 6 7) coatZone (50 1 1) simpleGrading (1 1 1)
 //   hex (0 1 2 3 4 5 6 7) (80 22 22) simpleGrading (1 1 1)
 //    hex (0 1 2 3 4 5 6 7) (200 60 60) simpleGrading (1 1 1)
 //    hex (0 1 2 3 4 5 6 7) (90 141 141) simpleGrading (1 1 1)

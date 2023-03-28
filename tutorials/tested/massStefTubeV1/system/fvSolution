@@ -88,6 +88,7 @@ SIMPLE
     nUCorrectors 0;            
     nConcCorrectors 4;              // n of concentration calculations for each specie
     nTempCorrectors 0;	            // n of temperature corrections 
+    nTogCorrectors 0;	            // n of temperature corrections 
     nNonOrthogonalCorrectors 1;     // n of presure corrections (not necessary on this mesh)
 
     debug 2;
