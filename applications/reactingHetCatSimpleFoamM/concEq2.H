@@ -88,20 +88,29 @@ forAll(specieNames,lstI)
         currSpMass.correctBoundaryConditions();
 
         sumWithoutRef += currSpMass;
+        sumWithoutRef.correctBoundaryConditions();
 
-        UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
+        // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
+        // UD -= ( DEff / Mg * fvc::grad(MFrList[lstI])) * molMList[lstI];
+        UD -= ( DEff / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) * fvc::grad(MFrList[lstI]));
         // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
+        UD.correctBoundaryConditions();
     }
     else
     {
         currSpMass = 1 - sumWithoutRef;
+        currSpMass.correctBoundaryConditions();
 
+        // UD = UD / currSpMass * molMList[lstI].value();
+        // UD = UD / (currSpMass);
+        // UD = UD / MFrList[lstI];
         UD = UD / currSpMass * molMList[lstI].value();
+        UD.correctBoundaryConditions();
     }
-    forAll(currSpMass,cellI)
-    { 
-        currSpMass[cellI] = max(min(currSpMass[cellI],1),0); 
-    }
+    // forAll(currSpMass,cellI)
+    // { 
+    //     currSpMass[cellI] = max(min(currSpMass[cellI],1),0); 
+    // }
 }
 
 // volScalarField MgOld = Mg;
@@ -110,8 +119,10 @@ sumWiMi = 0 * sumWiMi;
 forAll(specieNames,lstI)
 {
     sumWiMi += MassFrList[lstI] / molMList[lstI];
+    sumWiMi.correctBoundaryConditions();
 }
 Mg = 1/sumWiMi;
+Mg.correctBoundaryConditions();
 
 // UD = UD * MgOld / Mg;
 
@@ -119,6 +130,7 @@ Mg = 1/sumWiMi;
 forAll(specieNames,lstI)
 {
     MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;
+    MFrList[lstI].correctBoundaryConditions();
 }
 
 // -- inform about mass and molar fractions

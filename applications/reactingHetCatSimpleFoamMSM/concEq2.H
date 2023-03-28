@@ -241,10 +241,17 @@ forAll(specieNames,lstI)
         currSpMass.correctBoundaryConditions();
 
         sumWithoutRef += currSpMass;
+        sumWithoutRef.correctBoundaryConditions();
 
         // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) ) / molMList[lstI].value();
-        UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho) / molMList[lstI].value();
+        // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(MFrList[lstI]) ) * molMList[lstI] + explJi / rho;
+        // UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) ) + explJi / rho * Mg / molMList[lstI];
+        UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) ) + explJi / rho / molMList[lstI] *dimensionedScalar("jedna",dimMass/dimMoles,1);
+        // UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) ) + explJi / rho * Mg / molMList[lstI];
+        // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho) / molMList[lstI].value();
+        // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho);
+        UD.correctBoundaryConditions();
 
         // JiList[lstI] = ( rho * U * currSpMass + rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi ) / molMList[lstI];
         JiList[lstI] = ( rho * U * currSpMass - rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) - explJi ) / molMList[lstI];
@@ -253,8 +260,14 @@ forAll(specieNames,lstI)
     else
     {
         currSpMass = 1 - sumWithoutRef;
+        currSpMass.correctBoundaryConditions();
 
+        // UD = UD / currSpMass;
         UD = UD / currSpMass * molMList[lstI].value();
+        // UD = UD / MFrList[lstI];
+        // UD = UD / MFrList[lstI] ;
+
+        UD.correctBoundaryConditions();
     }
 }
 
@@ -264,8 +277,10 @@ sumWiMi = 0 * sumWiMi;
 forAll(specieNames,lstI)
 {
     sumWiMi += MassFrList[lstI] / molMList[lstI];
+    sumWiMi.correctBoundaryConditions();
 }
 Mg = 1/sumWiMi;
+Mg.correctBoundaryConditions();
 
 // UD = UD * MgOld / Mg;
 
