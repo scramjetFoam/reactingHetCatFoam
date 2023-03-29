@@ -3,6 +3,7 @@ sumWithoutRef = 0 * sumWithoutRef;
 
 // -- calculate the diffusive flux
 // -- update sum of the diffusive velocity for boundary condition (all but the reference)
+volVectorField UD2 = UD;
 UD = UD * 0;
 
 // -- solve the concentration equation for all but one chemical species
@@ -65,6 +66,7 @@ forAll(specieNames,lstI)
         (
             // -- specie mass convection
             fvm::div(phi, currSpMass) 
+            // fvm::div(fvc::interpolate(UD2*rho) & mesh.Sf(), currSpMass)  
 
             ==
 
@@ -91,8 +93,9 @@ forAll(specieNames,lstI)
         sumWithoutRef.correctBoundaryConditions();
 
         // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
-        // UD -= ( DEff / Mg * fvc::grad(MFrList[lstI])) * molMList[lstI];
-        UD -= ( DEff / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) * fvc::grad(MFrList[lstI]));
+        UD -= ( DEff / Mg * fvc::grad(MFrList[lstI])) * molMList[lstI];
+        // UD -= ( DEff / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) * fvc::grad(MFrList[lstI])) * molMList[lstI];
+        // UD -= DEff * fvc::grad(MFrList[lstI]) * molMList[lstI].value();
         // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
         UD.correctBoundaryConditions();
     }
@@ -102,9 +105,9 @@ forAll(specieNames,lstI)
         currSpMass.correctBoundaryConditions();
 
         // UD = UD / currSpMass * molMList[lstI].value();
-        // UD = UD / (currSpMass);
+        UD = UD / (currSpMass);
         // UD = UD / MFrList[lstI];
-        UD = UD / currSpMass * molMList[lstI].value();
+        // UD = UD / currSpMass * molMList[lstI].value();
         UD.correctBoundaryConditions();
     }
     // forAll(currSpMass,cellI)
