@@ -148,7 +148,7 @@ for(int i = 0; i < n; i++)
     }
 }
 
-Info << "Creating matrix of diffusive fluxes." << endl;
+Info << "Creating matrix of mass diffusive fluxes relative to mass average velocity." << endl;
 PtrList<volVectorField> JiList(n-1);
 for(int i = 0; i < n-1; i++)
 {
@@ -169,7 +169,33 @@ for(int i = 0; i < n-1; i++)
             ),
             mesh,
             // NOTE: check dimensions
-            dimensionedVector (nazevTu,dimMoles/dimTime/dimLength/dimLength, vector(0,0,0))
+            dimensionedVector (nazevTu,dimMass/dimTime/dimLength/dimLength, vector(0,0,0))
+        )
+    );
+}
+
+Info << "Creating matrix of mass diffusive fluxes relative to molar average velocity." << endl;
+PtrList<volVectorField> JUiList(n-1);
+for(int i = 0; i < n-1; i++)
+{
+    Info << "Seting diffusive flux of " << specieNames[i] << endl;
+    word nazevTu = "JU" + specieNames[i];
+    JUiList.set
+    (
+        i,
+        new volVectorField
+        (
+            IOobject
+            (
+                nazevTu,
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            // NOTE: check dimensions
+            dimensionedVector (nazevTu,dimMass/dimTime/dimLength/dimLength, vector(0,0,0))
         )
     );
 }

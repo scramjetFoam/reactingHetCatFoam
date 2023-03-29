@@ -191,12 +191,14 @@ forAll(specieNames,lstI)
 
         // -- calculate contribution of other gases to the equation
         volVectorField explJi (molMList[lstI] * rho / Mg * BinvList[0] * fvc::grad(MFrList[0]) * 0);
+        volVectorField explJiF = explJi * 0;
         for (int j = 0; j < dimMat; j++)
         {
             if (j != lstI)
             {
                 Info<<"Adding contribution from " << specieNames[j] << endl;
                 explJi += molMList[lstI] * rho / Mg * BinvList[lstI*(dimMat)+j] * fvc::grad(MFrList[j]);
+                explJiF -= molMList[lstI] * BinvList[j*(dimMat)+j] * rho / Mg * fvc::grad(MFrList[j]) * (1 - ((MassFrList[n-1] * MFrList[j]) / (MFrList[n-1] * MassFrList[j])));  
             }
             // else if (j < lstI)
             // {
@@ -216,9 +218,16 @@ forAll(specieNames,lstI)
             // fvm::laplacian(DEff*rho, currSpMass) 
             // + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)  
             // -- Stefan Maxwell diffusion
-            fvm::laplacian(rho*BinvList[lstI*(dimMat)+lstI], currSpMass)
-            + fvm::div(fvc::interpolate(rho * BinvList[lstI*(dimMat)+lstI] / Mg * fvc::grad(Mg)) & mesh.Sf(), currSpMass)
-            + fvc::div(explJi)   
+            // fvm::laplacian(rho*BinvList[lstI*(dimMat)+lstI], currSpMass)
+            // + fvm::div(fvc::interpolate(rho * BinvList[lstI*(dimMat)+lstI] / Mg * fvc::grad(Mg)) & mesh.Sf(), currSpMass)
+            // + fvc::div(explJi) 
+            
+            // fvc::div(JiList[lstI])  
+    	    
+            fvm::laplacian(BinvList[lstI*(dimMat)+lstI]              * rho * (1 - currSpMass * (1 - (MassFrList[n-1] * MFrList[lstI]) / (MFrList[n-1] * MassFrList[lstI]))),currSpMass)
+            + fvm::div(fvc::interpolate(BinvList[lstI*(dimMat)+lstI] * rho * (1 - currSpMass * (1 - (MassFrList[n-1] * MFrList[lstI]) / (MFrList[n-1] * MassFrList[lstI]))) / Mg * fvc::grad(Mg) ) & mesh.Sf(), currSpMass)
+            // + fvc::div(explJiF)  
+            + fvm::div(fvc::interpolate(explJiF) & mesh.Sf(), currSpMass)  
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
@@ -247,15 +256,18 @@ forAll(specieNames,lstI)
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) ) / molMList[lstI].value();
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(MFrList[lstI]) ) * molMList[lstI] + explJi / rho;
         // UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) ) + explJi / rho * Mg / molMList[lstI];
-        UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) ) + explJi / rho / molMList[lstI] *dimensionedScalar("jedna",dimMass/dimMoles,1);
+        // UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) ) + explJi / rho / molMList[lstI] *dimensionedScalar("jedna",dimMass/dimMoles,1);
         // UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) ) + explJi / rho * Mg / molMList[lstI];
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho) / molMList[lstI].value();
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho);
-        UD.correctBoundaryConditions();
+        // UD.correctBoundaryConditions();
 
         // JiList[lstI] = ( rho * U * currSpMass + rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi ) / molMList[lstI];
-        JiList[lstI] = ( rho * U * currSpMass - rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) - explJi ) / molMList[lstI];
+        // JiList[lstI] = ( rho * U * currSpMass - rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) - explJi ) / molMList[lstI];
         // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
+        // JUiList[lstI] = ( rho * U * currSpMass - rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) - explJi );
+        JUiList[lstI] = -( BinvList[lstI*(dimMat)+lstI] * rho * (1 - currSpMass * (1 - (MassFrList[n-1] * MFrList[lstI]) / (MFrList[n-1] * MassFrList[lstI]))) / Mg * fvc::grad(Mg * currSpMass)  + explJiF * currSpMass);
+        JUiList[lstI].correctBoundaryConditions();
     }
     else
     {
@@ -263,10 +275,15 @@ forAll(specieNames,lstI)
         currSpMass.correctBoundaryConditions();
 
         // UD = UD / currSpMass;
-        UD = UD / currSpMass * molMList[lstI].value();
+        // UD = UD / currSpMass * molMList[lstI].value();
         // UD = UD / MFrList[lstI];
         // UD = UD / MFrList[lstI] ;
-
+        volVectorField J = JiList[0] * 0;
+        for (int k = 0; k < n-1; k++)
+        {
+            J += JUiList[k] ;
+        }
+        UD = J / currSpMass / rho;
         UD.correctBoundaryConditions();
     }
 }
@@ -281,6 +298,20 @@ forAll(specieNames,lstI)
 }
 Mg = 1/sumWiMi;
 Mg.correctBoundaryConditions();
+
+for (int i = 0; i < n-1; i++)
+{
+    JiList[i] = 0*JiList[i];
+    for (int k = 0; k < dimMat; k++)
+    {
+        // -- diagonal
+        if (k == i)
+        {
+            JiList[i] += JUiList[k];
+        }
+        JiList[i] -= JUiList[k]*MassFrList[i]*(1 - (MassFrList[n-1] * MFrList[k]) / (MFrList[n-1] * MassFrList[k]));
+    }
+}
 
 // UD = UD * MgOld / Mg;
 
