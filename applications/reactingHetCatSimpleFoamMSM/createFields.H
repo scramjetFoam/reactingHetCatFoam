@@ -148,57 +148,57 @@ for(int i = 0; i < n; i++)
     }
 }
 
-Info << "Creating matrix of mass diffusive fluxes relative to mass average velocity." << endl;
-PtrList<volVectorField> JiList(n-1);
-for(int i = 0; i < n-1; i++)
-{
-    Info << "Seting diffusive flux of " << specieNames[i] << endl;
-    word nazevTu = "J" + specieNames[i];
-    JiList.set
-    (
-        i,
-        new volVectorField
-        (
-            IOobject
-            (
-                nazevTu,
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            // NOTE: check dimensions
-            dimensionedVector (nazevTu,dimMass/dimTime/dimLength/dimLength, vector(0,0,0))
-        )
-    );
-}
+// Info << "Creating matrix of mass diffusive fluxes relative to mass average velocity." << endl;
+// PtrList<volVectorField> JiList(n-1);
+// for(int i = 0; i < n-1; i++)
+// {
+//     Info << "Seting diffusive flux of " << specieNames[i] << endl;
+//     word nazevTu = "J" + specieNames[i];
+//     JiList.set
+//     (
+//         i,
+//         new volVectorField
+//         (
+//             IOobject
+//             (
+//                 nazevTu,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::NO_READ,
+//                 IOobject::AUTO_WRITE
+//             ),
+//             mesh,
+//             // NOTE: check dimensions
+//             dimensionedVector (nazevTu,dimMass/dimTime/dimLength/dimLength, vector(0,0,0))
+//         )
+//     );
+// }
 
-Info << "Creating matrix of mass diffusive fluxes relative to molar average velocity." << endl;
-PtrList<volVectorField> JUiList(n-1);
-for(int i = 0; i < n-1; i++)
-{
-    Info << "Seting diffusive flux of " << specieNames[i] << endl;
-    word nazevTu = "JU" + specieNames[i];
-    JUiList.set
-    (
-        i,
-        new volVectorField
-        (
-            IOobject
-            (
-                nazevTu,
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            // NOTE: check dimensions
-            dimensionedVector (nazevTu,dimMass/dimTime/dimLength/dimLength, vector(0,0,0))
-        )
-    );
-}
+// Info << "Creating matrix of mass diffusive fluxes relative to molar average velocity." << endl;
+// PtrList<volVectorField> JUiList(n-1);
+// for(int i = 0; i < n-1; i++)
+// {
+//     Info << "Seting diffusive flux of " << specieNames[i] << endl;
+//     word nazevTu = "JU" + specieNames[i];
+//     JUiList.set
+//     (
+//         i,
+//         new volVectorField
+//         (
+//             IOobject
+//             (
+//                 nazevTu,
+//                 runTime.timeName(),
+//                 mesh,
+//                 IOobject::NO_READ,
+//                 IOobject::AUTO_WRITE
+//             ),
+//             mesh,
+//             // NOTE: check dimensions
+//             dimensionedVector (nazevTu,dimMass/dimTime/dimLength/dimLength, vector(0,0,0))
+//         )
+//     );
+// }
 
 // -- matrix with the inverse of the B matrix for S-M computations
 Info << "Preparing matrix to store inv of B matrix" << endl;
