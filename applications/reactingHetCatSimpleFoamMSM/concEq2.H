@@ -13,6 +13,7 @@ forAll(rho,cellI)
     // -- in each cell prepare matrix to invert
     scalarSquareMatrix B(dimMat);
     scalarSquareMatrix Bou(dimMat);
+    scalarSquareMatrix Buo(dimMat);
     scalarSquareMatrix diag1(dimMat);
     scalarSquareMatrix diag2(dimMat);
     // Info << B<<endl;
@@ -48,7 +49,8 @@ forAll(rho,cellI)
                 DEffFnc(eps,tort,zoneLst,freeChannel,DEff,DKn,DijList,thermo,molMList,dp,volDiffLst,specieNames,transportProperties,univR,i,n-1,n);
                 B(i,i) = (MFrList[i][cellI]/(DEff[cellI])) + suma;
 
-                Bou(i,i) = 1 - (MassFrList[i][cellI] * (1 - (MassFrList[n-1][cellI] * MFrList[i][cellI]) / (MFrList[n-1][cellI] * MassFrList[i][cellI])));
+                Bou(i,i) = 1 - (MassFrList[i][cellI] * (1 - (MassFrList[n-1][cellI] * MFrList[j][cellI]) / (MFrList[n-1][cellI] * MassFrList[j][cellI])));
+                Buo(i,i) = 1 - (MassFrList[i][cellI] * (MFrList[j][cellI]/MassFrList[j][cellI] - MFrList[n-1][cellI]/MassFrList[n-1][cellI]));
                 diag1(i,i) = MassFrList[i][cellI] / MFrList[i][cellI];
                 diag2(i,i) = MFrList[i][cellI] / MassFrList[i][cellI];
             }
@@ -66,6 +68,7 @@ forAll(rho,cellI)
                 B(i,j) += MFrList[i][cellI] * 1.0/(DEff[cellI]);
 
                 Bou(i,j) = - (MassFrList[i][cellI] * (1 - (MassFrList[n-1][cellI] * MFrList[j][cellI]) / (MFrList[n-1][cellI] * MassFrList[j][cellI])));
+                Buo(i,j) = - (MassFrList[i][cellI] * (MFrList[j][cellI]/MassFrList[j][cellI] - MFrList[n-1][cellI]/MassFrList[n-1][cellI]));
                 diag1(i,j) = 0;
                 diag2(i,j) = 0;
             }
@@ -77,10 +80,9 @@ forAll(rho,cellI)
 
     // -- inversion of the matrix -- maybe too much complicated -- rethink later
     scalarSquareMatrix Binv = scalarSquareMatrix(SVDinv(B));
-    scalarSquareMatrix Buo = scalarSquareMatrix(SVDinv(Bou));
+    // scalarSquareMatrix Buo = scalarSquareMatrix(SVDinv(Bou));
 
     scalarSquareMatrix D0 = Bou * diag1 * Binv * diag2 * Buo;
-
 
     // Info << "B" << B << "Binv" << Binv <<endl;
     // Info << Binv(1,1) <<endl;
@@ -207,8 +209,7 @@ forAll(specieNames,lstI)
         }
 
         // -- calculate contribution of other gases to the equation
-        volVectorField explJi (molMList[lstI] * rho / Mg * BinvList[0] * fvc::grad(MFrList[0]) * 0);
-        volVectorField explJiF = explJi * 0;
+        volVectorField explJi (rho * BinvList[0] * fvc::grad(MassFrList[0]) * 0);
         for (int j = 0; j < dimMat; j++)
         {
             if (j != lstI)
@@ -246,8 +247,17 @@ forAll(specieNames,lstI)
             // // + fvc::div(explJiF)  
             // + fvm::div(fvc::interpolate(explJiF) & mesh.Sf(), currSpMass)  
 
+            // old
             fvm::laplacian(BinvList[lstI*(dimMat)+lstI] * rho, currSpMass)
             + fvc::div(explJi)  
+
+            // new
+            // fvm::laplacian(BinvList[lstI*(dimMat)+lstI] * rho, currSpMass)
+            // + fvc::div(explJi) 
+
+            // new new
+            // fvm::laplacian(BinvList[lstI*(dimMat)+lstI]*rho, currSpMass) 
+            // + fvm::div(fvc::interpolate(BinvList[lstI*(dimMat)+lstI]*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
@@ -272,6 +282,13 @@ forAll(specieNames,lstI)
         sumWithoutRef += currSpMass;
         sumWithoutRef.correctBoundaryConditions();
 
+        //old
+        UD -= ( BinvList[lstI*(dimMat)+lstI] * fvc::grad(currSpMass) + explJi / rho);
+        //new
+        // UD -= ( BinvList[lstI*(dimMat)+lstI] * fvc::grad(currSpMass));
+        //newnew
+        // UD -= ( BinvList[lstI*(dimMat)+lstI] / Mg * fvc::grad(currSpMass * Mg));
+
         // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) ) / molMList[lstI].value();
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(MFrList[lstI]) ) * molMList[lstI] + explJi / rho;
@@ -280,7 +297,7 @@ forAll(specieNames,lstI)
         // UD -= ( BinvList[lstI*dimMat+lstI] * fvc::grad(MFrList[lstI]) ) + explJi / rho * Mg / molMList[lstI];
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho) / molMList[lstI].value();
         // UD -= ( BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi / rho);
-        UD -= ( BinvList[lstI*(dimMat)+lstI] * fvc::grad(currSpMass) + explJi / rho);
+
         // UD.correctBoundaryConditions();
 
         // JiList[lstI] = ( rho * U * currSpMass + rho * BinvList[lstI*dimMat+lstI] / Mg * fvc::grad(currSpMass * Mg) + explJi ) / molMList[lstI];
@@ -318,7 +335,7 @@ forAll(specieNames,lstI)
     sumWiMi += MassFrList[lstI] / molMList[lstI];
     sumWiMi.correctBoundaryConditions();
 }
-Mg = 1/sumWiMi;
+Mg = 1.0/sumWiMi;
 Mg.correctBoundaryConditions();
 
 // for (int i = 0; i < n-1; i++)
@@ -341,6 +358,7 @@ Mg.correctBoundaryConditions();
 forAll(specieNames,lstI)
 {
     MFrList[lstI] = MassFrList[lstI] / molMList[lstI] * Mg;
+    MFrList[lstI].correctBoundaryConditions();
 }
 
 // -- inform about mass and molar fractions

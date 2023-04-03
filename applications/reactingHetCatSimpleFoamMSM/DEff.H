@@ -39,9 +39,9 @@ void DEffFnc
     // -- if diffusion coeficient is set in transportProperties dont compute it
     if (transportProperties.subDict(specieNames[0]).found(DTu))
     {
-        // Info << "Taking diff here." << endl;
         dimensionedScalar D(transportProperties.subDict(specieNames[0]).lookup(DTu));//R constant
         DifMix = 0*DifMix + D;
+        // Info << DTu << D << endl;
     }
     // else{
     //     Info << "Diff not taken"<<endl;

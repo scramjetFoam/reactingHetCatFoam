@@ -39,7 +39,8 @@ volScalarField Mg
         writeOption1
     ),
     mesh,
-    dimensionedScalar("Mg",dimMass/dimMoles,0)
+    dimensionedScalar("Mg",dimMass/dimMoles,0),
+    "zeroGradient"
 );
 
 volScalarField sumWiMi
@@ -53,14 +54,17 @@ volScalarField sumWiMi
         writeOption2
     ),
     mesh,
-    dimensionedScalar("sumWiMi",dimMoles/dimMass,0)
+    dimensionedScalar("sumWiMi",dimMoles/dimMass,0),
+    "zeroGradient"
 );
 
 forAll(specieNames,lstI)
 {
     sumWiMi += MassFrList[lstI] / molMList[lstI];
+    sumWiMi.correctBoundaryConditions();
 }
 Mg = 1 / sumWiMi;
+Mg.correctBoundaryConditions();
 
 // -- prepare list to store molar fractions in (read from BC)
 PtrList<volScalarField> MFrList(specieNames.size());

@@ -70,9 +70,15 @@ forAll(specieNames,lstI)
 
             ==
 
-            // -- specie mass diffusion                          
-            fvm::laplacian(DEff*rho, currSpMass) 
-            + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)    
+            // -- specie mass diffusion -- old                       
+            // fvm::laplacian(DEff*rho, currSpMass) 
+            // + fvm::div(fvc::interpolate(DEff*rho/Mg*fvc::grad(Mg)) & mesh.Sf(), currSpMass)
+
+            // -- specie mass diffusion -- new                       
+            // fvm::laplacian(DEff*rho*Mg/molMList[lstI], currSpMass) 
+            // + fvm::div(fvc::interpolate(DEff*rho/molMList[lstI]*fvc::grad(Mg)) & mesh.Sf(), currSpMass) 
+
+            fvm::laplacian(DEff * rho, currSpMass)   
 
             // -- source
             + fvModels.source(dummyConcEqn, currSpMass)
@@ -92,8 +98,16 @@ forAll(specieNames,lstI)
         sumWithoutRef += currSpMass;
         sumWithoutRef.correctBoundaryConditions();
 
+        // old
+        // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg));
+
+        // new 
+        // UD -= ( DEff / molMList[lstI] * fvc::grad(currSpMass * Mg));
+
+        UD -= ( DEff * fvc::grad(currSpMass));
+
         // UD -= ( DEff / Mg * fvc::grad(currSpMass * Mg)) / molMList[lstI].value();
-        UD -= ( DEff / Mg * fvc::grad(MFrList[lstI])) * molMList[lstI];
+        // UD -= ( DEff / Mg * fvc::grad(MFrList[lstI])) * molMList[lstI];
         // UD -= ( DEff / (Mg/dimensionedScalar("jedna",dimMass/dimMoles,1)) * fvc::grad(MFrList[lstI])) * molMList[lstI];
         // UD -= DEff * fvc::grad(MFrList[lstI]) * molMList[lstI].value();
         // UDS -= fvc::interpolate( DEff * fvc::grad(currSpMass * Mg) / Mg );
@@ -104,8 +118,10 @@ forAll(specieNames,lstI)
         currSpMass = 1 - sumWithoutRef;
         currSpMass.correctBoundaryConditions();
 
-        // UD = UD / currSpMass * molMList[lstI].value();
+        // old 
         UD = UD / (currSpMass);
+
+        // UD = UD / currSpMass * molMList[lstI].value();
         // UD = UD / MFrList[lstI];
         // UD = UD / currSpMass * molMList[lstI].value();
         UD.correctBoundaryConditions();
