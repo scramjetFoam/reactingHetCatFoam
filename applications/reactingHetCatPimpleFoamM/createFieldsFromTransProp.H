@@ -1,39 +1,39 @@
 // -- creating field Mg -- molar mass of gas
-Info<< "Reading field Mg\n" << endl;
-volScalarField Mg
-(
-    IOobject
-    (
-        "Mg",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption1
-    ),
-    mesh,
-    dimensionedScalar("Mg",dimMass/dimMoles,0.0),
-    "zeroGradient"
-);
+// Info<< "Reading field Mg\n" << endl;
+// volScalarField Mg
+// (
+//     IOobject
+//     (
+//         "Mg",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         writeOption1
+//     ),
+//     mesh,
+//     dimensionedScalar("Mg",dimMass/dimMoles,0.0),
+//     "zeroGradient"
+// );
 
-forAll(specieNames,countI)
-{
-    Mg += molMList[countI]*MFrList[countI];
-}
+// forAll(specieNames,countI)
+// {
+//     Mg += molMList[countI]*MFrList[countI];
+// }
 
 // -- creating field with sum of the diffusive fluxes of all species but reference
-volVectorField sumJDif
-(
-    IOobject
-    (
-        "sumJDif",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        writeOption2
-    ),
-    mesh,
-    dimensionedVector ("sumJDif",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
-);
+// volVectorField sumJDif
+// (
+//     IOobject
+//     (
+//         "sumJDif",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         writeOption2
+//     ),
+//     mesh,
+//     dimensionedVector ("sumJDif",dimLength/dimTime*dimMoles/dimVolume, vector(0.0,0.0,0.0))
+// );
 
 // -- prepare sum of the molar fractions without reference
 volScalarField sumWithoutRef

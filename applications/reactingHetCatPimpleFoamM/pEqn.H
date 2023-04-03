@@ -1,8 +1,8 @@
 // -- update rho
-rho = thermo.p()/univR/thermo.T()*Mg;
-thermo.rho() = rho;
+rho = p/univR/thermo.T()*Mg;
+// thermo.rho() = rho;
 
-// Info <<max(rho)<<endl;
+// // Info <<max(rho)<<endl;
 
 rho.relax();
 
@@ -192,7 +192,8 @@ else
     if (constrained)
     {
         // rho = thermo.rho();
-        rho = thermo.p()/univR/thermo.T()*Mg;
+        // rho = thermo.p()/univR/thermo.T()*Mg;
+        rho = psi*p;
     }
 
     #include "rhoEqn.H"
@@ -233,7 +234,8 @@ if (adjustMass && !thermo.incompressible())
 
 if (mesh.schemes().steady() || pimple.simpleRho() || adjustMass)
 {
-    rho = thermo.p()/univR/thermo.T()*Mg;
+    rho = p*psi;
+    // rho = thermo.p()/univR/thermo.T()*Mg;
     // rho = thermo.rho();
 }
 

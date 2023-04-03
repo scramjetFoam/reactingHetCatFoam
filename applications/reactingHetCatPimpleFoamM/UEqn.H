@@ -2,17 +2,6 @@
 
 MRF.correctBoundaryVelocity(U);
 
-volVectorField explRHS(-fvc::div(phi,UD));
-// // explRHS -= fvc::div(phiD,U);
-// explRHS -= fvc::ddt(rho*UD) - fvc::ddt(phiD,UD);
-explRHS -= fvc::ddt(UD)*rho - fvc::ddt(rho)*UD;
-explRHS -= fvc::div(phiD,UD);
-explRHS += fvc::div((rho*turbulence->nuEff())*dev2(T(fvc::grad(UD))));
-explRHS += fvc::laplacian(turbulence->nuEff()*rho,UD);
-
-// // NOTETH: check this
-explRHS -= rho * turbulence->nuEff() * cmptMultiply(permEff,UD);
-
 tmp<fvVectorMatrix> tUEqn
 (
     fvm::ddt(rho, U) + fvm::div(phi, U)
@@ -20,7 +9,6 @@ tmp<fvVectorMatrix> tUEqn
     + turbulence->divDevTau(U)
     ==
     fvModels.source(rho, U)
-    +explRHS
 );
 fvVectorMatrix& UEqn = tUEqn.ref();
 

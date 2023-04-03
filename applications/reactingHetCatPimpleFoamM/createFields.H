@@ -40,7 +40,8 @@ volScalarField dummyConcEqn
         IOobject::NO_WRITE
     ),
     mesh,
-    dimensionedScalar ("dummyConcEqn",dimMoles/dimVolume,1.0)
+    // dimensionedScalar ("dummyConcEqn",dimMoles/dimVolume,1.0)
+    dimensionedScalar ("dummyConcEqn",dimMass/dimVolume,1.0)
     // dimensionedScalar ("dummyConcEqn",dimless,1.0)
 );
 
@@ -89,18 +90,6 @@ volScalarField rho
     p/univR/thermo.T()*Mg
 );
 
-surfaceScalarField phiD
-(
-    IOobject
-    (
-        "phiD",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    linearInterpolate(rho*UD) & mesh.Sf()
-);
 
 #include "compressibleCreatePhi.H"
 

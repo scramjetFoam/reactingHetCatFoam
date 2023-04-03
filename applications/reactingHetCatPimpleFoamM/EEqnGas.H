@@ -22,10 +22,10 @@
 
 
 //    // -- heat source from reaction 
-//    +fvModels.source(dummyEEqn, T)
+   +fvModels.source(dummyEEqn, T)
     // -- heat source from solid media
-     - sumZones*fvm::Sp(kHEffA,T)
-     + sumZones*fvc::Sp(kHEffA,TSolid)
+    //  - sumZones*fvm::Sp(kHEffA,T)
+    //  + sumZones*fvc::Sp(kHEffA,TSolid)
     // NOTE TH: 
     // implement surface heat source from porous media at solid interface
   );
@@ -42,7 +42,7 @@
 
   thermo.correct();
 
-  Info << "Min (TporMedia): " << min(TSolid).value() << ", max (TporMedia): " << max(TSolid).value() << "." << endl;
+  // Info << "Min (TporMedia): " << min(TSolid).value() << ", max (TporMedia): " << max(TSolid).value() << "." << endl;
 
   Info << "Min (thermo.T): " << min(thermo.T()).value() << ", max (thermo.T): " << max(thermo.T()).value() << "." << endl;
 }
