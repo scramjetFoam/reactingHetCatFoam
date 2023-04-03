@@ -16,8 +16,7 @@ start           (0 0 0);
 end             (0.238 0 0);
 nPoints         500;
 
-fields          (acetone methanol N2 Jacetone);
-// fields          (acetone H2 N2 Jacetone);
+fields          (acetone methanol);
 
 axis            distance; // The independent variable of the graph. Can be "x",
                           // "y", "z", "xyz" (all coordinates written out), or

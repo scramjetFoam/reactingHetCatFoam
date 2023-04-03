@@ -19,7 +19,8 @@ transportModel  Newtonian;
 
 // -- list of chemical species that are assumed
 // species (ethylene O2);
-species (methanol acetone N2);
+species (acetone methanol N2);
+// species (acetone H2 N2);
 
 // -- list of porous Zones
 zones ();
@@ -48,27 +49,45 @@ ref
 acetone
 {
     molM 58.08e-3;
-    sigmaV      16.2;  
-    D  D  [0 2 -1 0 0 0 0] 13.72e-6; 
-    // D  D  [0 2 -1 0 0 0 0] 5e-6; 
+    // sigmaV      16.2;  
+    sigmaV      67.67;  
+    // D  D  [0 2 -1 0 0 0 0] 13.72e-6; 
+    nuVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
+    alphaVec       (0.0 0.0);    
     // D01  D01  [0 2 -1 0 0 0 0] 8.48e-6; 
     // D10  D10  [0 2 -1 0 0 0 0] 8.48e-6; 
     // D02  D02  [0 2 -1 0 0 0 0] 13.72e-6; 
-    // D20  D20  [0 2 -1 0 0 0 0] 13.72e-6; 
-    nuVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
-    alphaVec       (0.0 0.0);    
+    // D20  D20  [0 2 -1 0 0 0 0] 13.72e-6;
+    // D12  D12  [0 2 -1 0 0 0 0] 19.91e-6; 
+    // D21  D21  [0 2 -1 0 0 0 0] 19.91e-6;
+    // D01  D01  [0 2 -1 0 0 0 0] 1e-4; 
+    // D10  D10  [0 2 -1 0 0 0 0] 1e-4; 
+    // D02  D02  [0 2 -1 0 0 0 0] 13.72e-6; 
+    // D20  D20  [0 2 -1 0 0 0 0] 13.72e-6;
+    // D12  D12  [0 2 -1 0 0 0 0] 1e-4; 
+    // D21  D21  [0 2 -1 0 0 0 0] 1e-4;
+}
+
+H2
+{
+    molM 2.04e-3;
+    sigmaV 6.12;
+    nuVec       (0.0 0.0);  
+    alphaVec       (0.0 0.0);
 }
 
 methanol
 {
     molM 32.04e-3;
-    sigmaV      16.2;  
-    D  D  [0 2 -1 0 0 0 0] 19.91e-6; 
-    // D  D  [0 2 -1 0 0 0 0] 10e-6; 
-    // D01  D01  [0 2 -1 0 0 0 0] 8.48e-6; 
-    // D10  D10  [0 2 -1 0 0 0 0] 8.48e-6; 
-    // D12  D12  [0 2 -1 0 0 0 0] 19.91e-6; 
-    // D21  D21  [0 2 -1 0 0 0 0] 19.91e-6;
+    // molM 2.04e-3;
+    sigmaV      31.25;  
+    D01  D01  [0 2 -1 0 0 0 0] 8.48e-6; 
+    D10  D10  [0 2 -1 0 0 0 0] 8.48e-6; 
+    D02  D02  [0 2 -1 0 0 0 0] 19.91e-6; 
+    D20  D20  [0 2 -1 0 0 0 0] 19.91e-6;
+    D12  D12  [0 2 -1 0 0 0 0] 13.72e-6; 
+    D21  D21  [0 2 -1 0 0 0 0] 13.72e-6;
+    // D  D  [0 2 -1 0 0 0 0] 19.91e-6;  
     nuVec       (0.0 0.0);                                                     //row of the stoechiometric matrix                                                   
     alphaVec       (0.0 1.0);    
 }
@@ -76,12 +95,8 @@ methanol
 N2
 {
     // -- reference diffusion volume in m3mol-1 for diffusivity computations (see Fuller)
-    sigmaV      16.2;     
-    molM        28.0e-3; 
-    // D02  D02  [0 2 -1 0 0 0 0] 13.72e-6; 
-    // D20  D20  [0 2 -1 0 0 0 0] 13.72e-6; 
-    // D12  D12  [0 2 -1 0 0 0 0] 19.91e-6; 
-    // D21  D21  [0 2 -1 0 0 0 0] 19.91e-6;
+    sigmaV      18.2;     
+    molM        28.0e-3;
     nuVec       (0.0 0.0);                                                             
     alphaVec       (0.0 0.0);                                                             
 }
