@@ -82,13 +82,14 @@ sol = solve_ivp(returns_dydt, [0.0,0.238], [0.319,0.528],args=(N1,N2,),method='D
 
 # print(x_vals)
 
-plt.plot(sol.t, sol.y[0,:], 'b', label='yAc(z)')
-plt.plot(sol.t, sol.y[1,:], 'g', label='yMeth(z)')
-plt.plot(sol.t, 1-sol.y[0,:]-sol.y[1,:], 'r', label='yN2(z)')
-plt.xlabel('z')
+figure, axis = plt.subplots(1, 2, figsize=(30, 15))
+axis[0].plot(sol.t, sol.y[0,:], 'b', label='yAc(z)')
+axis[0].plot(sol.t, sol.y[1,:], 'g', label='yMeth(z)')
+axis[0].plot(sol.t, 1-sol.y[0,:]-sol.y[1,:], 'r', label='yN2(z)')
+axis[0].set_xlabel('z')
 
 
-# openfoam reseni
+# # openfoam reseni
 baseCaseDir = '../tutorials/untested/massStefTubeVSM/'
 outFolder = '../ZZ_cases/SMTest'
 
@@ -109,14 +110,16 @@ case.runCommands(
 # dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/800/line.xy')
 dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
 # dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
-plt.plot(dataOF[:,0],dataOF[:,2],"g--",label='yMethOFSM')
-plt.plot(dataOF[:,0],dataOF[:,1],"b--",label='yAcOFSM')
-plt.plot(dataOF[:,0],dataOF[:,3],"r--",label='yN2OFSM')
+
+
+axis[0].plot(dataOF[:,0],dataOF[:,2],"g--",label='yMethOFSM')
+axis[0].plot(dataOF[:,0],dataOF[:,1],"b--",label='yAcOFSM')
+axis[0].plot(dataOF[:,0],dataOF[:,3],"r--",label='yN2OFSM')
 print(wIn)
 print(MgIn)
 
 # openfoam reseni
-baseCaseDir = '../tutorials/untested/massStefTubeV2/'
+baseCaseDir = '../tutorials/untested/massStefTubeV1/'
 outFolder = '../ZZ_cases/FTest'
 
 case = OpenFOAMCase()
@@ -137,19 +140,88 @@ case.runCommands(
 dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
 # dataOF = np.genfromtxt('../ZZ_cases/data/lineSMMatMult.xy')
 # dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
-plt.plot(dataOF[:,0],dataOF[:,2],"g:",label='yMethOFF')
-plt.plot(dataOF[:,0],dataOF[:,1],"b:",label='yAcOFF')
-plt.plot(dataOF[:,0],dataOF[:,3],"r:",label='yN2OFF')
+
+axis[0].plot(dataOF[:,0],dataOF[:,2],"g:",label='yMethOFF')
+axis[0].plot(dataOF[:,0],dataOF[:,1],"b:",label='yAcOFF')
+axis[0].plot(dataOF[:,0],dataOF[:,3],"r:",label='yN2OFF')
 
 # experimental data
 # data = np.loadtxt("../ZZ_cases/data/myData.dat", delimiter="\t", skiprows=1)
 data = np.genfromtxt('../ZZ_cases/data/myData.dat', delimiter='\t')
-plt.plot(data[:,7],data[:,8],"or",label='yN2Exp')
-plt.plot(data[:,9],data[:,10],"og",label='yMethExp')
-plt.plot(data[:,11],data[:,12],"ob",label='yAcExp')
+axis[0].plot(data[:,7],data[:,8],"or",label='yN2Exp')
+axis[0].plot(data[:,9],data[:,10],"og",label='yMethExp')
+axis[0].plot(data[:,11],data[:,12],"ob",label='yAcExp')
 
-plt.xlim((0,0.238))
-plt.ylim((0,1))
-plt.grid()
-plt.legend(loc='best')
+axis[0].set_xlim((0,0.238))
+axis[0].set_ylim((0,1))
+axis[0].grid()
+axis[0].legend(loc='best')
+
+# openfoam reseni
+baseCaseDir = '../ZZ_cases/SM1Test'
+outFolder = '../ZZ_cases/SMTest2'
+
+case = OpenFOAMCase()
+case.loadOFCaseFromBaseCase(baseCaseDir)
+case.changeOFCaseDir(outFolder)
+case.copyBaseCase()
+
+case.runCommands(
+    [
+        # './Allclean',
+        # './Allrun',
+        'reactingHetCatSimpleFoamMSM',
+        'postProcess -func graphUniform',
+    ]
+)
+
+# dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/800/line.xy')
+dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
+# dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
+
+axis[1].plot(dataOF[:,0],dataOF[:,2],"g--",label='yH2OFSM')
+axis[1].plot(dataOF[:,0],dataOF[:,1],"b--",label='yCOOFSM')
+axis[1].plot(dataOF[:,0],dataOF[:,3],"r--",label='yN2OFSM')
+
+# openfoam reseni
+baseCaseDir = '../ZZ_cases/F1Test/'
+outFolder = '../ZZ_cases/F1Test2'
+
+case = OpenFOAMCase()
+case.loadOFCaseFromBaseCase(baseCaseDir)
+case.changeOFCaseDir(outFolder)
+case.copyBaseCase()
+
+case.runCommands(
+    [
+        # './Allclean',
+        # './Allrun',
+        'reactingHetCatSimpleFoamM',
+        'postProcess -func graphUniform',
+    ]
+)
+
+# dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
+dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
+# dataOF = np.genfromtxt('../ZZ_cases/data/lineSMMatMult.xy')
+# dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
+
+axis[1].plot(dataOF[:,0],dataOF[:,2],"g:",label='yH2OFF')
+axis[1].plot(dataOF[:,0],dataOF[:,1],"b:",label='yCOOFF')
+axis[1].plot(dataOF[:,0],dataOF[:,3],"r:",label='yN2OFF')
+
+# experimental data
+# data = np.loadtxt("../ZZ_cases/data/myData.dat", delimiter="\t", skiprows=1)
+# data = np.genfromtxt('../ZZ_cases/data/myData.dat', delimiter='\t')
+# axis[1].plot(data[:,7],data[:,8],"or",label='yN2Exp')
+# axis[1].plot(data[:,9],data[:,10],"og",label='yMethExp')
+# axis[1].plot(data[:,11],data[:,12],"ob",label='yAcExp')
+
+axis[1].set_xlim((0,0.238))
+axis[1].set_ylim((0,1))
+axis[1].grid()
+axis[1].legend(loc='best')
+
+
+
 plt.show()
