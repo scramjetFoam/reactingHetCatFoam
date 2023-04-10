@@ -1,10 +1,10 @@
 // -- update rho
-rho = p/univR/thermo.T()*Mg;
+// rho = p/univR/thermo.T()*Mg;
 // thermo.rho() = rho;
 
 // // Info <<max(rho)<<endl;
 
-rho.relax();
+// rho.relax();
 
 // Thermodynamic density needs to be updated by psi*d(p) after the
 // pressure solution
@@ -256,3 +256,8 @@ if (thermo.dpdt())
         dpdt -= fvc::div(fvc::meshPhi(rho, U), p);
     }
 }
+
+rho = p * psi;
+thermo.he() = thermo.T() * thermo.Cp();
+thermo.correct();
+rho.relax();

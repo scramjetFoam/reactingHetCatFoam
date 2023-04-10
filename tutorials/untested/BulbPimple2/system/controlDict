@@ -33,7 +33,7 @@ deltaT          1e-5;
 writeControl    adjustableRunTime;
 // writeControl    timeStep;
 
-writeInterval	       10;
+writeInterval	       30;
 
 writeFormat     ascii;
 
