@@ -59,6 +59,7 @@ outFolder = '../ZZ_cases/V2meshV9_8DiffKin'
 outFolder = '../ZZ_cases/V2meshV11_moreIter'
 outFolder = '../ZZ_cases/V2meshV12_betterNumerics'
 outFolder = '../ZZ_cases/V2meshV13_noInialGuess'
+outFolder = '../ZZ_cases/V2meshV15_compare'
 
 # outFolder = '../ZZ_cases/V2reformV1'
 # outFolder = '../ZZ_cases/V2vagonV1'
@@ -128,10 +129,12 @@ nBoth = 1
 nProc = 16
 eqTRelx = "0.9998"
 # endTime = 3000
-endTime = 250 
+# endTime = 250 
+endTime = 100 
 # endTime = 10
 # wrInt = 3000
-wrInt = 250
+wrInt = 100
+# wrInt = 250
 divScheme = 'bounded Gauss SFCD'
 # divScheme = 'bounded Gauss upwind'
 # divScheme = 'bounded Gauss linearUpwind grad(U);'
@@ -311,7 +314,12 @@ for sim in range(Nzacatek,N):
     ])
     case.updateTimes()
     lT = case.latestTime
-    print('Result in %d folder' % lT)
+    case.runCommands(
+        [
+            'cp -r %d 0.%d' %(lT, lT)
+        ]
+    )
+    print('Result in 0.%d folder' % lT)
     # case.runCommands([
     #     'cp -r 0 %d' % (lT+1)
     # ])
@@ -332,7 +340,7 @@ for sim in range(Nzacatek,N):
             'cp postProcessing/sample/%d/outlet_field/scalarField/%s constant/boundaryData/inlet/%d/' % ( lT, field, lT ) 
         ])
     case.runCommands([
-        "postProcess -func 'patchAverage(p,name=inlet,patch=inlet)' > log.postProcessP%d" % sim 
+        "foamJob -parallel -screen postProcess -func 'patchAverage(p,name=inlet,patch=inlet)' > log.postProcessP%d" % sim 
     ])
     with open ('%s/postProcessing/patchAverage(p,name=inlet,patch=inlet)/0/surfaceFieldValue.dat' % case.dir, 'r') as fl:
         lines = fl.readlines()
@@ -381,7 +389,7 @@ for sim in range(Nzacatek,N):
         case.runCommands([
             'cp postProcessing/sample/%d/outlet_field/vectorField/%s constant/boundaryData/inlet/%d/'%(lT,field,lT) 
         ])
-    
+
     for field in scalarfields:
         with open('%s/%d/%s' % (case.dir, lT, field), 'r') as fl:
             lineBC = fl.readlines()
@@ -443,58 +451,193 @@ for sim in range(Nzacatek,N):
         with open('%s/%d/%s' % (case.dir, lT, field), 'w') as fl:
             for i in range(len(newBC)):
                 fl.writelines(newBC[i])
-            
-    for field in scalarfields:
-        # repaire here
-        case.runCommands([ "postProcess -func 'patchAverage(%s,name=outlet,patch=outlet)' > log.postProcess%s%d" % (field,field,sim) ])
-        with open ('%s/postProcessing/patchAverage(%s,name=outlet,patch=outlet)/0/surfaceFieldValue.dat' % (case.dir, field), 'r') as fl:
-            lines = fl.readlines()
-            fCorr = float(lines[-1].split("\t")[-1].replace('\n',''))
-            # print(fCorr)
 
-        case.runCommands([ "postProcess -func 'patchAverage(%s,name=inlet,patch=inlet)' > log.postProcess_o%s%d" % (field,field,sim) ])
-        with open ('%s/postProcessing/patchAverage(%s,name=inlet,patch=inlet)/0/surfaceFieldValue.dat' % (case.dir, field), 'r') as fl:
-            lines = fl.readlines()
-            # print(lines[-1].split("\t")[-1].replace('\n',''))
-            fsouc = float(lines[-1].split("\t")[-1].replace('\n',''))
-        print(fCorr,fsouc,fCorr/fsouc) 
+    # for field in scalarfields:
+        # # repaire here
+        # case.runCommands([ "foamJob -parallel -screen postProcess -func 'patchAverage(%s,name=outlet,patch=outlet)' > log.postProcess%s%d" % (field,field,sim) ])
+        # with open ('%s/postProcessing/patchAverage(%s,name=outlet,patch=outlet)/0/surfaceFieldValue.dat' % (case.dir, field), 'r') as fl:
+        #     lines = fl.readlines()
+        #     fCorr = float(lines[-1].split("\t")[-1].replace('\n',''))
+        #     # print(fCorr)
 
-        with open ('%s/constant/boundaryData/inlet/%d/%s' % (case.dir, lT, field) , 'r') as fl:
-            lines = fl.readlines()
-        for i in range(3,len(lines)-1):
-            # f = float(lines[i].replace('\n',''))
-            f = float(lines[i].replace('\n',''))*float(fCorr)/float(fsouc)
-            lines[i] = '%.15g\n'%(f)
-        with open ('%s/constant/boundaryData/inlet/%d/%s' % (case.dir, lT, field) , 'w') as fl:
-            for i in range(len(lines)):
-                fl.writelines(lines[i])
+        # case.runCommands([ "postProcess -func 'patchAverage(%s,name=inlet,patch=inlet)' > log.postProcess_o%s%d" % (field,field,sim) ])
+        # with open ('%s/postProcessing/patchAverage(%s,name=inlet,patch=inlet)/0/surfaceFieldValue.dat' % (case.dir, field), 'r') as fl:
+        #     lines = fl.readlines()
+        #     # print(lines[-1].split("\t")[-1].replace('\n',''))
+        #     fsouc = float(lines[-1].split("\t")[-1].replace('\n',''))
+        # print(fCorr,fsouc,fCorr/fsouc) 
+
+        # with open ('%s/constant/boundaryData/inlet/%d/%s' % (case.dir, lT, field) , 'r') as fl:
+        #     lines = fl.readlines()
+        # for i in range(3,len(lines)-1):
+        #     # f = float(lines[i].replace('\n',''))
+        #     f = float(lines[i].replace('\n',''))*float(fCorr)/float(fsouc)
+        #     lines[i] = '%.15g\n'%(f)
+        # with open ('%s/constant/boundaryData/inlet/%d/%s' % (case.dir, lT, field) , 'w') as fl:
+        #     for i in range(len(lines)):
+        #         fl.writelines(lines[i])
         # case.runCommands([ "postProcess -func 'patchAverage(%s,name=inlet,patch=inlet)' > log.postProcess_n%s%d"%(field,field,sim) ])
 
-    case.runCommands([ "postProcess -func 'patchAverage(U,name=outlet,patch=outlet)' > log.postProcessU%d" % sim ])
-    with open ('%s/postProcessing/patchAverage(U,name=outlet,patch=outlet)/0/surfaceFieldValue.dat' % case.dir, 'r') as fl:
-        lines = fl.readlines()
-    Ucorr = (lines[-1].split("\t")[-1].replace('\n','').replace('(','').replace(')','').split(' '))
+    # case.runCommands([ "postProcess -func 'patchAverage(U,name=outlet,patch=outlet)' > log.postProcessU%d" % sim ])
+    # case.runCommands([ "foamJob -parallel -screen postProcess -func 'patchAverage(U,name=outlet,patch=outlet)' > log.postProcessU%d" % sim ])
+    # with open ('%s/postProcessing/patchAverage(U,name=outlet,patch=outlet)/0/surfaceFieldValue.dat' % case.dir, 'r') as fl:
+    #     lines = fl.readlines()
+    # Ucorr = (lines[-1].split("\t")[-1].replace('\n','').replace('(','').replace(')','').split(' '))
 
-    case.runCommands([ "postProcess -func 'patchAverage(U,name=inlet,patch=inlet)' > log.postProcessU%d" % sim ])
-    with open ('%s/postProcessing/patchAverage(U,name=inlet,patch=inlet)/0/surfaceFieldValue.dat' % case.dir, 'r') as fl:
-        lines = fl.readlines()
-    # print(lines[-1].split("\t")[-1].replace('\n',''))
-    Usouc = (lines[-1].split("\t")[-1].replace('\n','').replace('(','').replace(')','').split(' '))
-    print(Ucorr,Usouc,float(Ucorr[0])/float(Usouc[0]),float(Ucorr[1])/float(Usouc[1]),float(Ucorr[2])/float(Usouc[2]))
+    # case.runCommands([ "postProcess -func 'patchAverage(U,name=inlet,patch=inlet)' > log.postProcessU%d" % sim ])
+    # with open ('%s/postProcessing/patchAverage(U,name=inlet,patch=inlet)/0/surfaceFieldValue.dat' % case.dir, 'r') as fl:
+    #     lines = fl.readlines()
+    # # print(lines[-1].split("\t")[-1].replace('\n',''))
+    # Usouc = (lines[-1].split("\t")[-1].replace('\n','').replace('(','').replace(')','').split(' '))
+    # print(Ucorr,Usouc,float(Ucorr[0])/float(Usouc[0]),float(Ucorr[1])/float(Usouc[1]),float(Ucorr[2])/float(Usouc[2]))
 
-    with open ('%s/constant/boundaryData/inlet/%d/U' % (case.dir, lT) , 'r') as fl:
-        lines = fl.readlines()
-    for i in range(3,len(lines)-1):
-        Ux = float(lines[i].split(' ')[0].replace('(',''))*float(Ucorr[0])/float(Usouc[0])#*pOut/(pOut+dp)
-        Uy = float(lines[i].split(' ')[1])*float(Ucorr[1])/float(Usouc[1])*pOut/(pOut+dp)*0
-        Uz = float(lines[i].split(' ')[2].replace(')\n',''))*float(Ucorr[2])/float(Usouc[2])*pOut/(pOut+dp)*0
-        # Ux = float(lines[i].split(' ')[0].replace('(',''))#*float(Ucorr[0])/float(Usouc[0])#*pOut/(pOut+dp)
-        # Uy = float(lines[i].split(' ')[1])
-        # Uz = float(lines[i].split(' ')[2].replace(')\n',''))
-        lines[i] = '(%.15g %.15g %.15g)\n'%(Ux,Uy, Uz)
-    with open ('%s/constant/boundaryData/inlet/%d/U' % (case.dir, lT) , 'w') as fl:
-        for i in range(len(lines)):
-            fl.writelines(lines[i])
+
+    # for field in scalarfields:
+    #     with open('%s/%d/%s' % (case.dir, lT, field), 'r') as fl:
+    #         lineBC = fl.readlines()
+    #     indInlet = -1
+    #     indZavorka = -1
+    #     uz = 0
+    #     for i in range(len(lineBC)):
+    #         if 'inlet' in lineBC[i]:
+    #             indInlet = i
+    #             uz = 1
+    #         if uz == 1 and '}' in lineBC[i]:
+    #             if sim == 0:
+    #                 indZavorka = i
+    #                 uz = 0
+    #             else:
+    #                 uz = 2
+    #         elif uz == 2 and '}' in lineBC[i]:
+    #             if sim != 0:
+    #                 indZavorka = i
+    #             uz = 0
+    #     newBC = []
+    #     print('inlet at', indInlet,indZavorka)
+    #     for i in range(indInlet+2):
+    #         newBC.append(lineBC[i])
+    #     newBC.append("\t\t\t\ntype\ttimeVaryingMappedFixedValue;\t\t\t\noffset 0;\t\t\t\nsetAverage off;\t\t\t\nmapMethod nearest;\n")
+    #     for i in range(indZavorka,len(lineBC)):
+    #         newBC.append(lineBC[i])
+    #     with open('%s/%d/%s' % (case.dir, lT,field), 'w') as fl:
+    #         for i in range(len(newBC)):
+    #             fl.writelines(newBC[i])
+        
+    # for field in vectorfields:
+    #     with open('%s/%d/%s' % (case.dir, lT, field), 'r') as fl:
+    #         lineBC = fl.readlines()
+    #     indInlet = -1
+    #     indZavorka = -1
+    #     uz = 0
+    #     for i in range(len(lineBC)):
+    #         if 'inlet' in lineBC[i] and uz == 0:
+    #             indInlet = i
+    #             uz = 1
+    #         if uz == 1 and '}' in lineBC[i]:
+    #             if sim == 0:
+    #                 indZavorka = i
+    #                 uz = 3
+    #             else:
+    #                 uz = 2
+    #         elif uz == 2 and '}' in lineBC[i]:
+    #             if sim != 0:
+    #                 indZavorka = i
+    #             uz = 3
+    #     print('inlet at', indInlet,indZavorka)
+    #     newBC = []
+    #     for i in range(indInlet+2):
+    #         newBC.append(lineBC[i])
+    #     newBC.append("\t\t\t\ntype\ttimeVaryingMappedFixedValue;\t\t\t\noffset (0 0 0);\t\t\t\nsetAverage off;\t\t\t\nmapMethod nearest;\n")
+    #     for i in range(indZavorka,len(lineBC)):
+    #         newBC.append(lineBC[i])
+    #     with open('%s/%d/%s' % (case.dir, lT, field), 'w') as fl:
+    #         for i in range(len(newBC)):
+    #             fl.writelines(newBC[i])
+
+
+
+    # for field in scalarfields:
+    #     # with open('%s/%d/%s' % (case.dir, lT, field), 'r') as fl:
+    #     with open('%s/0/%s' % (case.dir, field), 'r') as fl:
+    #         lineBC = fl.readlines()
+    #     indInlet = -1
+    #     indZavorka = -1
+    #     uz = 0
+    #     for i in range(len(lineBC)):
+    #         if 'inlet' in lineBC[i]:
+    #             indInlet = i
+    #             uz = 1
+    #         if uz == 1 and '}' in lineBC[i]:
+    #             # if sim == 0:
+    #             indZavorka = i
+    #             uz = 0
+    #             # else:
+    #             #     uz = 2
+    #         elif uz == 2 and '}' in lineBC[i]:
+    #             # if sim != 0:
+    #             #     indZavorka = i
+    #             uz = 0
+    #     newBC = []
+    #     print('inlet at', indInlet,indZavorka)
+    #     for i in range(indInlet+2):
+    #         newBC.append(lineBC[i])
+    #     newBC.append("\t\t\t\ntype\ttimeVaryingMappedFixedValue;\t\t\t\noffset 0;\t\t\t\nsetAverage off;\t\t\t\nmapMethod nearest;\n")
+    #     for i in range(indZavorka,len(lineBC)):
+    #         newBC.append(lineBC[i])
+    #     with open('%s/%d/%s' % (case.dir, lT,field), 'w') as fl:
+    #         for i in range(len(newBC)):
+    #             fl.writelines(newBC[i])
+        
+    #     # case.replace(
+    #     #     [
+    #     #         ['%s/%d/%s' % (case.dir, lT,field), ['HODNOTA'], ['%.6g' % ]]
+    #     #     ]
+    #     # )
+        
+    # for field in vectorfields:
+    #     with open('%s/0/%s' % (case.dir, field), 'r') as fl:
+    #         lineBC = fl.readlines()
+    #     indInlet = -1
+    #     indZavorka = -1
+    #     uz = 0
+    #     for i in range(len(lineBC)):
+    #         if 'inlet' in lineBC[i] and uz == 0:
+    #             indInlet = i
+    #             uz = 1
+    #         if uz == 1 and '}' in lineBC[i]:
+    #             # if sim == 0:
+    #             indZavorka = i
+    #             uz = 3
+    #             # else:
+    #             #     uz = 2
+    #         elif uz == 2 and '}' in lineBC[i]:
+    #             # if sim != 0:
+    #             #     indZavorka = i
+    #             uz = 3
+    #     print('inlet at', indInlet,indZavorka)
+    #     newBC = []
+    #     for i in range(indInlet+2):
+    #         newBC.append(lineBC[i])
+    #     newBC.append("\t\t\t\ntype\ttimeVaryingMappedFixedValue;\t\t\t\noffset (0 0 0);\t\t\t\nsetAverage off;\t\t\t\nmapMethod nearest;\n")
+    #     for i in range(indZavorka,len(lineBC)):
+    #         newBC.append(lineBC[i])
+    #     with open('%s/%d/%s' % (case.dir, lT, field), 'w') as fl:
+    #         for i in range(len(newBC)):
+    #             fl.writelines(newBC[i])
+
+    # with open ('%s/constant/boundaryData/inlet/%d/U' % (case.dir, lT) , 'r') as fl:
+    #     lines = fl.readlines()
+    # for i in range(3,len(lines)-1):
+    #     Ux = float(lines[i].split(' ')[0].replace('(',''))*float(Ucorr[0])/float(Usouc[0])#*pOut/(pOut+dp)
+    #     Uy = float(lines[i].split(' ')[1])*float(Ucorr[1])/float(Usouc[1])*pOut/(pOut+dp)*0
+    #     Uz = float(lines[i].split(' ')[2].replace(')\n',''))*float(Ucorr[2])/float(Usouc[2])*pOut/(pOut+dp)*0
+    #     # Ux = float(lines[i].split(' ')[0].replace('(',''))#*float(Ucorr[0])/float(Usouc[0])#*pOut/(pOut+dp)
+    #     # Uy = float(lines[i].split(' ')[1])
+    #     # Uz = float(lines[i].split(' ')[2].replace(')\n',''))
+    #     lines[i] = '(%.15g %.15g %.15g)\n'%(Ux,Uy, Uz)
+    # with open ('%s/constant/boundaryData/inlet/%d/U' % (case.dir, lT) , 'w') as fl:
+    #     for i in range(len(lines)):
+    #         fl.writelines(lines[i])
 
     case.runCommands([ 'decomposePar -latestTime -fields > log.decompose%d' % (sim) ])
     case.setParameters([
