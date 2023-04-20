@@ -3,7 +3,7 @@ sumWithoutRef = 0 * sumWithoutRef;
 
 // -- calculate the diffusive flux
 // -- update sum of the diffusive velocity for boundary condition (all but the reference)
-volVectorField UD2 = UD;
+// volVectorField UD2 = UD;
 UD = UD * 0;
 
 // -- solve the concentration equation for all but one chemical species
@@ -126,10 +126,10 @@ forAll(specieNames,lstI)
         // UD = UD / currSpMass * molMList[lstI].value();
         UD.correctBoundaryConditions();
     }
-    // forAll(currSpMass,cellI)
-    // { 
-    //     currSpMass[cellI] = max(min(currSpMass[cellI],1),0); 
-    // }
+    forAll(currSpMass,cellI)
+    { 
+        currSpMass[cellI] = max(min(currSpMass[cellI],1-SMALL),SMALL); 
+    }
 }
 
 // volScalarField MgOld = Mg;
