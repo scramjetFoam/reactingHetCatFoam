@@ -1,0 +1,134 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  10
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     1.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField	uniform	(0 0 0.0);
+
+boundaryField
+{
+    inletY
+    {
+        // type    fixedValue;
+	    // value	uniform (0.000 0 0.0);
+        // type            zeroGradient;
+        type            codedMixed;
+        refValue        uniform (0 0 0);
+        refGradient     uniform (0 0 0);
+        valueFraction   uniform 1;
+        value           uniform (0 0 0);
+        name            UfixedVal;
+        code            #{
+            vector UC = vector(0.0, 0.0, 0.0);
+            // dimensionedScalar MgC("MgC", dimMass/dimMoles, 0.039729);
+
+            const fvPatch& boundaryPatch = patch();
+            const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
+            const fvMesh& mesh = boundaryMesh.mesh();
+            const scalarField& delta = patch().deltaCoeffs();
+
+            volVectorField UD = (mesh.lookupObject<volVectorField>("UD"));
+
+            this->refValue()= UC + UD.boundaryField()[patch().index()];
+        #};
+
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude \
+            -I$(LIB_SRC)/sampling/lnInclude
+        #};
+    }
+
+    // "(inletX|inletZ|outletX|outletZ)"
+    "(walls|inletX|inletZ|outletX|outletZ)"
+    {
+        // type            zeroGradient;
+        type            noSlip;
+    }
+
+    "(outletY)"
+    {
+        // type            codedMixed;
+        // refValue        uniform (0 0 0);
+        // refGradient     uniform (0 0 0);
+        // valueFraction   uniform 0;
+        // value           uniform (0 0 0);
+        // name            UZerGrad;
+        // code            #{
+        //     const fvPatch& boundaryPatch = patch();
+        //     const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
+        //     const fvMesh& mesh = boundaryMesh.mesh();
+        //     const scalarField& delta = patch().deltaCoeffs();
+
+        //     volVectorField UD = (mesh.lookupObject<volVectorField>("UD"));
+        //     surfaceVectorField UDSNGrad = fvc::snGrad(UD);
+        //     this->refGrad() = UDSNGrad.boundaryField()[patch().index()];
+        // #};
+
+        // codeInclude
+        // #{
+        //     #include "fvCFD.H"
+        // #};
+
+        // codeOptions
+        // #{
+        //     -I$(LIB_SRC)/finiteVolume/lnInclude \
+        //     -I$(LIB_SRC)/meshTools/lnInclude \
+        //     -I$(LIB_SRC)/sampling/lnInclude
+        // #};
+        type            codedMixed;
+        refValue        uniform (0 0 0);
+        refGradient     uniform (0 0 0);
+        valueFraction   uniform 1;
+        value           uniform (0 0 0);
+        name            UfixedVal2;
+        code            #{
+            vector UC = vector(0.0, 0.0, 0.0);
+            // dimensionedScalar MgC("MgC", dimMass/dimMoles, 0.039729);
+
+            const fvPatch& boundaryPatch = patch();
+            const fvBoundaryMesh& boundaryMesh = boundaryPatch.boundaryMesh();
+            const fvMesh& mesh = boundaryMesh.mesh();
+            const scalarField& delta = patch().deltaCoeffs();
+
+            volVectorField UD = (mesh.lookupObject<volVectorField>("UD"));
+
+            this->refValue()= UC + UD.boundaryField()[patch().index()];
+        #};
+
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude \
+            -I$(LIB_SRC)/sampling/lnInclude
+        #};
+    }
+}
+
+
+// ************************************************************************* //
