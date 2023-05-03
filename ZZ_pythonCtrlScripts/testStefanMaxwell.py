@@ -88,6 +88,11 @@ axis[0].plot(sol.t, sol.y[1,:], 'g', label='yMeth(z)')
 axis[0].plot(sol.t, 1-sol.y[0,:]-sol.y[1,:], 'r', label='yN2(z)')
 axis[0].set_xlabel('z')
 
+with open('/home/tomas/01_materials/00_myMats/2301_STC/vzor_LaTeX/02_graphs/stefMax/anal.dat','w') as f:
+    f.writelines('z\tac\tmet\tN2\n')
+    for i in range(len(sol.t)):
+        f.writelines('%g\t%g\t%g\t%g\n'%(sol.t[i],sol.y[0,i],sol.y[1,i],1-sol.y[0,i]-sol.y[1,i]))
+
 
 # # openfoam reseni
 baseCaseDir = '../tutorials/untested/massStefTubeVSM/'
@@ -117,6 +122,11 @@ axis[0].plot(dataOF[:,0],dataOF[:,1],"b--",label='yAcOFSM')
 axis[0].plot(dataOF[:,0],dataOF[:,3],"r--",label='yN2OFSM')
 print(wIn)
 print(MgIn)
+
+with open('/home/tomas/01_materials/00_myMats/2301_STC/vzor_LaTeX/02_graphs/stefMax/OFSM.dat','w') as f:
+    f.writelines('z\tac\tmet\tN2\n')
+    for i in range(len(dataOF[:,0])):
+        f.writelines('%g\t%g\t%g\t%g\n'%(dataOF[i,0],dataOF[i,1],dataOF[i,2],dataOF[i,3]))
 
 # openfoam reseni
 baseCaseDir = '../tutorials/untested/massStefTubeV1/'
@@ -157,70 +167,77 @@ axis[0].set_ylim((0,1))
 axis[0].grid()
 axis[0].legend(loc='best')
 
-# openfoam reseni
-baseCaseDir = '../ZZ_cases/SM1Test'
-outFolder = '../ZZ_cases/SMTest2'
+with open('/home/tomas/01_materials/00_myMats/2301_STC/vzor_LaTeX/02_graphs/stefMax/OFF.dat','w') as f:
+    f.writelines('z\tac\tmet\tN2\n')
+    for i in range(len(dataOF[:,0])):
+        f.writelines('%g\t%g\t%g\t%g\n'%(dataOF[i,0],dataOF[i,1],dataOF[i,2],dataOF[i,3]))
 
-case = OpenFOAMCase()
-case.loadOFCaseFromBaseCase(baseCaseDir)
-case.changeOFCaseDir(outFolder)
-case.copyBaseCase()
 
-case.runCommands(
-    [
-        # './Allclean',
-        # './Allrun',
-        'reactingHetCatSimpleFoamMSM',
-        'postProcess -func graphUniform',
-    ]
-)
-
-# dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/800/line.xy')
-dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
-# dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
-
-axis[1].plot(dataOF[:,0],dataOF[:,2],"g--",label='yH2OFSM')
-axis[1].plot(dataOF[:,0],dataOF[:,1],"b--",label='yCOOFSM')
-axis[1].plot(dataOF[:,0],dataOF[:,3],"r--",label='yN2OFSM')
 
 # openfoam reseni
-baseCaseDir = '../ZZ_cases/F1Test/'
-outFolder = '../ZZ_cases/F1Test2'
+# baseCaseDir = '../ZZ_cases/SM1Test'
+# outFolder = '../ZZ_cases/SMTest2'
 
-case = OpenFOAMCase()
-case.loadOFCaseFromBaseCase(baseCaseDir)
-case.changeOFCaseDir(outFolder)
-case.copyBaseCase()
+# case = OpenFOAMCase()
+# case.loadOFCaseFromBaseCase(baseCaseDir)
+# case.changeOFCaseDir(outFolder)
+# case.copyBaseCase()
 
-case.runCommands(
-    [
-        # './Allclean',
-        # './Allrun',
-        'reactingHetCatSimpleFoamM',
-        'postProcess -func graphUniform',
-    ]
-)
+# case.runCommands(
+#     [
+#         # './Allclean',
+#         # './Allrun',
+#         'reactingHetCatSimpleFoamMSM > log.reac1',
+#         'postProcess -func graphUniform',
+#     ]
+# )
 
+# # dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/800/line.xy')
 # dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
-dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
-# dataOF = np.genfromtxt('../ZZ_cases/data/lineSMMatMult.xy')
-# dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
+# # dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
 
-axis[1].plot(dataOF[:,0],dataOF[:,2],"g:",label='yH2OFF')
-axis[1].plot(dataOF[:,0],dataOF[:,1],"b:",label='yCOOFF')
-axis[1].plot(dataOF[:,0],dataOF[:,3],"r:",label='yN2OFF')
+# axis[1].plot(dataOF[:,0],dataOF[:,2],"g--",label='yH2OFSM')
+# axis[1].plot(dataOF[:,0],dataOF[:,1],"b--",label='yCOOFSM')
+# axis[1].plot(dataOF[:,0],dataOF[:,3],"r--",label='yN2OFSM')
 
-# experimental data
-# data = np.loadtxt("../ZZ_cases/data/myData.dat", delimiter="\t", skiprows=1)
-# data = np.genfromtxt('../ZZ_cases/data/myData.dat', delimiter='\t')
-# axis[1].plot(data[:,7],data[:,8],"or",label='yN2Exp')
-# axis[1].plot(data[:,9],data[:,10],"og",label='yMethExp')
-# axis[1].plot(data[:,11],data[:,12],"ob",label='yAcExp')
+# # openfoam reseni
+# baseCaseDir = '../ZZ_cases/F1Test/'
+# outFolder = '../ZZ_cases/F1Test2'
 
-axis[1].set_xlim((0,0.238))
-axis[1].set_ylim((0,1))
-axis[1].grid()
-axis[1].legend(loc='best')
+# case = OpenFOAMCase()
+# case.loadOFCaseFromBaseCase(baseCaseDir)
+# case.changeOFCaseDir(outFolder)
+# case.copyBaseCase()
+
+# case.runCommands(
+#     [
+#         # './Allclean',
+#         # './Allrun',
+#         'reactingHetCatSimpleFoamM > log.reac1',
+#         'postProcess -func graphUniform',
+#     ]
+# )
+
+# # dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
+# dataOF = np.genfromtxt(case.dir + '/postProcessing/graphUniform/400/line.xy')
+# # dataOF = np.genfromtxt('../ZZ_cases/data/lineSMMatMult.xy')
+# # dataOF = np.genfromtxt(case.dir + 'postProcessing/graphUniform/400/line.xy', delimiter='\t')
+
+# axis[1].plot(dataOF[:,0],dataOF[:,2],"g:",label='yH2OFF')
+# axis[1].plot(dataOF[:,0],dataOF[:,1],"b:",label='yCOOFF')
+# axis[1].plot(dataOF[:,0],dataOF[:,3],"r:",label='yN2OFF')
+
+# # experimental data
+# # data = np.loadtxt("../ZZ_cases/data/myData.dat", delimiter="\t", skiprows=1)
+# # data = np.genfromtxt('../ZZ_cases/data/myData.dat', delimiter='\t')
+# # axis[1].plot(data[:,7],data[:,8],"or",label='yN2Exp')
+# # axis[1].plot(data[:,9],data[:,10],"og",label='yMethExp')
+# # axis[1].plot(data[:,11],data[:,12],"ob",label='yAcExp')
+
+# axis[1].set_xlim((0,0.238))
+# axis[1].set_ylim((0,1))
+# axis[1].grid()
+# axis[1].legend(loc='best')
 
 
 
