@@ -47,10 +47,21 @@ baseCaseDir = '../tutorials/tested/baseCaseMassRash'
 # baseCaseDir = '../ZZ_cases/testRashV1'
 # baseCaseDir = '../ZZ_cases/testRashV4'
 baseCaseDir = '../ZZ_cases/V2meshV1'
+# baseCaseDir = '../ZZ_cases/V2meshV1_reform'
+# baseCaseDir = '../ZZ_cases/V2meshV1_vagon'
 outFolder = '../ZZ_cases/V2meshV3_moreIt'
 outFolder = '../ZZ_cases/V2meshV4_testNewRepl'
 outFolder = '../ZZ_cases/V2meshV5_EqRelaxUpdate'
 outFolder = '../ZZ_cases/V2meshV6_highHTcoeff'
+outFolder = '../ZZ_cases/V2meshV7_highHTcoeffHK'
+outFolder = '../ZZ_cases/V2meshV8_6but'
+outFolder = '../ZZ_cases/V2meshV9_8DiffKin'
+outFolder = '../ZZ_cases/V2meshV11_moreIter'
+outFolder = '../ZZ_cases/V2meshV12_betterNumerics'
+outFolder = '../ZZ_cases/V2meshV13_noInialGuess'
+
+# outFolder = '../ZZ_cases/V2reformV1'
+# outFolder = '../ZZ_cases/V2vagonV1'
 # outFolder = '../ZZ_cases/testRashV5'
 # outFolder = '../ZZ_cases/testRashV6'
 # outFolder = '../ZZ_cases/testRashV7'
@@ -95,6 +106,7 @@ EA1 = 4.53e4        # activation energy 1
 EA2 = 5.19e4        # activation energy 2
 KEq = 0.2
 cCuCl = 0.34
+cCuCl = 0.4
 
 # -- geometry generation parameters
 nCellsBetweenLevels = 5 # 4
@@ -112,26 +124,28 @@ kappa = 5
 # -- numerics and computing
 nConc = 0
 nTemp = 0
-nBoth = 5
+nBoth = 1
 nProc = 16
-eqTRelx = "0.9999"
+eqTRelx = "0.9998"
 # endTime = 3000
-endTime = 250  
+endTime = 250 
 # endTime = 10
 # wrInt = 3000
 wrInt = 250
 divScheme = 'bounded Gauss SFCD'
-# divScheme = 'bounded Gauss upwind phi'
+# divScheme = 'bounded Gauss upwind'
+# divScheme = 'bounded Gauss linearUpwind grad(U);'
 
 # -- parameters for the whole reactor
-N = 32
+N = 33
 Nzacatek = 0
 fields = "'(T U p %s)'" % namesStr[:-1]
 
 # -- update of the kinetics during the whole reactor simulation
-whenChange = [0,7,22, 26]
+whenChange = [0, 7, 22, 26]
+whenChange = [0, 7, 26]
 howMuch = [1, 1.36, 1.67, 1.81]
-howMuch = [1, 1.11, 1.67, 1.81]
+howMuch = [1, 1.2, 1.9]
 
 # ---------------------------------------------------------------------------------------------------------------------
 # -- set the parameters
@@ -157,11 +171,11 @@ if not meshDone:
     ] )
 
 # 2) geometry genereation parameters
-    case.setParameters( [
-        [ 'system/snappyHexMeshDict', 'nCellsBetweenLevels', '%d' % nCellsBetweenLevels, '' ],
-        [ 'system/snappyHexMeshDict', 'level', rashLvl, 'rashigs' ],
-        [ 'system/snappyHexMeshDict', 'level', cylLvl, 'cylinder' ],
-    ] )
+    # case.setParameters( [
+        # [ 'system/snappyHexMeshDict', 'nCellsBetweenLevels', '%d' % nCellsBetweenLevels, '' ],
+        # [ 'system/snappyHexMeshDict', 'level', rashLvl, 'rashigs' ],
+        # [ 'system/snappyHexMeshDict', 'level', cylLvl, 'cylinder' ],
+    # ] )
     case.replace (  [ 
         [ 'system/blockMeshDict', [ 'nX', 'nY'], [ '%d' % nX, '%d' % nY ] ]
     ] )
@@ -298,6 +312,11 @@ for sim in range(Nzacatek,N):
     case.updateTimes()
     lT = case.latestTime
     print('Result in %d folder' % lT)
+    # case.runCommands([
+    #     'cp -r 0 %d' % (lT+1)
+    # ])
+    # case.updateTimes()
+    lT = case.latestTime
     if sim == 0:
         case.runCommands([
             'mkdir constant/boundaryData',
