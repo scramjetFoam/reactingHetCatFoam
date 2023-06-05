@@ -53,7 +53,7 @@ tutorials/Matyas_old/channelCaseConstructor2D/testTomas/**
 *processor*
 
 !tutorials/verification/flowAroundSphere/baseCase/system/residuals
-
+applications/rho*
 
 tutorials/Matyas_old/caseConstructor/ZZ_cases/test/**
 tutorials/untested/rash*
