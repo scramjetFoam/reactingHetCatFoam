@@ -33,7 +33,7 @@ reactProps
     // -- CO oxidation
     reaction00{
         kinSetupSwitch 1;                       // -- special kinetics for CO oxidation
-        k0  k0  [0 -3 -1 0 1 0 0]   7.84e16;
+        k0  k0  [0 -3 -1 0 1 0 0]   7.84e18;
         sHr sHr [1 2 -2 0 -1 0 0]   -283e3;	
         EA	EA	[1  2 -2 0 -1 0 0]  90000.0;
         kin	kin	[0 0 0 0 0 0 0]		80;

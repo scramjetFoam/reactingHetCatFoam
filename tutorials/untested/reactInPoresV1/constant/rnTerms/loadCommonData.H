@@ -71,6 +71,7 @@ labelList activeReacts
 
 // -- load the general environment properties
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//gas constant
+dimensionedScalar atm("atm", dimPressure, 101325);//gas constant    //atmospheric pressure
 
 // -- reference molar mass 
 scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
@@ -78,10 +79,11 @@ dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
 
 // -- load temperature and pressure fields
 const volScalarField& T = mesh().lookupObject<volScalarField>("T"); 
-const volScalarField& Trho = mesh().lookupObject<volScalarField>("thermo:rho"); 
+const volScalarField& p = mesh().lookupObject<volScalarField>("p");  
+const volScalarField& rhoTu = mesh().lookupObject<volScalarField>("rho");  
 
 // -- calculate the total concentration
-volScalarField cTot(Trho/molMRef);
+volScalarField cTot(p/T/univR);
 
 // load data for clipping the gradients (problem with potential infinite values)
 scalar  clipGradMin(readScalar(reactiveProperties.subDict("reactProps").subDict("numProps").lookup("clipGradMin")));

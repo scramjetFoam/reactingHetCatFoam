@@ -13,7 +13,100 @@ FoamFile
     location    "constant";
     object      fvModels;
 }
+reactionSourceCOMassIW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceCOMassIW;
+    selectionMode   all;
 
+    field 		        COMass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{        
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("CO");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
+
+reactionSourceO2IW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceO2IW;
+    selectionMode   all;
+
+    field 		        O2Mass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{            
+        #include "../../constant/rnTerms/loadCommonData.H"      
+        
+        word currSpName("O2");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                 
+    #};
+}
+
+reactionSourceCO2IW
+{
+    type            coded;
+    active          yes;
+    name	        reactionSourceCO2IW;
+    selectionMode   all;
+
+    field 		        CO2Mass;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{            
+        #include "../../constant/rnTerms/loadCommonData.H"         
+        
+        word currSpName("CO2");
+        
+        #include "../../constant/rnTerms/r_powerLawV3.H"                  //load reaction source
+    #};
+}
+
+enthalpySourceINWALL
+{
+    type            coded;	
+    active          yes;
+    name	        enthalpySourceINWALL;
+    selectionMode   all;
+
+    field 		        "T";
+    
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeAddRhoSup
+    #{            
+        #include "../../constant/rnTerms/loadCommonData.H"     
+                    
+        #include "../../constant/rnTerms/compEnthV2.H"                 
+    #};
+}
 // reactionSourceEthyleneIW
 // {
 //     type            coded;
