@@ -130,6 +130,7 @@ forAll(specieNames,lstI)
     { 
         currSpMass[cellI] = max(min(currSpMass[cellI],1-SMALL),SMALL); 
     }
+    currSpMass.correctBoundaryConditions();
 }
 
 // volScalarField MgOld = Mg;
