@@ -95,6 +95,15 @@ int main(int argc, char *argv[])
                 // #include "concEqMass.H"
             }
 
+            scalar nElconc(readScalar(simple.dict().lookup("nElCorrectors")));
+            for (label concIt = 0; concIt < nItconc; concIt++)
+            { 
+                Info << "\nSolving electrochemical transport "<< concIt+1 << "/" << nItconc << endl;
+                // #include "concEq.H"
+                #include "elEqn.H"
+                // #include "concEqMass.H"
+            }
+
             scalar nItTemp(readScalar(simple.dict().lookup("nTempCorrectors")));
 
             for (label concT=0; concT < nItTemp; concT++)

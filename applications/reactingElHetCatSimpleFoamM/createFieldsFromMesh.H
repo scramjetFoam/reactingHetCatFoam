@@ -174,6 +174,21 @@ volVectorField U
     mesh
 );
 
+// -- reading field electorchemical potential
+Info<< "Reading field elPhi\n" << endl;
+volScalarField elPhi
+(
+    IOobject
+    (
+        "elPhi",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
 // -- T field for porousMedia from mesh
 // Info<< "Reading field TSolid\n" << endl;
 // volScalarField TSolid

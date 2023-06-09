@@ -92,6 +92,7 @@ PtrList<dimensionedScalar> eps(zoneNames.size());		// list of porosities
 PtrList<dimensionedScalar> tort(zoneNames.size());		// list of tortuosities 
 PtrList<dimensionedScalar> kappaZ(zoneNames.size());		// list of effective heat conduitivities 
 PtrList<dimensionedScalar> dp(zoneNames.size());		// list of pore diameter
+PtrList<dimensionedScalar> sigmaSc(zoneNames.size());		// list of pore diameter
 forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
@@ -110,6 +111,10 @@ forAll(zoneNames,countI)
     dp.set
     (
         countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("dP"))
+    );
+    sigmaSc.set
+    (
+        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("sigmaSc"))
     );
 }
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//R constant
