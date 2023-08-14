@@ -48,28 +48,44 @@ volScalarField sumZones
 ); 
 
 // -- prepare the effective electrochemical diffusive coefficient
-volScalarField sigmaEff
+volScalarField sigmaEffEl
 (
     IOobject
     (
-        "sigmaEff",
+        "sigmaEffEl",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
         writeOption1
     ),
     mesh,
-    dimensionedScalar("sigmaEff",sigmaSc[0].dimensions(),0.0),
+    dimensionedScalar("sigmaEffEl",sigmaScInfEl[0].dimensions(),0.0),
     "zeroGradient"
 );
-sigmaEff.correctBoundaryConditions();
+sigmaEffEl.correctBoundaryConditions();
+
+// -- prepare the effective electrochemical diffusive coefficient
+volScalarField sigmaEffIon
+(
+    IOobject
+    (
+        "sigmaEffIon",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        writeOption1
+    ),
+    mesh,
+    dimensionedScalar("sigmaEffIon",sigmaScInfIon[0].dimensions(),0.0),
+    "zeroGradient"
+);
+sigmaEffIon.correctBoundaryConditions();
 
 
 forAll(zoneLst,countI)
 {
     sumZones += zoneLst[countI];
     epsEff += zoneLst[countI]*(eps[countI]);
-    sigmaEff += zoneLst[countI]*sigmaSc[countI];
 }
 volScalarField freeChannel = dimensionedScalar("jedna",dimless,1.0)-sumZones;
 epsEff += freeChannel;

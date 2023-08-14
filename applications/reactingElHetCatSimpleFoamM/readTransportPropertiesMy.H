@@ -92,7 +92,10 @@ PtrList<dimensionedScalar> eps(zoneNames.size());		// list of porosities
 PtrList<dimensionedScalar> tort(zoneNames.size());		// list of tortuosities 
 PtrList<dimensionedScalar> kappaZ(zoneNames.size());		// list of effective heat conduitivities 
 PtrList<dimensionedScalar> dp(zoneNames.size());		// list of pore diameter
-PtrList<dimensionedScalar> sigmaSc(zoneNames.size());		// list of pore diameter
+PtrList<dimensionedScalar> sigmaScInfEl(zoneNames.size());		// list of pore diameter
+PtrList<dimensionedScalar> sigmaScEAEl(zoneNames.size());		// list of pore diameter
+PtrList<dimensionedScalar> sigmaScInfIon(zoneNames.size());		// list of pore diameter
+PtrList<dimensionedScalar> sigmaScEAIon(zoneNames.size());		// list of pore diameter
 forAll(zoneNames,countI)
 {
     word currentZone = zoneNames[countI];
@@ -112,9 +115,21 @@ forAll(zoneNames,countI)
     (
         countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("dP"))
     );
-    sigmaSc.set
+    sigmaScInfEl.set
     (
-        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("sigmaSc"))
+        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("sigmaScInfEl"))
+    );
+    sigmaScEAEl.set
+    (
+        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("sigmaScEAEl"))
+    );
+    sigmaScInfIon.set
+    (
+        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("sigmaScInfIon"))
+    );
+    sigmaScEAIon.set
+    (
+        countI, new dimensionedScalar(transportProperties.subDict(currentZone).lookup("sigmaScEAIon"))
     );
 }
 dimensionedScalar univR(transportProperties.subDict("genProps").lookup("univR"));//R constant
@@ -145,3 +160,9 @@ forAll(specieNames,lstI)
 scalar molMR(readScalar(thermophysicalProperties.subDict("mixture").subDict("specie").lookup("molWeight")));
 dimensionedScalar molMRef("molMRef",dimMass/dimMoles,molMR*1e-3);
         
+// Info<< "Reading diffusivity DT\n" << endl;
+
+// dimensionedScalar DT
+// (
+//     transportProperties.lookup("DT")
+// );

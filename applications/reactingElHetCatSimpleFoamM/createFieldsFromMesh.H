@@ -174,6 +174,7 @@ volVectorField U
     mesh
 );
 
+
 // -- reading field electorchemical potential
 Info<< "Reading field elPhi\n" << endl;
 volScalarField elPhi
@@ -181,6 +182,21 @@ volScalarField elPhi
     IOobject
     (
         "elPhi",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+// -- reading field electorchemical potential
+Info<< "Reading field elIon\n" << endl;
+volScalarField elIon
+(
+    IOobject
+    (
+        "elIon",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,

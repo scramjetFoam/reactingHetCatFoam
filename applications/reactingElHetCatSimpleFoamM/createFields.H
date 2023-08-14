@@ -59,6 +59,20 @@ volScalarField dummyEEqn
     dimensionedScalar ("dummyEEqn",dimMass/dimLength*Foam::pow(dimTime,-2)/dimTemperature,1.0)
 );
 
+volScalarField dummyElEqn
+(
+    IOobject
+    (
+        "dummyElEqn",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar ("dummyElEqn",dimensionSet(-1,-5,-2,0,0,2,0),1.0)
+);
+
 Info<< "Reading thermophysical properties\n" << endl;
 
 autoPtr<fluidThermo> pThermo
@@ -144,3 +158,17 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 
 
 
+// -- reading field divM
+Info<< "Creating divM\n" << endl;
+volScalarField divM
+(
+    IOobject
+    (
+        "divM",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    fvc::div(phi)
+);
